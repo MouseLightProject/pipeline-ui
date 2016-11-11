@@ -1,1 +1,1 @@
-# acq-dashboard-pipeline-client
+# acq-dashboard-worker-client

@@ -1,0 +1,17 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "jsx": "react",
+    "sourceMap": true
+  },
+  "include": [
+    "declaration.d.ts",
+    "src/**/*",
+    "server.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
