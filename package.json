@@ -14,6 +14,7 @@
     "@types/chai": "^3.4.34",
     "@types/express-serve-static-core": "^4.0.37",
     "@types/isomorphic-fetch": "0.0.31",
+    "@types/moment": "^2.13.0",
     "@types/react": "^0.14.41",
     "@types/react-bootstrap": "0.0.33",
     "@types/react-dom": "^0.14.17",

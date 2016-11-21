@@ -1,6 +1,5 @@
 import * as React from "react";
-import {graphql} from "react-apollo";
-import gql from "graphql-tag";
+
 import {
     Grid,
     Row,
@@ -9,7 +8,6 @@ import {
     Button,
     DropdownButton,
     MenuItem,
-    Form,
     FormGroup,
     ControlLabel,
     FormControl
@@ -34,7 +32,7 @@ class StartTaskMenu extends React.Component<any, any> {
 
         return (
             <div>
-                <DropdownButton id="task-definition-dropdown" title={title} onSelect={this.handleChange}>
+                <DropdownButton bsSize="sm" id="task-definition-dropdown" title={title} onSelect={this.handleChange}>
                     {rows}
                 </DropdownButton>
             </div>
@@ -43,17 +41,12 @@ class StartTaskMenu extends React.Component<any, any> {
 }
 
 class StartTaskButton extends React.Component<any, any> {
-    onClick() {
-        this.props.mutate({variables: {taskDefinitionId: this.props.selectedTaskDefinitionId, scriptArgs: this.props.scriptArgs}})
-        .then(({data}) => {
-            console.log("got data", data);
-        }).catch((error) => {
-            console.log("there was an error sending the query", error);
-        });
-    }
+    onClick = () => {
+        this.props.startTask(this.props.selectedTaskDefinitionId, this.props.scriptArgs);
+    };
 
     render() {
-        return (<Button bsStyle="primary" onClick={this.onClick.bind(this)}>Start</Button>)
+        return (<Button bsStyle="primary" bsSize="sm" onClick={this.onClick}>Start</Button>)
     }
 }
 
@@ -65,17 +58,16 @@ interface IStartTaskComponentState {
 export class StartTaskComponent extends React.Component<any, IStartTaskComponentState> {
     constructor(props) {
         super(props);
-        this.onTaskSelectionChange = this.onTaskSelectionChange.bind(this);
         this.state = {selectedTaskDefinitionId: "", scriptArgs: [""]};
     }
 
-    public onTaskSelectionChange(selectedTaskId: any) {
+    onTaskSelectionChange = (selectedTaskId: any) => {
         this.setState({selectedTaskDefinitionId: selectedTaskId}, null);
-    }
+    };
 
     onTaskArgumentsChange = (event: any) => {
         this.setState({scriptArgs: [event.target.value]}, null);
-    }
+    };
 
     render() {
         if (this.state.selectedTaskDefinitionId === "" && this.props.taskDefinitions.length > 0) {
@@ -87,7 +79,7 @@ export class StartTaskComponent extends React.Component<any, IStartTaskComponent
                 <Grid fluid>
                     <Row>
                         <Col lg={2}>
-                            <FormGroup>
+                            <FormGroup bsSize="sm">
                                 <ControlLabel>Task</ControlLabel>
                                 <StartTaskMenu onTaskSelectionChange={this.onTaskSelectionChange}
                                                taskDefinitions={this.props.taskDefinitions}
@@ -95,29 +87,21 @@ export class StartTaskComponent extends React.Component<any, IStartTaskComponent
                             </FormGroup>
                         </Col>
                         <Col lg={10}>
-                            <FormGroup>
+                            <FormGroup bsSize="sm">
                                 <ControlLabel>Arguments</ControlLabel>
-                                <FormControl type="text" onChange={this.onTaskArgumentsChange} value={this.state.scriptArgs[0]}></FormControl>
+                                <FormControl type="text" onChange={this.onTaskArgumentsChange}
+                                             value={this.state.scriptArgs[0]}/>
                             </FormGroup>
                         </Col>
                     </Row>
                     <Row>
                         <Col lg={12}>
-                            <StartTaskButtonWithMutation
-                                selectedTaskDefinitionId={this.state.selectedTaskDefinitionId} scriptArgs={this.state.scriptArgs}/>
+                            <StartTaskButton selectedTaskDefinitionId={this.state.selectedTaskDefinitionId}
+                                             scriptArgs={this.state.scriptArgs}
+                                             startTask={this.props.startTask}/>
                         </Col>
                     </Row>
                 </Grid>
             </Panel>)
     }
 }
-
-const startTaskMutation = gql`
-  mutation StartTaskMutation($taskDefinitionId: String!, $scriptArgs: [String!]) {
-    startTask(taskDefinitionId:$taskDefinitionId, scriptArgs:$scriptArgs) {
-      id
-    }
-  }
-`;
-
-const StartTaskButtonWithMutation = graphql(startTaskMutation)(StartTaskButton);

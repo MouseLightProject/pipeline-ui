@@ -4,7 +4,7 @@ import * as ReactDOM from "react-dom";
 
 import {App} from "./App";
 
-declare var module: { hot: any };
+declare let module: { hot: any };
 
 const rootEl = document.getElementById("root");
 ReactDOM.render(

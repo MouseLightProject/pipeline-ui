@@ -3,7 +3,7 @@ import {PageHeader} from "react-bootstrap";
 
 import {
     TaskDefinitionsWithQuery,
-    WorkersWithQuery,
+    PipelineWorkersWithQuery,
     ProjectsWithQuery,
     PipelineStagesWithQuery
 } from "./GraphQLComponents";
@@ -20,7 +20,7 @@ export function Layout() {
             </PageHeader>
             <ProjectsWithQuery/>
             <PipelineStagesWithQuery/>
-            <WorkersWithQuery/>
+            <PipelineWorkersWithQuery/>
             <TaskDefinitionsWithQuery/>
         </div>
     )

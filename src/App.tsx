@@ -27,8 +27,8 @@ const client = new ApolloClient({
     networkInterface: networkInterface,
     queryTransformer: addTypename,
     dataIdFromObject: (result: any) => {
-        if (result.id && result.__typename) {
-            return result.__typename + result.id;
+        if (result.id ) {
+            return result.id;
         }
         return null;
     },

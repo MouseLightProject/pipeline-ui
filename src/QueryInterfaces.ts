@@ -3,7 +3,8 @@ export interface IProject {
     name: string;
     description: string;
     root_path: string;
-    sample_number: number;
+    sample_number: number,
+    is_active: boolean;
 }
 
 export interface IPipelineStage {
