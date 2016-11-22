@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Table, Checkbox, Glyphicon} from "react-bootstrap";
+import {Table, Checkbox, Glyphicon, Button} from "react-bootstrap";
 
 import {IProject} from "./QueryInterfaces";
 
@@ -11,26 +11,32 @@ interface IProjectRowProps {
 }
 
 class ProjectRow extends React.Component<IProjectRowProps, any> {
-    onActivate = (event: any) => {
-        this.props.updateStatusCallback(this.props.project.id, event.target.checked);
-    };
-
     onDelete = () => {
         this.props.deleteCallback(this.props.project.id);
     };
+
+    onActiveClick = () => {
+        this.props.updateStatusCallback(this.props.project.id, !this.props.project.is_active);
+    };
+
+    getActivateText = isActive => isActive ? "Stop" : "Start";
+
+    getActivateGlyph = isActive => isActive ? "stop" : "play";
+
+    getActivateStyle = isActive => isActive ? "info" : "success";
 
     render() {
         let project = this.props.project;
 
         return (
-            <tr key={"tr_" + project.id}>
-                <td>{project.id}</td>
+            <tr>
+                <td><Button bsSize="xsmall" bsStyle={this.getActivateStyle(project.is_active)} onClick={this.onActiveClick}><Glyphicon glyph={this.getActivateGlyph(project.is_active)} /> {this.getActivateText(project.is_active)}</Button></td>
+                <td>{project.root_path}</td>
                 <td>{project.sample_number}</td>
-                <td><Checkbox checked={project.is_active} onChange={this.onActivate}/></td>
                 <td>{project.name}</td>
                 <td>{project.description}</td>
-                <td>{project.root_path}</td>
-                <td><Glyphicon glyph="trash" onClick={this.onDelete}/></td>
+                <td>{project.id}</td>
+                <td><Button bsSize="xsmall" bsStyle="warning" onClick={this.onDelete}><Glyphicon glyph="trash" /> Remove</Button></td>
             </tr>);
     }
 }
@@ -44,20 +50,20 @@ interface IProjectTable {
 export class ProjectTable extends React.Component<IProjectTable, any> {
     render() {
         let rows = this.props.projects.map(project => (
-            <ProjectRow project={project} updateStatusCallback={this.props.updateStatusCallback}
+            <ProjectRow key={"tr_project_" + project.id} project={project} updateStatusCallback={this.props.updateStatusCallback}
                         deleteCallback={this.props.deleteCallback}/>));
 
         return (
-            <Table striped condensed>
+            <Table condensed>
                 <thead>
-                <tr>
-                    <td>ID</td>
-                    <td>Sample Number</td>
-                    <td>Active</td>
-                    <td>Name</td>
-                    <td>Description</td>
-                    <td>Root Path</td>
-                    <td></td>
+                <tr key="project_header">
+                    <th>Active</th>
+                    <th>Root Path</th>
+                    <th>Sample</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Id</th>
+                    <th/>
                 </tr>
                 </thead>
                 <tbody>

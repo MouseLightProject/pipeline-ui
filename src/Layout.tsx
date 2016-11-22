@@ -8,20 +8,31 @@ import {
     PipelineStagesWithQuery
 } from "./GraphQLComponents";
 
-export function Layout() {
-    let divStyle = {
-        margin: "20px"
+export class Layout extends React.Component<any, any> {
+    constructor(props) {
+        super(props);
+        this.state = {pipelineForProjectId: ""};
+    }
+
+    onPipelinesForProjectIdChanged = (id: string) => {
+        this.setState({pipelineForProjectId: id}, null);
     };
 
-    return (
-        <div style={divStyle}>
-            <PageHeader>Mouse Light Acquisition Dashboard
-                <small> Pipeline Server</small>
-            </PageHeader>
-            <ProjectsWithQuery/>
-            <PipelineStagesWithQuery/>
-            <PipelineWorkersWithQuery/>
-            <TaskDefinitionsWithQuery/>
-        </div>
-    )
+    render() {
+        let divStyle = {
+            margin: "20px"
+        };
+
+        return (
+            <div style={divStyle}>
+                <PageHeader>Mouse Light Acquisition Dashboard
+                    <small> Pipeline Server</small>
+                </PageHeader>
+                <ProjectsWithQuery/>
+                <PipelineStagesWithQuery pipelinesForProjectId={this.state.pipelineForProjectId} onPipelinesForProjectIdChanged={this.onPipelinesForProjectIdChanged}/>
+                <PipelineWorkersWithQuery/>
+                <TaskDefinitionsWithQuery/>
+            </div>
+        )
+    }
 }

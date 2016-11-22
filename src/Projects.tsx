@@ -3,7 +3,7 @@ import {Panel} from "react-bootstrap"
 
 import {ProjectTable} from "./ProjectTable";
 import {Loading} from "./Loading";
-import {CreateProjectComponent} from "./CreaterProjectComponent";
+import {ProjectCreateComponent} from "./ProjectCreateComponent";
 
 export class Projects extends React.Component<any, any> {
     onCreateProject = (name, desc, root, sample) => {
@@ -52,10 +52,10 @@ class TablePanel extends React.Component<any, any> {
     render() {
         return (
             <div>
-                <Panel collapsible defaultExpanded header="Projects">
+                <Panel collapsible defaultExpanded header="Projects" bsStyle="primary">
                     <ProjectTable projects={this.props.projects} updateStatusCallback={this.props.updateStatusCallback} deleteCallback={this.props.deleteCallback}/>
                 </Panel>
-                <CreateProjectComponent createCallback={this.props.createCallback}/>
+                <ProjectCreateComponent createCallback={this.props.createCallback}/>
             </div>
         );
     }

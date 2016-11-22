@@ -23,7 +23,7 @@ class WorkerRow extends React.Component<IWorkerRowProps, any> {
         let status = PipelineWorkerStatus[worker.status];
 
         return (
-            <tr key={"tr_" + worker.id}>
+            <tr>
                 <td>{worker.name}</td>
                 <td>{worker.description}</td>
                 <td>{worker.machine_id.slice(0, 8)}</td>
@@ -39,17 +39,17 @@ interface IWorkerTable {
 
 export class WorkerTable extends React.Component<IWorkerTable, any> {
     render() {
-        let rows = this.props.workers.map(worker => (<WorkerRow worker={worker}/>));
+        let rows = this.props.workers.map(worker => (<WorkerRow key={"tr_worker" + worker.id} worker={worker}/>));
 
         return (
-            <Table striped condensed>
+            <Table condensed>
                 <thead>
                 <tr>
-                    <td>Name</td>
-                    <td>Description</td>
-                    <td>Machine Id</td>
-                    <td>Last Seen</td>
-                    <td>Status</td>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Machine Id</th>
+                    <th>Last Seen</th>
+                    <th>Status</th>
                 </tr>
                 </thead>
                 <tbody>

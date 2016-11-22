@@ -29,13 +29,30 @@ const PipelineStagesQuery = gql`query {
       id
       name
       description
-      function_type
-      execution_order
+      project_id
+      task_id
+      previous_stage_id
       src_path
       dst_path
       is_active
+      function_type
+      execution_order
+    }
+}`;
+
+const PipelineStagesForProjectQuery = gql`query($pipelinesForProjectId: String!) { 
+    pipelineStagesForProject(id: $pipelinesForProjectId) {
+      id
+      name
+      description
       project_id
       task_id
+      previous_stage_id
+      src_path
+      dst_path
+      is_active
+      function_type
+      execution_order
     }
 }`;
 
@@ -88,6 +105,39 @@ const DeleteProjectMutation = gql`
   }
 `;
 
+const CreatePipelineStageMutation = gql`
+  mutation CreatePipelineStageMutation($project_id: String, $task_id: String, $previous_stage_id: String, $src_path: String, $dst_path: String) {
+    createPipelineStage(project_id:$project_id, task_id:$task_id, previous_stage_id:$previous_stage_id, src_path:$src_path, dst_path:$dst_path) {
+      id
+      name
+      description
+      project_id
+      task_id
+      previous_stage_id
+      src_path
+      dst_path
+      is_active
+      function_type
+      execution_order
+    }
+  }
+`;
+
+const SetPipelineStageStatusMutation = gql`
+  mutation SetPipelineStageStatusMutation($id: String, $shouldBeActive: Boolean) {
+    setPipelineStageStatus(id:$id, shouldBeActive:$shouldBeActive) {
+      id
+      is_active
+    }
+  }
+`;
+
+const DeletePipelineStageMutation = gql`
+  mutation DeletePipelineStageMutation($id: String!) {
+    deletePipelineStage(id:$id)
+  }
+`;
+
 const StartTaskMutation = gql`
   mutation StartTaskMutation($taskDefinitionId: String!, $scriptArgs: [String!]) {
     startTask(taskDefinitionId:$taskDefinitionId, scriptArgs:$scriptArgs) {
@@ -97,7 +147,6 @@ const StartTaskMutation = gql`
 `;
 
 export const ProjectsWithQuery = graphql(ProjectsQuery, {options: {pollInterval: pollingIntervalSeconds * 1000}})(
-//    graphql(CreateProjectMutation, {name: "createProjectMutation"})(
     graphql(CreateProjectMutation, {
         props: ({mutate}) => ({
             createProjectMutation: (name: string, desc: string, root: string, sample: number) => mutate({
@@ -130,9 +179,43 @@ export const ProjectsWithQuery = graphql(ProjectsQuery, {options: {pollInterval:
                 })
             })(Projects))));
 
-export const PipelineStagesWithQuery = graphql(PipelineStagesQuery, {
-    options: {pollInterval: pollingIntervalSeconds * 1000}
-})(PipelineStages);
+export const PipelineStagesWithQuery = graphql(PipelineStagesQuery, {options: {pollInterval: pollingIntervalSeconds * 1000}})(
+    graphql(ProjectsQuery, {
+        name: 'projectsData'
+    })(graphql(TaskDefinitionsQuery, {
+        name: 'taskDefinitionsData'
+    })(graphql(PipelineStagesForProjectQuery, {
+        name: 'pipelinesForProjectData'
+    })(graphql(CreatePipelineStageMutation, {
+        props: ({mutate}) => ({
+            createMutation: (project_id: string, task_id: string, previous_stage_id: string, src_path: string, dst_path: string) => mutate({
+                variables: {
+                    project_id: project_id,
+                    task_id: task_id,
+                    previous_stage_id: previous_stage_id,
+                    src_path: src_path,
+                    dst_path: dst_path
+                }
+            })
+        })
+    })(graphql(SetPipelineStageStatusMutation, {
+        props: ({mutate}) => ({
+            setStatusMutation: (id: string, shouldBeActive: boolean) => mutate({
+                variables: {
+                    id: id,
+                    shouldBeActive: shouldBeActive
+                }
+            })
+        })
+    })(graphql(DeletePipelineStageMutation, {
+        props: ({mutate}) => ({
+            deleteMutation: (id: string) => mutate({
+                variables: {
+                    id: id
+                }
+            })
+        })
+    })(PipelineStages)))))));
 
 export const PipelineWorkersWithQuery = graphql(PipelineWorkersQuery, {
     options: {pollInterval: pollingIntervalSeconds * 1000}

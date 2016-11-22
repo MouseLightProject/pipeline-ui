@@ -10,7 +10,8 @@ import {
     MenuItem,
     FormGroup,
     ControlLabel,
-    FormControl
+    FormControl,
+    Glyphicon
 } from "react-bootstrap";
 
 
@@ -46,7 +47,7 @@ class StartTaskButton extends React.Component<any, any> {
     };
 
     render() {
-        return (<Button bsStyle="primary" bsSize="sm" onClick={this.onClick}>Start</Button>)
+        return (<Button bsStyle="success" bsSize="sm" onClick={this.onClick}><Glyphicon glyph="play" /> Start</Button>)
     }
 }
 
@@ -55,7 +56,7 @@ interface IStartTaskComponentState {
     scriptArgs?: string[];
 }
 
-export class StartTaskComponent extends React.Component<any, IStartTaskComponentState> {
+export class TaskStartComponent extends React.Component<any, IStartTaskComponentState> {
     constructor(props) {
         super(props);
         this.state = {selectedTaskDefinitionId: "", scriptArgs: [""]};
@@ -75,7 +76,7 @@ export class StartTaskComponent extends React.Component<any, IStartTaskComponent
         }
 
         return (
-            <Panel collapsible defaultExpanded header="Start New Task">
+            <Panel collapsible defaultExpanded header="Start New Task" bsStyle="info">
                 <Grid fluid>
                     <Row>
                         <Col lg={2}>

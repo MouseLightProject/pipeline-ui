@@ -9,6 +9,7 @@ import {
     FormGroup,
     ControlLabel,
     FormControl,
+    Glyphicon,
     Alert
 } from "react-bootstrap";
 
@@ -24,12 +25,13 @@ class CreateProjectFailedAlert extends React.Component<any, any> {
 }
 
 class CreateProjectButton extends React.Component<any, any> {
-    onClick() {
+    onClick = () => {
         this.props.createCallback(this.props.name, this.props.description, this.props.rootPath, this.props.sampleNumber);
-    }
+    };
 
     render() {
-        return (<Button bsStyle="primary" bsSize="sm" onClick={this.onClick.bind(this)}>Create</Button>)
+        return (
+            <Button bsStyle="success" bsSize="small" onClick={this.onClick}><Glyphicon glyph="plus"/> Create</Button>)
     }
 }
 
@@ -41,7 +43,7 @@ interface IStartTaskComponentState {
     alertVisible?: boolean;
 }
 
-export class CreateProjectComponent extends React.Component<any, IStartTaskComponentState> {
+export class ProjectCreateComponent extends React.Component<any, IStartTaskComponentState> {
     constructor(props) {
         super(props);
         this.state = {name: "", description: "", rootPath: "", sampleNumber: 1, alertVisible: false};
@@ -75,31 +77,31 @@ export class CreateProjectComponent extends React.Component<any, IStartTaskCompo
 
     render() {
         return (
-            <Panel collapsible defaultExpanded header="Create New Project">
+            <Panel collapsible defaultExpanded header="Create Project" bsStyle="info">
                 <Grid fluid>
                     <Row>
-                        <Col lg={2}>
-                            <FormGroup bsSize="sm">
-                                <ControlLabel>Name</ControlLabel>
-                                <FormControl type="text" onChange={this.onNameChange} value={this.state.name}/>
-                            </FormGroup>
-                        </Col>
-                        <Col lg={3}>
-                            <FormGroup bsSize="sm">
-                                <ControlLabel>Description</ControlLabel>
-                                <FormControl type="text" onChange={this.onDescriptionChange}
-                                             value={this.state.description}/>
-                            </FormGroup>
-                        </Col>
                         <Col lg={5}>
-                            <FormGroup bsSize="sm">
-                                <ControlLabel>Root</ControlLabel>
+                            <FormGroup bsSize="small">
+                                <ControlLabel>Root Path</ControlLabel>
                                 <FormControl type="text" onChange={this.onRootPathChange}
                                              value={this.state.rootPath}/>
                             </FormGroup>
                         </Col>
                         <Col lg={2}>
-                            <FormGroup bsSize="sm">
+                            <FormGroup bsSize="small">
+                                <ControlLabel>Name</ControlLabel>
+                                <FormControl type="text" onChange={this.onNameChange} value={this.state.name}/>
+                            </FormGroup>
+                        </Col>
+                        <Col lg={3}>
+                            <FormGroup bsSize="small">
+                                <ControlLabel>Description</ControlLabel>
+                                <FormControl type="text" onChange={this.onDescriptionChange}
+                                             value={this.state.description}/>
+                            </FormGroup>
+                        </Col>
+                        <Col lg={2}>
+                            <FormGroup bsSize="small">
                                 <ControlLabel>Sample Number</ControlLabel>
                                 <FormControl type="text" onChange={this.onSampleNumberChange}
                                              value={this.state.sampleNumber.toString()}/>

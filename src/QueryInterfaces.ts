@@ -11,14 +11,15 @@ export interface IPipelineStage {
     id: string;
     name: string;
     description: string;
-    function_type: number;
-    execution_order: number;
-    src_path: string;
-    dst_path: string;
     project_id: string;
     task_id: string;
+    previous_stage_id: string;
+    src_path: string;
+    dst_path: string;
+    is_active: boolean;
+    function_type: number;
+    execution_order: number;
 }
-
 
 export interface IWorker {
     id: string;

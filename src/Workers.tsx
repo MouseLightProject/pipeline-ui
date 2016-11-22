@@ -24,7 +24,7 @@ class TablePanel extends React.Component<any, any> {
     render() {
         return (
             <div>
-                <Panel collapsible defaultExpanded header="Workers">
+                <Panel collapsible defaultExpanded header="Workers" bsStyle="primary">
                     <WorkerTable workers={this.props.workers}/>
                 </Panel>
             </div>
