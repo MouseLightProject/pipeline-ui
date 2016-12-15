@@ -28,7 +28,7 @@ class CreatePipelineStageFailedAlert extends React.Component<any, any> {
 
 class CreatePipelineStageButton extends React.Component<any, any> {
     onClick = () => {
-        this.props.createCallback(this.props.project_id, this.props.task_id, this.props.previous_stage_id, this.props.src_path, this.props.dst_path);
+        this.props.createCallback(this.props.project_id, this.props.task_id, this.props.previous_stage_id, this.props.dst_path);
     };
 
     render() {
@@ -123,7 +123,6 @@ interface IPipelineStageComponentState {
     project_id?: string;
     task_id?: string;
     previous_stage_id?: string;
-    src_path?: string;
     dst_path?: string;
     alertVisible?: boolean;
 }
@@ -135,7 +134,6 @@ export class PipelineStageCreateComponent extends React.Component<any, IPipeline
             project_id: "",
             task_id: "",
             previous_stage_id: "",
-            src_path: "",
             dst_path: "",
             alertVisible: false
         };
@@ -211,7 +209,6 @@ export class PipelineStageCreateComponent extends React.Component<any, IPipeline
                         <Col lg={1}>
                             <CreatePipelineStageButton project_id={this.state.project_id} task_id={this.state.task_id}
                                                        previous_stage_id={this.state.previous_stage_id}
-                                                       src_path={this.state.src_path}
                                                        dst_path={this.state.dst_path}
                                                        createCallback={this.props.createCallback}
                                                        errorCallback={this.onCreateError}/>

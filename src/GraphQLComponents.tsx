@@ -7,6 +7,7 @@ import {Projects} from "./Projects";
 import {PipelineStages} from "./PipelineStages";
 
 const env = process.env.NODE_ENV || "development";
+
 let pollingIntervalSeconds = 30;
 
 if (env !== "production") {
@@ -32,11 +33,9 @@ const PipelineStagesQuery = gql`query {
       project_id
       task_id
       previous_stage_id
-      src_path
       dst_path
       is_active
       function_type
-      execution_order
     }
 }`;
 
@@ -48,11 +47,9 @@ const PipelineStagesForProjectQuery = gql`query($pipelinesForProjectId: String!)
       project_id
       task_id
       previous_stage_id
-      src_path
       dst_path
       is_active
       function_type
-      execution_order
     }
 }`;
 
@@ -60,9 +57,9 @@ const PipelineWorkersQuery = gql`query {
     pipelineWorkers {
       id
       name
-      description
       machine_id
       last_seen
+      taskCount
       status
     }
 }`;
@@ -106,19 +103,17 @@ const DeleteProjectMutation = gql`
 `;
 
 const CreatePipelineStageMutation = gql`
-  mutation CreatePipelineStageMutation($project_id: String, $task_id: String, $previous_stage_id: String, $src_path: String, $dst_path: String) {
-    createPipelineStage(project_id:$project_id, task_id:$task_id, previous_stage_id:$previous_stage_id, src_path:$src_path, dst_path:$dst_path) {
+  mutation CreatePipelineStageMutation($project_id: String, $task_id: String, $previous_stage_id: String, $dst_path: String) {
+    createPipelineStage(project_id:$project_id, task_id:$task_id, previous_stage_id:$previous_stage_id, dst_path:$dst_path) {
       id
       name
       description
       project_id
       task_id
       previous_stage_id
-      src_path
       dst_path
       is_active
       function_type
-      execution_order
     }
   }
 `;
@@ -188,12 +183,11 @@ export const PipelineStagesWithQuery = graphql(PipelineStagesQuery, {options: {p
         name: 'pipelinesForProjectData'
     })(graphql(CreatePipelineStageMutation, {
         props: ({mutate}) => ({
-            createMutation: (project_id: string, task_id: string, previous_stage_id: string, src_path: string, dst_path: string) => mutate({
+            createMutation: (project_id: string, task_id: string, previous_stage_id: string, dst_path: string) => mutate({
                 variables: {
                     project_id: project_id,
                     task_id: task_id,
                     previous_stage_id: previous_stage_id,
-                    src_path: src_path,
                     dst_path: dst_path
                 }
             })

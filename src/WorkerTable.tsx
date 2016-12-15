@@ -22,10 +22,13 @@ class WorkerRow extends React.Component<IWorkerRowProps, any> {
 
         let status = PipelineWorkerStatus[worker.status];
 
+        if (worker.status === PipelineWorkerStatus.Processing) {
+            status = status + ` (${worker.taskCount})`;
+        }
+
         return (
             <tr>
                 <td>{worker.name}</td>
-                <td>{worker.description}</td>
                 <td>{worker.machine_id.slice(0, 8)}</td>
                 <td>{worker.last_seen}</td>
                 <td>{status}</td>
@@ -46,7 +49,6 @@ export class WorkerTable extends React.Component<IWorkerTable, any> {
                 <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Description</th>
                     <th>Machine Id</th>
                     <th>Last Seen</th>
                     <th>Status</th>

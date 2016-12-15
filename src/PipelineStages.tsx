@@ -6,8 +6,8 @@ import {Loading} from "./Loading";
 import {PipelineStageCreateComponent} from "./PipelineStageCreateComponent";
 
 export class PipelineStages extends React.Component<any, any> {
-    onCreateProject = (project_id, task_id, previous_stage_id, src_path, dst_path) => {
-        this.props.createMutation(project_id, task_id, previous_stage_id, src_path, dst_path)
+    onCreateProject = (project_id, task_id, previous_stage_id, dst_path) => {
+        this.props.createMutation(project_id, task_id, previous_stage_id, dst_path)
         .then(() => {
             this.props.data.refetch();
             this.props.pipelinesForProjectData.refetch();
@@ -35,9 +35,7 @@ export class PipelineStages extends React.Component<any, any> {
     };
 
     render() {
-        console.log(this.props.pipelinesForProjectData.pipelineStagesForProject);
-
-        // this.props.pipelinesForProjectId = "b2da946c-437b-46c4-aaf8-9bfdc890c2dc";
+        // console.log(this.props.pipelinesForProjectData.pipelineStagesForProject);
 
         let pipelineStages = [];
 
