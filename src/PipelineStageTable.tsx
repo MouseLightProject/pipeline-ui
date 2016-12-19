@@ -3,6 +3,8 @@ import {Table, Button, Glyphicon} from "react-bootstrap"
 
 import {IPipelineStage} from "./QueryInterfaces";
 
+const previousStageIsAcquisitionRoot = "(acquisition root)";
+
 interface IPipelineStageRowProps {
     pipelineStage: IPipelineStage;
 
@@ -33,9 +35,9 @@ class PipelineStageRow extends React.Component<IPipelineStageRowProps, any> {
                 <td><Button bsSize="xsmall" bsStyle={this.getActivateStyle(pipelineStage.is_active)} onClick={this.onActiveClick}><Glyphicon glyph={this.getActivateGlyph(pipelineStage.is_active)} /> {this.getActivateText(pipelineStage.is_active)}</Button></td>
                 <td>{pipelineStage.project_id.slice(0, 8)}</td>
                 <td>{pipelineStage.task_id.slice(0, 8)}</td>
-                <td>{pipelineStage.previous_stage_id ? pipelineStage.previous_stage_id.slice(0, 8) : "(project root)"}</td>
+                <td>{pipelineStage.previous_stage_id ? pipelineStage.previous_stage_id.slice(0, 8) : previousStageIsAcquisitionRoot}</td>
                 <td>{pipelineStage.dst_path}</td>
-                <td>{pipelineStage.id}</td>
+                <td>{pipelineStage.id.slice(0, 8)}</td>
                 <td><Button bsSize="xsmall" bsStyle="warning" onClick={this.onDelete}><Glyphicon glyph="trash" /> Remove</Button></td>
             </tr>);
     }

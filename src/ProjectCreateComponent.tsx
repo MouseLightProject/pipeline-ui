@@ -10,7 +10,8 @@ import {
     ControlLabel,
     FormControl,
     Glyphicon,
-    Alert
+    Alert,
+    HelpBlock
 } from "react-bootstrap";
 
 class CreateProjectFailedAlert extends React.Component<any, any> {
@@ -31,14 +32,16 @@ class CreateProjectButton extends React.Component<any, any> {
 
     render() {
         return (
-            <Button bsStyle="success" bsSize="small" onClick={this.onClick}><Glyphicon glyph="plus"/> Create</Button>)
+            <Button bsStyle="success" bsSize="small" disabled={!this.props.canCreate} onClick={this.onClick}><Glyphicon glyph="plus"/> Create</Button>)
     }
 }
 
 interface IStartTaskComponentState {
     name?: string;
+    nameValidation?: any;
     description?: string;
     rootPath?: string;
+    rootPathValidation?: any;
     sampleNumber?: number;
     alertVisible?: boolean;
 }
@@ -46,11 +49,20 @@ interface IStartTaskComponentState {
 export class ProjectCreateComponent extends React.Component<any, IStartTaskComponentState> {
     constructor(props) {
         super(props);
-        this.state = {name: "", description: "", rootPath: "", sampleNumber: 1, alertVisible: false};
+        this.state = {
+            name: "",
+            nameValidation: "error",
+            description: "",
+            rootPath: "",
+            rootPathValidation: "error",
+            sampleNumber: 1,
+            alertVisible: false
+        };
     }
 
     onNameChange = (event: any) => {
-        this.setState({name: event.target.value, alertVisible: false}, null);
+        let name = event.target.value;
+        this.setState({name: name, alertVisible: false, nameValidation: name.length > 0 ? null : "error"}, null);
     };
 
     onDescriptionChange = (event: any) => {
@@ -58,12 +70,17 @@ export class ProjectCreateComponent extends React.Component<any, IStartTaskCompo
     };
 
     onRootPathChange = (event: any) => {
-        this.setState({rootPath: event.target.value, alertVisible: false}, null);
+        let rootPath = event.target.value;
+        this.setState({
+            rootPath: rootPath,
+            alertVisible: false,
+            rootPathValidation: rootPath.length > 0 ? null : "error"
+        }, null);
     };
 
     onSampleNumberChange = (event: any) => {
         let x = parseInt(event.target.value);
-        if (!isNaN(x)) {
+        if (!isNaN(x) && x >= 0) {
             this.setState({sampleNumber: x, alertVisible: false}, null);
         } else {
             this.setState({alertVisible: false}, null);
@@ -76,21 +93,25 @@ export class ProjectCreateComponent extends React.Component<any, IStartTaskCompo
     };
 
     render() {
+        let nameHelp = this.state.name.length === 0 ? "Name can not be empty" : "";
+
         return (
-            <Panel collapsible defaultExpanded header="Create Project" bsStyle="info">
+            <Panel collapsible defaultExpanded={false} header="Create Pipeline" bsStyle="info">
                 <Grid fluid>
                     <Row>
                         <Col lg={5}>
-                            <FormGroup bsSize="small">
+                            <FormGroup controlId="rootPathText" bsSize="small"
+                                       validationState={this.state.rootPathValidation}>
                                 <ControlLabel>Root Path</ControlLabel>
-                                <FormControl type="text" onChange={this.onRootPathChange}
-                                             value={this.state.rootPath}/>
+                                <FormControl type="text" onChange={this.onRootPathChange} value={this.state.rootPath}/>
+                                <HelpBlock>The root path should be a path accessible from the server and workers</HelpBlock>
                             </FormGroup>
                         </Col>
                         <Col lg={2}>
-                            <FormGroup bsSize="small">
+                            <FormGroup bsSize="small" validationState={this.state.nameValidation}>
                                 <ControlLabel>Name</ControlLabel>
                                 <FormControl type="text" onChange={this.onNameChange} value={this.state.name}/>
+                                <HelpBlock>{nameHelp}</HelpBlock>
                             </FormGroup>
                         </Col>
                         <Col lg={3}>
@@ -113,6 +134,7 @@ export class ProjectCreateComponent extends React.Component<any, IStartTaskCompo
                             <CreateProjectButton name={this.state.name} description={this.state.description}
                                                  rootPath={this.state.rootPath}
                                                  sampleNumber={this.state.sampleNumber}
+                                                 canCreate={this.state.nameValidation === null && this.state.rootPathValidation === null}
                                                  createCallback={this.props.createCallback}
                                                  errorCallback={this.onCreateError}/>
                         </Col>

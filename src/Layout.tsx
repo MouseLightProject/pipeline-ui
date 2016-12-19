@@ -5,7 +5,8 @@ import {
     TaskDefinitionsWithQuery,
     PipelineWorkersWithQuery,
     ProjectsWithQuery,
-    PipelineStagesWithQuery
+    PipelineStagesWithQuery,
+    PipelineGraphWithQuery
 } from "./GraphQLComponents";
 
 export class Layout extends React.Component<any, any> {
@@ -28,8 +29,10 @@ export class Layout extends React.Component<any, any> {
                 <PageHeader>Mouse Light Acquisition Dashboard
                     <small> Pipeline Server</small>
                 </PageHeader>
+                <PipelineGraphWithQuery/>
                 <ProjectsWithQuery/>
-                <PipelineStagesWithQuery pipelinesForProjectId={this.state.pipelineForProjectId} onPipelinesForProjectIdChanged={this.onPipelinesForProjectIdChanged}/>
+                <PipelineStagesWithQuery pipelinesForProjectId={this.state.pipelineForProjectId}
+                                         onPipelinesForProjectIdChanged={this.onPipelinesForProjectIdChanged}/>
                 <PipelineWorkersWithQuery/>
                 <TaskDefinitionsWithQuery/>
             </div>

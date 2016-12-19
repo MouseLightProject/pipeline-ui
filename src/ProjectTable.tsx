@@ -31,11 +31,11 @@ class ProjectRow extends React.Component<IProjectRowProps, any> {
         return (
             <tr>
                 <td><Button bsSize="xsmall" bsStyle={this.getActivateStyle(project.is_active)} onClick={this.onActiveClick}><Glyphicon glyph={this.getActivateGlyph(project.is_active)} /> {this.getActivateText(project.is_active)}</Button></td>
-                <td>{project.root_path}</td>
                 <td>{project.sample_number}</td>
                 <td>{project.name}</td>
+                <td>{project.root_path}</td>
                 <td>{project.description}</td>
-                <td>{project.id}</td>
+                <td>{`${project.id.slice(0, 8)}`}</td>
                 <td><Button bsSize="xsmall" bsStyle="warning" onClick={this.onDelete}><Glyphicon glyph="trash" /> Remove</Button></td>
             </tr>);
     }
@@ -58,9 +58,9 @@ export class ProjectTable extends React.Component<IProjectTable, any> {
                 <thead>
                 <tr key="project_header">
                     <th>Active</th>
-                    <th>Root Path</th>
                     <th>Sample</th>
                     <th>Name</th>
+                    <th>Root Path</th>
                     <th>Description</th>
                     <th>Id</th>
                     <th/>

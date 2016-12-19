@@ -5,6 +5,7 @@ import {TaskDefinitions} from "./TaskDefinitions";
 import {Workers} from "./Workers";
 import {Projects} from "./Projects";
 import {PipelineStages} from "./PipelineStages";
+import {PipelineGraph} from "./PipelineGraph";
 
 const env = process.env.NODE_ENV || "development";
 
@@ -210,6 +211,41 @@ export const PipelineStagesWithQuery = graphql(PipelineStagesQuery, {options: {p
             })
         })
     })(PipelineStages)))))));
+
+export const PipelineGraphWithQuery = graphql(PipelineStagesQuery, {options: {pollInterval: pollingIntervalSeconds * 1000}})(
+    graphql(ProjectsQuery, {
+        name: 'projectsData'
+    })(graphql(TaskDefinitionsQuery, {
+        name: 'taskDefinitionsData'
+    })(graphql(CreatePipelineStageMutation, {
+        props: ({mutate}) => ({
+            createMutation: (project_id: string, task_id: string, previous_stage_id: string, dst_path: string) => mutate({
+                variables: {
+                    project_id: project_id,
+                    task_id: task_id,
+                    previous_stage_id: previous_stage_id,
+                    dst_path: dst_path
+                }
+            })
+        })
+    })(graphql(SetPipelineStageStatusMutation, {
+        props: ({mutate}) => ({
+            setStatusMutation: (id: string, shouldBeActive: boolean) => mutate({
+                variables: {
+                    id: id,
+                    shouldBeActive: shouldBeActive
+                }
+            })
+        })
+    })(graphql(DeletePipelineStageMutation, {
+        props: ({mutate}) => ({
+            deleteMutation: (id: string) => mutate({
+                variables: {
+                    id: id
+                }
+            })
+        })
+    })(PipelineGraph))))));
 
 export const PipelineWorkersWithQuery = graphql(PipelineWorkersQuery, {
     options: {pollInterval: pollingIntervalSeconds * 1000}

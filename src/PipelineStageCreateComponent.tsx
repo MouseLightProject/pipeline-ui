@@ -12,8 +12,11 @@ import {
     Glyphicon,
     Alert,
     MenuItem,
-    DropdownButton
+    DropdownButton,
+    HelpBlock
 } from "react-bootstrap";
+
+const useAcquisitionRoot = "none (use acquisition root)";
 
 class CreatePipelineStageFailedAlert extends React.Component<any, any> {
     render() {
@@ -33,7 +36,7 @@ class CreatePipelineStageButton extends React.Component<any, any> {
 
     render() {
         return (
-            <Button bsStyle="success" bsSize="small" onClick={this.onClick}><Glyphicon glyph="plus"/> Add</Button>)
+            <Button bsStyle="success" bsSize="small" disabled={!this.props.canCreate} onClick={this.onClick}><Glyphicon glyph="plus"/> Add</Button>)
     }
 }
 
@@ -97,7 +100,7 @@ class PreviousStageMenu extends React.Component<any, any> {
     };
 
     render() {
-        let title = "none (use project root)";
+        let title = useAcquisitionRoot;
 
         let rows = this.props.pipelinesForProject.map(stage => {
             if (stage.id === this.props.selectedPreviousId) {
@@ -111,7 +114,7 @@ class PreviousStageMenu extends React.Component<any, any> {
             <div>
                 <DropdownButton bsSize="sm" id="previous-stage-for-pipeline-stage-dropdown" title={title}
                                 onSelect={this.handleChange}>
-                    <MenuItem key={"pipeline-previous-none"} eventKey={null}>none (use project root)</MenuItem>
+                    <MenuItem key={"pipeline-previous-none"} eventKey={null}>{useAcquisitionRoot}</MenuItem>
                     {rows}
                 </DropdownButton>
             </div>
@@ -124,6 +127,7 @@ interface IPipelineStageComponentState {
     task_id?: string;
     previous_stage_id?: string;
     dst_path?: string;
+    dstPathValidation?: any;
     alertVisible?: boolean;
 }
 
@@ -135,6 +139,7 @@ export class PipelineStageCreateComponent extends React.Component<any, IPipeline
             task_id: "",
             previous_stage_id: "",
             dst_path: "",
+            dstPathValidation: "error",
             alertVisible: false
         };
     }
@@ -153,7 +158,8 @@ export class PipelineStageCreateComponent extends React.Component<any, IPipeline
     };
 
     onDstPathChange = (event: any) => {
-        this.setState({dst_path: event.target.value, alertVisible: false}, null);
+        let dstPath = event.target.value;
+        this.setState({dst_path: dstPath, alertVisible: false, dstPathValidation: dstPath.length > 0 ? null : "error"}, null);
     };
 
     onCreateError = (err: any) => {
@@ -161,22 +167,24 @@ export class PipelineStageCreateComponent extends React.Component<any, IPipeline
         this.setState({alertVisible: true}, null);
     };
 
-    render() {
+    componentDidMount = () => {
         if (this.state.project_id === "" && this.props.projects.length > 0) {
-            this.onProjectSelectionChange (this.props.projects[0].id);
+            this.onProjectSelectionChange(this.props.projects[0].id);
         }
 
         if (this.state.task_id === "" && this.props.tasks.length > 0) {
             this.onTaskSelectionChange(this.props.tasks[0].id);
         }
+    };
 
+    render() {
         return (
             <Panel collapsible defaultExpanded header="Add Stage" bsStyle="info">
                 <Grid fluid>
                     <Row>
                         <Col lg={2}>
                             <FormGroup bsSize="small">
-                                <ControlLabel>Add to Project</ControlLabel>
+                                <ControlLabel>Add to Acquisition Pipeline</ControlLabel>
                                 <ProjectMenu onProjectSelectionChange={this.onProjectSelectionChange}
                                              projects={this.props.projects}
                                              selectedProjectId={this.state.project_id}/>
@@ -199,9 +207,10 @@ export class PipelineStageCreateComponent extends React.Component<any, IPipeline
                             </FormGroup>
                         </Col>
                         <Col lg={5}>
-                            <FormGroup bsSize="small">
+                            <FormGroup controlId="dstPathText" bsSize="small" validationState={this.state.dstPathValidation}>
                                 <ControlLabel>Output Path</ControlLabel>
                                 <FormControl type="text" onChange={this.onDstPathChange} value={this.state.dst_path}/>
+                                <HelpBlock>The output path should be a path accessible from the server and workers</HelpBlock>
                             </FormGroup>
                         </Col>
                     </Row>
@@ -210,6 +219,7 @@ export class PipelineStageCreateComponent extends React.Component<any, IPipeline
                             <CreatePipelineStageButton project_id={this.state.project_id} task_id={this.state.task_id}
                                                        previous_stage_id={this.state.previous_stage_id}
                                                        dst_path={this.state.dst_path}
+                                                       canCreate={this.state.dstPathValidation === null}
                                                        createCallback={this.props.createCallback}
                                                        errorCallback={this.onCreateError}/>
                         </Col>

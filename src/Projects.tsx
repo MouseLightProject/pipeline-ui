@@ -52,7 +52,7 @@ class TablePanel extends React.Component<any, any> {
     render() {
         return (
             <div>
-                <Panel collapsible defaultExpanded header="Projects" bsStyle="primary">
+                <Panel collapsible defaultExpanded header="Sample Acquisition Pipelines" bsStyle="primary">
                     <ProjectTable projects={this.props.projects} updateStatusCallback={this.props.updateStatusCallback} deleteCallback={this.props.deleteCallback}/>
                 </Panel>
                 <ProjectCreateComponent createCallback={this.props.createCallback}/>
