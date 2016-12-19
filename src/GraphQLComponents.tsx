@@ -59,8 +59,9 @@ const PipelineWorkersQuery = gql`query {
       id
       name
       machine_id
+      work_unit_capacity
       last_seen
-      taskCount
+      task_load
       status
     }
 }`;

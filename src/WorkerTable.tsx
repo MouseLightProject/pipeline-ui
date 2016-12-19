@@ -23,7 +23,9 @@ class WorkerRow extends React.Component<IWorkerRowProps, any> {
         let status = PipelineWorkerStatus[worker.status];
 
         if (worker.status === PipelineWorkerStatus.Processing) {
-            status = status + ` (${worker.taskCount})`;
+            status = status + ` (${worker.task_load.toFixed(1)} / ${worker.work_unit_capacity.toFixed(1)})`;
+        } else if (worker.status === PipelineWorkerStatus.Idle) {
+            status = status + ` (${worker.task_load.toFixed(1)} / ${worker.work_unit_capacity.toFixed(1)})`;
         }
 
         return (
@@ -51,7 +53,7 @@ export class WorkerTable extends React.Component<IWorkerTable, any> {
                     <th>Name</th>
                     <th>Machine Id</th>
                     <th>Last Seen</th>
-                    <th>Status</th>
+                    <th>Status (Load)</th>
                 </tr>
                 </thead>
                 <tbody>

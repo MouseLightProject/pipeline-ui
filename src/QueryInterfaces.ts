@@ -24,8 +24,9 @@ export interface IWorker {
     name: string;
     description: string;
     machine_id: string;
+    work_unit_capacity: number;
     last_seen: string;
-    taskCount: number;
+    task_load: number;
     status: number;
 }
 
