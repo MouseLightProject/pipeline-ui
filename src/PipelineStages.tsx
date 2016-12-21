@@ -35,23 +35,11 @@ export class PipelineStages extends React.Component<any, any> {
     };
 
     render() {
-        let pipelineStages = [];
+        let projects = this.props.projects;
 
-        if (this.props.data && this.props.data.pipelineStages) {
-            pipelineStages = this.props.data.pipelineStages;
-        }
+        let pipelineStages = this.props.pipelineStages;
 
-        let tasks = [];
-
-        if (this.props.data && this.props.data.taskDefinitions) {
-            tasks = this.props.data.taskDefinitions;
-        }
-
-        let projects = [];
-
-        if (this.props.data && this.props.data.projects) {
-            projects = this.props.data.projects;
-        }
+        let tasks = this.props.tasks;
 
         let pipelinesForProject = [];
 
@@ -61,7 +49,7 @@ export class PipelineStages extends React.Component<any, any> {
 
         return (
             <div>
-                {this.props.data.loading ? <Loading/> :
+                {this.props.loading ? <Loading/> :
                     <TablePanel tasks={tasks} projects={projects} pipelineStages={pipelineStages}
                                 pipelinesForProject={pipelinesForProject}
                                 createCallback={this.onCreateProject} updateStatusCallback={this.onSetProjectStatus}

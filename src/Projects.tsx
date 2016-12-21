@@ -9,7 +9,7 @@ export class Projects extends React.Component<any, any> {
     onCreateProject = (name, desc, root, sample) => {
         this.props.createProjectMutation(name, desc, root, sample)
         .then(() => {
-            this.props.data.refetch();
+            // this.props.data.refetch();
         }).catch((err) => {
             console.log(err);
         });
@@ -18,7 +18,7 @@ export class Projects extends React.Component<any, any> {
     onSetProjectStatus = (id: string, shouldBeActive: boolean) => {
         this.props.setProjectStatusMutation(id, shouldBeActive)
         .then(() => {
-            this.props.data.refetch();
+            // this.props.data.refetch();
         }).catch((err) => {
             console.log(err);
         });
@@ -27,22 +27,18 @@ export class Projects extends React.Component<any, any> {
     onDeleteProject = (id: string) => {
         this.props.deleteProjectMutation(id)
         .then(() => {
-            this.props.data.refetch();
+           //  this.props.data.refetch();
         }).catch((err) => {
             console.log(err);
         });
     };
 
     render() {
-        let projects = [];
-
-        if (this.props.data && this.props.data.projects) {
-            projects = this.props.data.projects;
-        }
+        let projects = this.props.projects;
 
         return (
             <div>
-                {this.props.data.loading ? <Loading/> : <TablePanel projects={projects} createCallback={this.onCreateProject} updateStatusCallback={this.onSetProjectStatus} deleteCallback={this.onDeleteProject}/>}
+                {this.props.loading ? <Loading/> : <TablePanel projects={projects} createCallback={this.onCreateProject} updateStatusCallback={this.onSetProjectStatus} deleteCallback={this.onDeleteProject}/>}
             </div>
         );
     }

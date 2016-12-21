@@ -6,15 +6,9 @@ import {Loading} from "./Loading";
 
 export class Workers extends React.Component<any, any> {
     render() {
-        let workers = [];
-
-        if (this.props.data && this.props.data.pipelineWorkers) {
-            workers = this.props.data.pipelineWorkers;
-        }
-
         return (
             <div>
-                {this.props.data.loading ? <Loading/> : <TablePanel workers={workers}/>}
+                {this.props.loading ? <Loading/> : <TablePanel workers={this.props.workers}/>}
             </div>
         );
     }

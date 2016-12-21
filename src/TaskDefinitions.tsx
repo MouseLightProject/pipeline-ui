@@ -9,22 +9,16 @@ export class TaskDefinitions extends React.Component<any, any> {
     onStartTask = (taskDefinitionId: string, scriptArgs: string[]) =>  {
         this.props.startTaskMutation(taskDefinitionId, scriptArgs)
         .then(() => {
-            this.props.data.refetch();
+            //this.props.data.refetch();
         }).catch((error) => {
             console.log("there was an error sending the query", error);
         });
     };
 
     render() {
-        let taskDefinitions = [];
-
-        if (this.props.data && this.props.data.taskDefinitions) {
-            taskDefinitions = this.props.data.taskDefinitions;
-        }
-
         return (
             <div>
-                {this.props.data.loading ? <Loading/> : <TablePanel taskDefinitions={taskDefinitions} startTask={this.onStartTask}/>}
+                {this.props.loading ? <Loading/> : <TablePanel taskDefinitions={this.props.tasks} startTask={this.onStartTask}/>}
             </div>
         );
     }

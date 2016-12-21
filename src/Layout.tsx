@@ -1,13 +1,6 @@
 import * as React from "react";
-import {PageHeader} from "react-bootstrap";
 
-import {
-    TaskDefinitionsWithQuery,
-    PipelineWorkersWithQuery,
-    ProjectsWithQuery,
-    PipelineStagesWithQuery,
-    PipelineGraphWithQuery
-} from "./GraphQLComponents";
+import {BodyContainerWithQuery} from "./GraphQLComponents";
 
 export class Layout extends React.Component<any, any> {
     constructor(props) {
@@ -20,22 +13,9 @@ export class Layout extends React.Component<any, any> {
     };
 
     render() {
-        let divStyle = {
-            margin: "20px"
-        };
-
         return (
-            <div style={divStyle}>
-                <PageHeader>Mouse Light Acquisition Dashboard
-                    <small> Pipeline Server</small>
-                </PageHeader>
-                <PipelineGraphWithQuery/>
-                <ProjectsWithQuery/>
-                <PipelineStagesWithQuery pipelinesForProjectId={this.state.pipelinesForProjectId}
-                                         onPipelinesForProjectIdChanged={this.onPipelinesForProjectIdChanged}/>
-                <PipelineWorkersWithQuery/>
-                <TaskDefinitionsWithQuery/>
-            </div>
+            <BodyContainerWithQuery pipelinesForProjectId={this.state.pipelinesForProjectId}
+                                    onPipelinesForProjectIdChanged={this.onPipelinesForProjectIdChanged}/>
         )
     }
 }

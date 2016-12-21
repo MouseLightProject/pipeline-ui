@@ -9,23 +9,11 @@ export class PipelineGraph extends React.Component<any, any> {
     }
 
     componentDidUpdate = () => {
-        let projects = [];
+        let projects = this.props.projects;
 
-        if (this.props.data && this.props.data.projects) {
-            projects = this.props.data.projects;
-        }
+        let pipelineStages = this.props.pipelineStages;
 
-        let pipelineStages = [];
-
-        if (this.props.data && this.props.data.pipelineStages) {
-            pipelineStages = this.props.data.pipelineStages;
-        }
-
-        let tasks = [];
-
-        if (this.props.data && this.props.data.taskDefinitions) {
-            tasks = this.props.data.taskDefinitions;
-        }
+        let tasks = this.props.tasks;
 
         let roots = [];
         let nodes = [];
