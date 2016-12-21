@@ -9,7 +9,7 @@ import {PipelineGraph} from "./PipelineGraph";
 
 const env = process.env.NODE_ENV || "development";
 
-let pollingIntervalSeconds = 30;
+let pollingIntervalSeconds = 10;
 
 if (env !== "production") {
     pollingIntervalSeconds = 5;
@@ -26,8 +26,56 @@ const ProjectsQuery = gql`query {
     }
 }`;
 
-const PipelineStagesQuery = gql`query { 
+const PipelineStagesQuery = gql`query($pipelinesForProjectId: String!) { 
     pipelineStages {
+      id
+      name
+      description
+      project_id
+      previous_stage_id
+      dst_path
+      is_active
+      function_type
+      task {
+        id
+        name
+      }
+      performance {
+        id
+        pipeline_stage_id
+        num_in_process
+        num_ready_to_process
+        num_execute
+        num_complete
+        num_error
+        num_cancel
+        cpu_average
+        cpu_high
+        cpu_low
+        memory_average
+        memory_high
+        memory_low
+        duration_average
+        duration_high
+        duration_low
+     }
+    }
+    taskDefinitions {
+      id
+      name
+      description
+      script
+      interpreter
+    }
+    projects {
+      id
+      name
+      description
+      root_path
+      sample_number
+      is_active
+    }
+    pipelineStagesForProject(id: $pipelinesForProjectId) {
       id
       name
       description
@@ -40,17 +88,54 @@ const PipelineStagesQuery = gql`query {
     }
 }`;
 
-const PipelineStagesForProjectQuery = gql`query($pipelinesForProjectId: String!) { 
-    pipelineStagesForProject(id: $pipelinesForProjectId) {
+const PipelineGraphQuery = gql`query { 
+    pipelineStages {
       id
       name
       description
       project_id
-      task_id
       previous_stage_id
       dst_path
       is_active
       function_type
+      task {
+        id
+        name
+      }
+      performance {
+        id
+        pipeline_stage_id
+        num_in_process
+        num_ready_to_process
+        num_execute
+        num_complete
+        num_error
+        num_cancel
+        cpu_average
+        cpu_high
+        cpu_low
+        memory_average
+        memory_high
+        memory_low
+        duration_average
+        duration_high
+        duration_low
+     }
+    }
+    taskDefinitions {
+      id
+      name
+      description
+      script
+      interpreter
+    }
+    projects {
+      id
+      name
+      description
+      root_path
+      sample_number
+      is_active
     }
 }`;
 
@@ -176,77 +261,71 @@ export const ProjectsWithQuery = graphql(ProjectsQuery, {options: {pollInterval:
                 })
             })(Projects))));
 
-export const PipelineStagesWithQuery = graphql(PipelineStagesQuery, {options: {pollInterval: pollingIntervalSeconds * 1000}})(
-    graphql(ProjectsQuery, {
-        name: 'projectsData'
-    })(graphql(TaskDefinitionsQuery, {
-        name: 'taskDefinitionsData'
-    })(graphql(PipelineStagesForProjectQuery, {
-        name: 'pipelinesForProjectData'
-    })(graphql(CreatePipelineStageMutation, {
-        props: ({mutate}) => ({
-            createMutation: (project_id: string, task_id: string, previous_stage_id: string, dst_path: string) => mutate({
-                variables: {
-                    project_id: project_id,
-                    task_id: task_id,
-                    previous_stage_id: previous_stage_id,
-                    dst_path: dst_path
-                }
-            })
+export const PipelineStagesWithQuery = graphql(PipelineStagesQuery, {
+    options: ({pipelinesForProjectId}) => ({
+        pollInterval: pollingIntervalSeconds * 1000,
+        variables: {pipelinesForProjectId}
+    })
+})(graphql(CreatePipelineStageMutation, {
+    props: ({mutate}) => ({
+        createMutation: (project_id: string, task_id: string, previous_stage_id: string, dst_path: string) => mutate({
+            variables: {
+                project_id: project_id,
+                task_id: task_id,
+                previous_stage_id: previous_stage_id,
+                dst_path: dst_path
+            }
         })
-    })(graphql(SetPipelineStageStatusMutation, {
-        props: ({mutate}) => ({
-            setStatusMutation: (id: string, shouldBeActive: boolean) => mutate({
-                variables: {
-                    id: id,
-                    shouldBeActive: shouldBeActive
-                }
-            })
+    })
+})(graphql(SetPipelineStageStatusMutation, {
+    props: ({mutate}) => ({
+        setStatusMutation: (id: string, shouldBeActive: boolean) => mutate({
+            variables: {
+                id: id,
+                shouldBeActive: shouldBeActive
+            }
         })
-    })(graphql(DeletePipelineStageMutation, {
-        props: ({mutate}) => ({
-            deleteMutation: (id: string) => mutate({
-                variables: {
-                    id: id
-                }
-            })
+    })
+})(graphql(DeletePipelineStageMutation, {
+    props: ({mutate}) => ({
+        deleteMutation: (id: string) => mutate({
+            variables: {
+                id: id
+            }
         })
-    })(PipelineStages)))))));
+    })
+})(PipelineStages))));
 
-export const PipelineGraphWithQuery = graphql(PipelineStagesQuery, {options: {pollInterval: pollingIntervalSeconds * 1000}})(
-    graphql(ProjectsQuery, {
-        name: 'projectsData'
-    })(graphql(TaskDefinitionsQuery, {
-        name: 'taskDefinitionsData'
-    })(graphql(CreatePipelineStageMutation, {
-        props: ({mutate}) => ({
-            createMutation: (project_id: string, task_id: string, previous_stage_id: string, dst_path: string) => mutate({
-                variables: {
-                    project_id: project_id,
-                    task_id: task_id,
-                    previous_stage_id: previous_stage_id,
-                    dst_path: dst_path
-                }
-            })
+export const PipelineGraphWithQuery = graphql(PipelineGraphQuery, {options: {pollInterval: pollingIntervalSeconds * 1000}})
+(graphql(CreatePipelineStageMutation, {
+    props: ({mutate}) => ({
+        createMutation: (project_id: string, task_id: string, previous_stage_id: string, dst_path: string) => mutate({
+            variables: {
+                project_id: project_id,
+                task_id: task_id,
+                previous_stage_id: previous_stage_id,
+                dst_path: dst_path
+            }
         })
-    })(graphql(SetPipelineStageStatusMutation, {
-        props: ({mutate}) => ({
-            setStatusMutation: (id: string, shouldBeActive: boolean) => mutate({
-                variables: {
-                    id: id,
-                    shouldBeActive: shouldBeActive
-                }
-            })
+    })
+})(graphql(SetPipelineStageStatusMutation, {
+    props: ({mutate}) => ({
+        setStatusMutation: (id: string, shouldBeActive: boolean) => mutate({
+            variables: {
+                id: id,
+                shouldBeActive: shouldBeActive
+            }
         })
-    })(graphql(DeletePipelineStageMutation, {
-        props: ({mutate}) => ({
-            deleteMutation: (id: string) => mutate({
-                variables: {
-                    id: id
-                }
-            })
+    })
+})(graphql(DeletePipelineStageMutation, {
+    props: ({mutate}) => ({
+        deleteMutation: (id: string) => mutate({
+            variables: {
+                id: id
+            }
         })
-    })(PipelineGraph))))));
+    })
+})(PipelineGraph))));
 
 export const PipelineWorkersWithQuery = graphql(PipelineWorkersQuery, {
     options: {pollInterval: pollingIntervalSeconds * 1000}

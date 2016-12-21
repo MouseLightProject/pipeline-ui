@@ -12,11 +12,11 @@ import {
 export class Layout extends React.Component<any, any> {
     constructor(props) {
         super(props);
-        this.state = {pipelineForProjectId: ""};
+        this.state = {pipelinesForProjectId: ""};
     }
 
     onPipelinesForProjectIdChanged = (id: string) => {
-        this.setState({pipelineForProjectId: id}, null);
+        this.setState({pipelinesForProjectId: id}, null);
     };
 
     render() {
@@ -31,7 +31,7 @@ export class Layout extends React.Component<any, any> {
                 </PageHeader>
                 <PipelineGraphWithQuery/>
                 <ProjectsWithQuery/>
-                <PipelineStagesWithQuery pipelinesForProjectId={this.state.pipelineForProjectId}
+                <PipelineStagesWithQuery pipelinesForProjectId={this.state.pipelinesForProjectId}
                                          onPipelinesForProjectIdChanged={this.onPipelinesForProjectIdChanged}/>
                 <PipelineWorkersWithQuery/>
                 <TaskDefinitionsWithQuery/>

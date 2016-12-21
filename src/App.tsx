@@ -10,7 +10,7 @@ import {Layout} from "./Layout";
 // hot reloaded, and you will see a warning from <Router> on every reload.  You can ignore this warning. For details,
 // see: https://github.com/reactjs/react-router/issues/2182
 
-declare var window: { __APOLLO_STATE__: any };
+declare let window: { __APOLLO_STATE__: any };
 
 const networkInterface = createNetworkInterface({
     uri: "/graphql"

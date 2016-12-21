@@ -36,7 +36,8 @@ class CreatePipelineStageButton extends React.Component<any, any> {
 
     render() {
         return (
-            <Button bsStyle="success" bsSize="small" disabled={!this.props.canCreate} onClick={this.onClick}><Glyphicon glyph="plus"/> Add</Button>)
+            <Button bsStyle="success" bsSize="small" disabled={!this.props.canCreate} onClick={this.onClick}><Glyphicon
+                glyph="plus"/> Add</Button>)
     }
 }
 
@@ -159,7 +160,11 @@ export class PipelineStageCreateComponent extends React.Component<any, IPipeline
 
     onDstPathChange = (event: any) => {
         let dstPath = event.target.value;
-        this.setState({dst_path: dstPath, alertVisible: false, dstPathValidation: dstPath.length > 0 ? null : "error"}, null);
+        this.setState({
+            dst_path: dstPath,
+            alertVisible: false,
+            dstPathValidation: dstPath.length > 0 ? null : "error"
+        }, null);
     };
 
     onCreateError = (err: any) => {
@@ -168,7 +173,7 @@ export class PipelineStageCreateComponent extends React.Component<any, IPipeline
     };
 
     componentDidMount = () => {
-        if (this.state.project_id === "" && this.props.projects.length > 0) {
+        if (this.state.project_id === "" && this.props.projects.length > 1) {
             this.onProjectSelectionChange(this.props.projects[0].id);
         }
 
@@ -207,7 +212,8 @@ export class PipelineStageCreateComponent extends React.Component<any, IPipeline
                             </FormGroup>
                         </Col>
                         <Col lg={5}>
-                            <FormGroup controlId="dstPathText" bsSize="small" validationState={this.state.dstPathValidation}>
+                            <FormGroup controlId="dstPathText" bsSize="small"
+                                       validationState={this.state.dstPathValidation}>
                                 <ControlLabel>Output Path</ControlLabel>
                                 <FormControl type="text" onChange={this.onDstPathChange} value={this.state.dst_path}/>
                                 <HelpBlock>The output path should be a path accessible from the server and workers</HelpBlock>
