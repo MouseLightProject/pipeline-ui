@@ -1,17 +1,19 @@
 import * as React from "react";
 import {PageHeader} from "react-bootstrap";
 
-import {PipelineStages} from "./PipelineStages";
-import {Projects} from "./Projects";
-import {TaskDefinitions} from "./TaskDefinitions";
-import {PipelineGraph} from "./PipelineGraph";
 import {Workers} from "./Workers";
+import {
+    ProjectsWithQuery, PipelineStagesWithQuery, TaskDefinitionsWithQuery,
+    PipelineGraphWithQuery
+} from "./GraphQLComponents";
 
 export class BodyContainer extends React.Component<any, any> {
     render() {
         let divStyle = {
             margin: "20px"
         };
+
+        console.log(this.props.data);
 
         let pipelineStages = [];
 
@@ -31,12 +33,6 @@ export class BodyContainer extends React.Component<any, any> {
             projects = this.props.data.projects;
         }
 
-        let pipelinesForProject = [];
-
-        if (this.props.data && this.props.data.pipelineStagesForProject) {
-            pipelinesForProject = this.props.data.pipelineStagesForProject;
-        }
-
         let workers = [];
 
         if (this.props.data && this.props.data.pipelineWorkers) {
@@ -49,17 +45,22 @@ export class BodyContainer extends React.Component<any, any> {
             loading = this.props.data.loading;
         }
 
+        let refetch =  null;
+
+        if (this.props.data && this.props.data.refetch) {
+            refetch = this.props.data.refetch;
+        }
+
         return (
             <div style={divStyle}>
                 <PageHeader>Mouse Light Acquisition Dashboard
                     <small> Pipeline Server</small>
                 </PageHeader>
-                <PipelineGraph loading={loading} projects={projects} pipelineStages={pipelineStages} tasks={tasks}/>
-                <Projects loading={loading} projects={projects}/>
-                <PipelineStages loading={loading} projects={projects} pipelineStages={pipelineStages} tasks={tasks} pipelinesForProjectId={pipelinesForProject}
-                                         onPipelinesForProjectIdChanged={this.props.onPipelinesForProjectIdChanged}/>
-                <Workers loading={loading} workers={workers}/>
-                <TaskDefinitions loading={loading} tasks={tasks}/>
+                <PipelineGraphWithQuery loading={loading} refetch={refetch} projects={projects} pipelineStages={pipelineStages} tasks={tasks}/>
+                <ProjectsWithQuery loading={loading} refetch={refetch} projects={projects}/>
+                <PipelineStagesWithQuery loading={loading} refetch={refetch} projects={projects} pipelineStages={pipelineStages} tasks={tasks}/>
+                <Workers loading={loading} refetch={refetch} workers={workers}/>
+                <TaskDefinitionsWithQuery loading={loading} refetch={refetch} tasks={tasks}/>
             </div>
         )
     }

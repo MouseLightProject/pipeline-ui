@@ -28,11 +28,11 @@ const client = new ApolloClient({
     queryTransformer: addTypename,
     dataIdFromObject: (result: any) => {
         if (result.id) {
-            return result.id;
+            return result.__typename + result.id;
         }
         return null;
     },
-    shouldBatch: true,
+    shouldBatch: false,
     initialState: window.__APOLLO_STATE__
 });
 

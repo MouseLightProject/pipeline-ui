@@ -9,7 +9,7 @@ export class Projects extends React.Component<any, any> {
     onCreateProject = (name, desc, root, sample) => {
         this.props.createProjectMutation(name, desc, root, sample)
         .then(() => {
-            // this.props.data.refetch();
+            this.props.refetch();
         }).catch((err) => {
             console.log(err);
         });
@@ -18,7 +18,7 @@ export class Projects extends React.Component<any, any> {
     onSetProjectStatus = (id: string, shouldBeActive: boolean) => {
         this.props.setProjectStatusMutation(id, shouldBeActive)
         .then(() => {
-            // this.props.data.refetch();
+            this.props.refetch();
         }).catch((err) => {
             console.log(err);
         });
@@ -27,7 +27,7 @@ export class Projects extends React.Component<any, any> {
     onDeleteProject = (id: string) => {
         this.props.deleteProjectMutation(id)
         .then(() => {
-           //  this.props.data.refetch();
+            this.props.refetch();
         }).catch((err) => {
             console.log(err);
         });
@@ -38,7 +38,9 @@ export class Projects extends React.Component<any, any> {
 
         return (
             <div>
-                {this.props.loading ? <Loading/> : <TablePanel projects={projects} createCallback={this.onCreateProject} updateStatusCallback={this.onSetProjectStatus} deleteCallback={this.onDeleteProject}/>}
+                {this.props.loading ? <Loading/> :<TablePanel projects={projects} createCallback={this.onCreateProject}
+                                                              updateStatusCallback={this.onSetProjectStatus}
+                                                              deleteCallback={this.onDeleteProject}/>}
             </div>
         );
     }
@@ -49,7 +51,8 @@ class TablePanel extends React.Component<any, any> {
         return (
             <div>
                 <Panel collapsible defaultExpanded header="Sample Acquisition Pipelines" bsStyle="primary">
-                    <ProjectTable projects={this.props.projects} updateStatusCallback={this.props.updateStatusCallback} deleteCallback={this.props.deleteCallback}/>
+                    <ProjectTable projects={this.props.projects} updateStatusCallback={this.props.updateStatusCallback}
+                                  deleteCallback={this.props.deleteCallback}/>
                 </Panel>
                 <ProjectCreateComponent createCallback={this.props.createCallback}/>
             </div>

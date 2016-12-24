@@ -1,25 +1,24 @@
 import * as React from "react";
 import {Panel} from "react-bootstrap"
-let cytoscape = require("cytoscape");
 
 import {PipelineStageTable} from "./PipelineStageTable";
 import {Loading} from "./Loading";
-import {PipelineStageCreateComponent} from "./PipelineStageCreateComponent";
+import {PipelineStageCreateWithQuery} from "./PipelineStageCreateComponent";
 
 export class PipelineStages extends React.Component<any, any> {
-    onCreateProject = (project_id, task_id, previous_stage_id, dst_path) => {
-        this.props.createMutation(project_id, task_id, previous_stage_id, dst_path)
-        .then(() => {
-            this.props.data.refetch();
-        }).catch((err) => {
-            console.log(err);
-        });
+    constructor(props) {
+        super(props);
+        this.state = {pipelinesForProjectId: ""};
+    }
+
+    onPipelinesForProjectIdChanged = (id: string) => {
+        this.setState({pipelinesForProjectId: id}, null);
     };
 
     onSetProjectStatus = (id: string, shouldBeActive: boolean) => {
         this.props.setStatusMutation(id, shouldBeActive)
         .then(() => {
-            this.props.data.refetch();
+            this.props.refetch();
         }).catch((err) => {
             console.log(err);
         });
@@ -28,7 +27,7 @@ export class PipelineStages extends React.Component<any, any> {
     onDeleteProject = (id: string) => {
         this.props.deleteMutation(id)
         .then(() => {
-            this.props.data.refetch();
+            this.props.refetch();
         }).catch((err) => {
             console.log(err);
         });
@@ -41,20 +40,15 @@ export class PipelineStages extends React.Component<any, any> {
 
         let tasks = this.props.tasks;
 
-        let pipelinesForProject = [];
-
-        if (this.props.data && this.props.data.pipelineStagesForProject) {
-            pipelinesForProject = this.props.data.pipelineStagesForProject;
-        }
-
         return (
             <div>
                 {this.props.loading ? <Loading/> :
                     <TablePanel tasks={tasks} projects={projects} pipelineStages={pipelineStages}
-                                pipelinesForProject={pipelinesForProject}
-                                createCallback={this.onCreateProject} updateStatusCallback={this.onSetProjectStatus}
+                                pipelinesForProjectId={this.state.pipelinesForProjectId}
+                                refetch={this.props.refetch}
+                                updateStatusCallback={this.onSetProjectStatus}
                                 deleteCallback={this.onDeleteProject}
-                                onPipelinesForProjectIdChanged={this.props.onPipelinesForProjectIdChanged}/>}
+                                onPipelinesForProjectIdChanged={this.onPipelinesForProjectIdChanged}/>}
             </div>
         );
     }
@@ -69,9 +63,9 @@ class TablePanel extends React.Component<any, any> {
                                         updateStatusCallback={this.props.updateStatusCallback}
                                         deleteCallback={this.props.deleteCallback}/>
                 </Panel>
-                <PipelineStageCreateComponent tasks={this.props.tasks} projects={this.props.projects}
-                                              pipelinesForProject={this.props.pipelinesForProject}
-                                              createCallback={this.props.createCallback}
+                <PipelineStageCreateWithQuery tasks={this.props.tasks} projects={this.props.projects}
+                                              pipelinesForProjectId={this.props.pipelinesForProjectId}
+                                              refetch={this.props.refetch}
                                               onPipelinesForProjectIdChanged={this.props.onPipelinesForProjectIdChanged}/>
             </div>
         );

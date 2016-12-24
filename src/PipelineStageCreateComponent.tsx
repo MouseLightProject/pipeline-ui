@@ -1,4 +1,6 @@
 import * as React from "react";
+import {graphql} from "react-apollo";
+import gql from "graphql-tag";
 
 import {
     Grid,
@@ -15,6 +17,7 @@ import {
     DropdownButton,
     HelpBlock
 } from "react-bootstrap";
+import {IPipelineStage} from "./QueryInterfaces";
 
 const useAcquisitionRoot = "none (use acquisition root)";
 
@@ -130,9 +133,10 @@ interface IPipelineStageComponentState {
     dst_path?: string;
     dstPathValidation?: any;
     alertVisible?: boolean;
+    pipelinesForProject?: IPipelineStage[];
 }
 
-export class PipelineStageCreateComponent extends React.Component<any, IPipelineStageComponentState> {
+class PipelineStageCreateComponent extends React.Component<any, IPipelineStageComponentState> {
     constructor(props) {
         super(props);
         this.state = {
@@ -167,6 +171,15 @@ export class PipelineStageCreateComponent extends React.Component<any, IPipeline
         }, null);
     };
 
+    onCreateProject = (project_id, task_id, previous_stage_id, dst_path) => {
+        this.props.createMutation(project_id, task_id, previous_stage_id, dst_path)
+        .then(() => {
+            this.props.refetch();
+        }).catch((err) => {
+            console.log(err);
+        });
+    };
+
     onCreateError = (err: any) => {
         console.log(err);
         this.setState({alertVisible: true}, null);
@@ -183,6 +196,12 @@ export class PipelineStageCreateComponent extends React.Component<any, IPipeline
     };
 
     render() {
+        this.state.pipelinesForProject = [];
+
+        if (this.props.data && this.props.data.pipelineStagesForProject) {
+            this.state.pipelinesForProject = this.props.data.pipelineStagesForProject;
+        }
+
         return (
             <Panel collapsible defaultExpanded header="Add Stage" bsStyle="info">
                 <Grid fluid>
@@ -207,7 +226,7 @@ export class PipelineStageCreateComponent extends React.Component<any, IPipeline
                             <FormGroup bsSize="small">
                                 <ControlLabel>Previous Stage</ControlLabel>
                                 <PreviousStageMenu onPreviousStageSelectionChange={this.onPreviousStageSelectionChange}
-                                                   pipelinesForProject={this.props.pipelinesForProject}
+                                                   pipelinesForProject={this.state.pipelinesForProject}
                                                    selectedPreviousId={this.state.previous_stage_id}/>
                             </FormGroup>
                         </Col>
@@ -226,7 +245,7 @@ export class PipelineStageCreateComponent extends React.Component<any, IPipeline
                                                        previous_stage_id={this.state.previous_stage_id}
                                                        dst_path={this.state.dst_path}
                                                        canCreate={this.state.dstPathValidation === null}
-                                                       createCallback={this.props.createCallback}
+                                                       createCallback={this.onCreateProject}
                                                        errorCallback={this.onCreateError}/>
                         </Col>
                         <Col lg={11}>
@@ -237,3 +256,53 @@ export class PipelineStageCreateComponent extends React.Component<any, IPipeline
             </Panel>)
     }
 }
+
+
+const PipelineStagesForProjectQuery = gql`query($pipelinesForProjectId: String!) {
+     pipelineStagesForProject(id: $pipelinesForProjectId) {
+     id
+     name
+     description
+     project_id
+     task_id
+     previous_stage_id
+     dst_path
+     is_active
+     function_type
+     }
+ }`;
+
+const CreatePipelineStageMutation = gql`
+  mutation CreatePipelineStageMutation($project_id: String, $task_id: String, $previous_stage_id: String, $dst_path: String) {
+    createPipelineStage(project_id:$project_id, task_id:$task_id, previous_stage_id:$previous_stage_id, dst_path:$dst_path) {
+      id
+      name
+      description
+      project_id
+      task_id
+      previous_stage_id
+      dst_path
+      is_active
+      function_type
+    }
+  }
+`;
+
+export const PipelineStageCreateWithQuery = graphql(PipelineStagesForProjectQuery, {
+    options: ({pipelinesForProjectId}) => ({
+        pollInterval: 5000,
+        variables: {pipelinesForProjectId}
+    })
+})(graphql(CreatePipelineStageMutation, {
+    props: ({mutate}) => ({
+        createMutation: (project_id: string, task_id: string, previous_stage_id: string, dst_path: string) => mutate({
+            variables: {
+                project_id: project_id,
+                task_id: task_id,
+                previous_stage_id: previous_stage_id,
+                dst_path: dst_path
+            }
+        })
+    })
+})(PipelineStageCreateComponent));
+
