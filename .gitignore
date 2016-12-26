@@ -1,6 +1,7 @@
 # Logs
 *.log
 npm-debug.log*
+nohup.*
 
 # Dependency directory
 node_modules
