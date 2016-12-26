@@ -9,7 +9,7 @@
   "include": [
     "declaration.d.ts",
     "src/**/*",
-    "server.ts"
+    "pipelineClientServer.ts"
   ],
   "exclude": [
     "node_modules"

@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "description": "",
   "scripts": {
-    "dev": "DEBUG=mouselight* node $NODE_DEBUG_OPTION server.js",
-    "start": "node server.js",
+    "dev": "DEBUG=mouselight* node $NODE_DEBUG_OPTION pipelineClientServer.js",
+    "start": "node pipelineClientServer.js",
     "lint": "eslint src"
   },
   "keywords": [],
