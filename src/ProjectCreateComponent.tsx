@@ -96,7 +96,7 @@ export class ProjectCreateComponent extends React.Component<any, IStartTaskCompo
         let nameHelp = this.state.name.length === 0 ? "Name can not be empty" : "";
 
         return (
-            <Panel collapsible defaultExpanded={false} header="Create Pipeline" bsStyle="info">
+            <Panel collapsible defaultExpanded header="Create Pipeline" bsStyle="info">
                 <Grid fluid>
                     <Row>
                         <Col lg={5}>
