@@ -4,6 +4,12 @@ export interface IProject {
     description: string;
     root_path: string;
     sample_number: number,
+    region_x_min: number;
+    region_x_max: number;
+    region_y_min: number;
+    region_y_max: number;
+    region_z_min: number;
+    region_z_max: number;
     is_active: boolean;
 }
 

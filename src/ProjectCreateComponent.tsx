@@ -27,12 +27,22 @@ class CreateProjectFailedAlert extends React.Component<any, any> {
 
 class CreateProjectButton extends React.Component<any, any> {
     onClick = () => {
-        this.props.createCallback(this.props.name, this.props.description, this.props.rootPath, this.props.sampleNumber);
+        let region = {
+            x_min: this.props.regionMinX,
+            x_max: this.props.regionMaxX,
+            y_min: this.props.regionMinY,
+            y_max: this.props.regionMaxY,
+            z_min: this.props.regionMinZ,
+            z_max: this.props.regionMaxZ
+        };
+
+        this.props.createCallback(this.props.name, this.props.description, this.props.rootPath, this.props.sampleNumber, region);
     };
 
     render() {
         return (
-            <Button bsStyle="success" bsSize="small" disabled={!this.props.canCreate} onClick={this.onClick}><Glyphicon glyph="plus"/> Create</Button>)
+            <Button bsStyle="success" bsSize="small" disabled={!this.props.canCreate} onClick={this.onClick}><Glyphicon
+                glyph="plus"/> Create</Button>)
     }
 }
 
@@ -42,6 +52,12 @@ interface IStartTaskComponentState {
     description?: string;
     rootPath?: string;
     rootPathValidation?: any;
+    regionMinX?: number;
+    regionMaxX?: number;
+    regionMinY?: number;
+    regionMaxY?: number;
+    regionMinZ?: number;
+    regionMaxZ?: number;
     sampleNumber?: number;
     alertVisible?: boolean;
 }
@@ -55,6 +71,12 @@ export class ProjectCreateComponent extends React.Component<any, IStartTaskCompo
             description: "",
             rootPath: "",
             rootPathValidation: "error",
+            regionMinX: -1,
+            regionMaxX: -1,
+            regionMinY: -1,
+            regionMaxY: -1,
+            regionMinZ: -1,
+            regionMaxZ: -1,
             sampleNumber: 1,
             alertVisible: false
         };
@@ -87,10 +109,90 @@ export class ProjectCreateComponent extends React.Component<any, IStartTaskCompo
         }
     };
 
+    onRegionMinXChange = (event: any) => {
+        if (event.target.value.length === 0) {
+            this.setState({regionMinX: -1, alertVisible: false}, null);
+            return;
+        }
+        let x = parseInt(event.target.value);
+        if (!isNaN(x) && x >= 0) {
+            this.setState({regionMinX: x, alertVisible: false}, null);
+        } else {
+            this.setState({alertVisible: false}, null);
+        }
+    };
+
+    onRegionMaxXChange = (event: any) => {
+        if (event.target.value.length === 0) {
+            this.setState({regionMaxX: -1, alertVisible: false}, null);
+            return;
+        }
+        let x = parseInt(event.target.value);
+        if (!isNaN(x) && x >= 0) {
+            this.setState({regionMaxX: x, alertVisible: false}, null);
+        } else {
+            this.setState({alertVisible: false}, null);
+        }
+    };
+
+    onRegionMinYChange = (event: any) => {
+        if (event.target.value.length === 0) {
+            this.setState({regionMinY: -1, alertVisible: false}, null);
+            return;
+        }
+        let x = parseInt(event.target.value);
+        if (!isNaN(x) && x >= 0) {
+            this.setState({regionMinY: x, alertVisible: false}, null);
+        } else {
+            this.setState({alertVisible: false}, null);
+        }
+    };
+
+    onRegionMaxYChange = (event: any) => {
+        if (event.target.value.length === 0) {
+            this.setState({regionMaxY: -1, alertVisible: false}, null);
+            return;
+        }
+        let x = parseInt(event.target.value);
+        if (!isNaN(x) && x >= 0) {
+            this.setState({regionMaxY: x, alertVisible: false}, null);
+        } else {
+            this.setState({alertVisible: false}, null);
+        }
+    };
+
+    onRegionMinZChange = (event: any) => {
+        if (event.target.value.length === 0) {
+            this.setState({regionMinZ: -1, alertVisible: false}, null);
+            return;
+        }
+        let x = parseInt(event.target.value);
+        if (!isNaN(x) && x >= 0) {
+            this.setState({regionMinZ: x, alertVisible: false}, null);
+        } else {
+            this.setState({alertVisible: false}, null);
+        }
+    };
+
+    onRegionMaxZChange = (event: any) => {
+        if (event.target.value.length === 0) {
+            this.setState({regionMaxZ: -1, alertVisible: false}, null);
+            return;
+        }
+        let x = parseInt(event.target.value);
+        if (!isNaN(x) && x >= 0) {
+            this.setState({regionMaxZ: x, alertVisible: false}, null);
+        } else {
+            this.setState({alertVisible: false}, null);
+        }
+    };
+
     onCreateError = (err: any) => {
         console.log(err);
         this.setState({alertVisible: true}, null);
     };
+
+    formatRegionValue = value => value < 0 ? "" : value.toString();
 
     render() {
         let nameHelp = this.state.name.length === 0 ? "Name can not be empty" : "";
@@ -99,14 +201,6 @@ export class ProjectCreateComponent extends React.Component<any, IStartTaskCompo
             <Panel collapsible defaultExpanded header="Create Pipeline" bsStyle="info">
                 <Grid fluid>
                     <Row>
-                        <Col lg={5}>
-                            <FormGroup controlId="rootPathText" bsSize="small"
-                                       validationState={this.state.rootPathValidation}>
-                                <ControlLabel>Root Path</ControlLabel>
-                                <FormControl type="text" onChange={this.onRootPathChange} value={this.state.rootPath}/>
-                                <HelpBlock>The root path should be a path accessible from the server and workers</HelpBlock>
-                            </FormGroup>
-                        </Col>
                         <Col lg={2}>
                             <FormGroup bsSize="small" validationState={this.state.nameValidation}>
                                 <ControlLabel>Name</ControlLabel>
@@ -114,7 +208,15 @@ export class ProjectCreateComponent extends React.Component<any, IStartTaskCompo
                                 <HelpBlock>{nameHelp}</HelpBlock>
                             </FormGroup>
                         </Col>
-                        <Col lg={3}>
+                        <Col lg={4}>
+                            <FormGroup controlId="rootPathText" bsSize="small"
+                                       validationState={this.state.rootPathValidation}>
+                                <ControlLabel>Root Path</ControlLabel>
+                                <FormControl type="text" onChange={this.onRootPathChange} value={this.state.rootPath}/>
+                                <HelpBlock>The root path should be a path accessible from the server and workers</HelpBlock>
+                            </FormGroup>
+                        </Col>
+                        <Col lg={4}>
                             <FormGroup bsSize="small">
                                 <ControlLabel>Description</ControlLabel>
                                 <FormControl type="text" onChange={this.onDescriptionChange}
@@ -130,10 +232,65 @@ export class ProjectCreateComponent extends React.Component<any, IStartTaskCompo
                         </Col>
                     </Row>
                     <Row>
+                        <Col lg={2}>
+                            <FormGroup bsSize="small">
+                                <ControlLabel>Grid Min X Index</ControlLabel>
+                                <FormControl type="text" onChange={this.onRegionMinXChange}
+                                             value={this.formatRegionValue(this.state.regionMinX)}/>
+                            </FormGroup>
+                        </Col>
+                        <Col lg={2}>
+                            <FormGroup bsSize="small">
+                                <ControlLabel>Grid Max X Index</ControlLabel>
+                                <FormControl type="text" onChange={this.onRegionMaxXChange}
+                                             value={this.formatRegionValue(this.state.regionMaxX)}/>
+                            </FormGroup>
+                        </Col>
+                        <Col lg={2}>
+                            <FormGroup bsSize="small">
+                                <ControlLabel>Grid Min Y Index</ControlLabel>
+                                <FormControl type="text" onChange={this.onRegionMinYChange}
+                                             value={this.formatRegionValue(this.state.regionMinY)}/>
+                            </FormGroup>
+                        </Col>
+                        <Col lg={2}>
+                            <FormGroup bsSize="small">
+                                <ControlLabel>Grid Max Y Index</ControlLabel>
+                                <FormControl type="text" onChange={this.onRegionMaxYChange}
+                                             value={this.formatRegionValue(this.state.regionMaxY)}/>
+                            </FormGroup>
+                        </Col>
+                        <Col lg={2}>
+                            <FormGroup bsSize="small">
+                                <ControlLabel>Grid Min Z Index</ControlLabel>
+                                <FormControl type="text" onChange={this.onRegionMinZChange}
+                                             value={this.formatRegionValue(this.state.regionMinZ)}/>
+                            </FormGroup>
+                        </Col>
+                        <Col lg={2}>
+                            <FormGroup bsSize="small">
+                                <ControlLabel>Grid Max Z Index</ControlLabel>
+                                <FormControl type="text" onChange={this.onRegionMaxZChange}
+                                             value={this.formatRegionValue(this.state.regionMaxZ)}/>
+                            </FormGroup>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col lg={12}>
+                            <HelpBlock>Leave any minimum value blank to include all indices up to the maximum, or any maximum value blank to include all indices above the minimum.  Leave both blank to include all indices in a given coordinate.</HelpBlock>
+                        </Col>
+                    </Row>
+                    <Row>
                         <Col lg={1}>
                             <CreateProjectButton name={this.state.name} description={this.state.description}
                                                  rootPath={this.state.rootPath}
                                                  sampleNumber={this.state.sampleNumber}
+                                                 regionMinX={this.state.regionMinX}
+                                                 regionMaxX={this.state.regionMaxX}
+                                                 regionMinY={this.state.regionMinY}
+                                                 regionMaxY={this.state.regionMaxY}
+                                                 regionMinZ={this.state.regionMinZ}
+                                                 regionMaxZ={this.state.regionMaxZ}
                                                  canCreate={this.state.nameValidation === null && this.state.rootPathValidation === null}
                                                  createCallback={this.props.createCallback}
                                                  errorCallback={this.onCreateError}/>

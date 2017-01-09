@@ -6,8 +6,10 @@ import {Loading} from "./Loading";
 import {ProjectCreateComponent} from "./ProjectCreateComponent";
 
 export class Projects extends React.Component<any, any> {
-    onCreateProject = (name, desc, root, sample) => {
-        this.props.createProjectMutation(name, desc, root, sample)
+    onCreateProject = (name, desc, root, sample, region) => {
+        console.log(sample);
+        console.log(region);
+        this.props.createProjectMutation(name, desc, root, sample, region)
         .then(() => {
             this.props.refetch();
         }).catch((err) => {

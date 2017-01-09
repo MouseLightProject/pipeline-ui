@@ -38,6 +38,12 @@ const AllObjectQuery = gql`query {
       description
       root_path
       sample_number
+      region_x_min
+      region_x_max
+      region_y_min
+      region_y_max
+      region_z_min
+      region_z_max
       is_active
     }
     pipelineStages {
@@ -76,8 +82,8 @@ const AllObjectQuery = gql`query {
 }`;
 
 const CreateProjectMutation = gql`
-  mutation CreateProjectMutation($name: String, $description: String, $rootPath: String, $sampleNumber: Int) {
-    createProject(name:$name, description:$description, rootPath:$rootPath, sampleNumber:$sampleNumber) {
+  mutation CreateProjectMutation($name: String, $description: String, $rootPath: String, $sampleNumber: Int, $region: RegionInput) {
+    createProject(name:$name, description:$description, rootPath:$rootPath, sampleNumber:$sampleNumber, region:$region) {
       id
       name
       description
@@ -134,12 +140,13 @@ export const BodyContainerWithQuery = graphql(AllObjectQuery, {
 
 export const ProjectsWithQuery = graphql(CreateProjectMutation, {
     props: ({mutate}) => ({
-        createProjectMutation: (name: string, desc: string, root: string, sample: number) => mutate({
+        createProjectMutation: (name: string, desc: string, root: string, sample: number, region: any) => mutate({
             variables: {
                 name: name,
                 description: desc,
                 rootPath: root,
-                sampleNumber: sample
+                sampleNumber: sample,
+                region: region
             }
         })
     })

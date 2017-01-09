@@ -126,11 +126,45 @@ class PreviousStageMenu extends React.Component<any, any> {
     }
 }
 
+class FunctionTypeMenu extends React.Component<any, any> {
+    handleChange = (eventKey) => {
+        this.props.onFunctionSelectionChange(eventKey);
+    };
+
+    render() {
+        let title = "";
+
+        switch (this.props.selectedFunctionType) {
+            case 2:
+                title = "Map Tile";
+                break;
+            case 3:
+                title = "Map With Z Index - 1 Tile";
+                break;
+            case 4:
+                title = "Map Dual Channel";
+                break;
+        }
+
+        return (
+            <div>
+                <DropdownButton bsSize="sm" id="function-for-pipeline-stage-drop-down" title={title}
+                                onSelect={this.handleChange}>
+                    <MenuItem key={"pipeline_function_2"} eventKey={2}>Map Tile</MenuItem>
+                    <MenuItem key={"pipeline_function_3"} eventKey={3}>Map With Z Index - 1 Tile</MenuItem>
+                    <MenuItem key={"pipeline_function_4"} eventKey={4}>Map Dual Channel</MenuItem>
+                </DropdownButton>
+            </div>
+        )
+    }
+}
+
 interface IPipelineStageComponentState {
     project_id?: string;
     task_id?: string;
     previous_stage_id?: string;
     dst_path?: string;
+    function_type?: number;
     dstPathValidation?: any;
     alertVisible?: boolean;
     pipelinesForProject?: IPipelineStage[];
@@ -139,11 +173,13 @@ interface IPipelineStageComponentState {
 class PipelineStageCreateComponent extends React.Component<any, IPipelineStageComponentState> {
     constructor(props) {
         super(props);
+
         this.state = {
             project_id: "",
             task_id: "",
             previous_stage_id: "",
             dst_path: "",
+            function_type: 0,
             dstPathValidation: "error",
             alertVisible: false
         };
@@ -156,6 +192,10 @@ class PipelineStageCreateComponent extends React.Component<any, IPipelineStageCo
 
     onTaskSelectionChange = (taskProjectId: any) => {
         this.setState({task_id: taskProjectId, alertVisible: false}, null);
+    };
+
+    onFunctionSelectionChange = (functionType: any) => {
+        this.setState({function_type: functionType, alertVisible: false}, null);
     };
 
     onPreviousStageSelectionChange = (previousStageId: any) => {
@@ -171,8 +211,8 @@ class PipelineStageCreateComponent extends React.Component<any, IPipelineStageCo
         }, null);
     };
 
-    onCreateProject = (project_id, task_id, previous_stage_id, dst_path) => {
-        this.props.createMutation(project_id, task_id, previous_stage_id, dst_path)
+    onCreateProject = (project_id, task_id, previous_stage_id, dst_path, function_type) => {
+        this.props.createMutation(project_id, task_id, previous_stage_id, dst_path, function_type)
         .then(() => {
             this.props.refetch();
         }).catch((err) => {
@@ -193,6 +233,8 @@ class PipelineStageCreateComponent extends React.Component<any, IPipelineStageCo
         if (this.state.task_id === "" && this.props.tasks.length > 0) {
             this.onTaskSelectionChange(this.props.tasks[0].id);
         }
+
+        this.onFunctionSelectionChange(2);
     };
 
     render() {
@@ -222,7 +264,7 @@ class PipelineStageCreateComponent extends React.Component<any, IPipelineStageCo
                                           selectedTaskId={this.state.task_id}/>
                             </FormGroup>
                         </Col>
-                        <Col lg={3}>
+                        <Col lg={2}>
                             <FormGroup bsSize="small">
                                 <ControlLabel>Previous Stage</ControlLabel>
                                 <PreviousStageMenu onPreviousStageSelectionChange={this.onPreviousStageSelectionChange}
@@ -230,7 +272,14 @@ class PipelineStageCreateComponent extends React.Component<any, IPipelineStageCo
                                                    selectedPreviousId={this.state.previous_stage_id}/>
                             </FormGroup>
                         </Col>
-                        <Col lg={5}>
+                        <Col lg={2}>
+                            <FormGroup bsSize="small">
+                                <ControlLabel>Tile Function</ControlLabel>
+                                <FunctionTypeMenu onFunctionSelectionChange={this.onFunctionSelectionChange}
+                                                  selectedFunctionType={this.state.function_type}/>
+                            </FormGroup>
+                        </Col>
+                        <Col lg={4}>
                             <FormGroup controlId="dstPathText" bsSize="small"
                                        validationState={this.state.dstPathValidation}>
                                 <ControlLabel>Output Path</ControlLabel>
@@ -244,6 +293,7 @@ class PipelineStageCreateComponent extends React.Component<any, IPipelineStageCo
                             <CreatePipelineStageButton project_id={this.state.project_id} task_id={this.state.task_id}
                                                        previous_stage_id={this.state.previous_stage_id}
                                                        dst_path={this.state.dst_path}
+                                                       function_type={this.state.function_type}
                                                        canCreate={this.state.dstPathValidation === null}
                                                        createCallback={this.onCreateProject}
                                                        errorCallback={this.onCreateError}/>
@@ -273,8 +323,8 @@ const PipelineStagesForProjectQuery = gql`query($pipelinesForProjectId: String!)
  }`;
 
 const CreatePipelineStageMutation = gql`
-  mutation CreatePipelineStageMutation($project_id: String, $task_id: String, $previous_stage_id: String, $dst_path: String) {
-    createPipelineStage(project_id:$project_id, task_id:$task_id, previous_stage_id:$previous_stage_id, dst_path:$dst_path) {
+  mutation CreatePipelineStageMutation($project_id: String, $task_id: String, $previous_stage_id: String, $dst_path: String, $function_type: Int) {
+    createPipelineStage(project_id:$project_id, task_id:$task_id, previous_stage_id:$previous_stage_id, dst_path:$dst_path, function_type:$function_type) {
       id
       name
       description
@@ -295,12 +345,13 @@ export const PipelineStageCreateWithQuery = graphql(PipelineStagesForProjectQuer
     })
 })(graphql(CreatePipelineStageMutation, {
     props: ({mutate}) => ({
-        createMutation: (project_id: string, task_id: string, previous_stage_id: string, dst_path: string) => mutate({
+        createMutation: (project_id: string, task_id: string, previous_stage_id: string, dst_path: string, function_type: number) => mutate({
             variables: {
                 project_id: project_id,
                 task_id: task_id,
                 previous_stage_id: previous_stage_id,
-                dst_path: dst_path
+                dst_path: dst_path,
+                function_type: function_type
             }
         })
     })
