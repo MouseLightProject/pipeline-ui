@@ -18,7 +18,7 @@ class PipelineStageRow extends React.Component<IPipelineStageRowProps, any> {
     };
 
     onActiveClick = () => {
-        this.props.updateStatusCallback(this.props.pipelineStage.id, !this.props.pipelineStage.is_active);
+        this.props.updateStatusCallback(this.props.pipelineStage.id, !this.props.pipelineStage.is_processing);
     };
 
     formatPerformance = (performance) => {
@@ -40,7 +40,7 @@ class PipelineStageRow extends React.Component<IPipelineStageRowProps, any> {
 
         return (
             <tr>
-                <td><Button bsSize="xs" bsStyle={this.getActivateStyle(pipelineStage.is_active)} onClick={this.onActiveClick}><Glyphicon glyph={this.getActivateGlyph(pipelineStage.is_active)} /> {this.getActivateText(pipelineStage.is_active)}</Button></td>
+                <td><Button bsSize="xs" bsStyle={this.getActivateStyle(pipelineStage.is_processing)} onClick={this.onActiveClick}><Glyphicon glyph={this.getActivateGlyph(pipelineStage.is_processing)} /> {this.getActivateText(pipelineStage.is_processing)}</Button></td>
                 <td>{pipelineStage.id.slice(0, 8)}</td>
                 <td>{pipelineStage.project_id.slice(0, 8)}</td>
                 <td>{pipelineStage.task.id.slice(0, 8)}</td>

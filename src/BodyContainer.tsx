@@ -13,8 +13,6 @@ export class BodyContainer extends React.Component<any, any> {
             margin: "20px"
         };
 
-        console.log(this.props.data);
-
         let pipelineStages = [];
 
         if (this.props.data && this.props.data.pipelineStages) {

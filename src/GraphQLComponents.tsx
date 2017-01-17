@@ -44,7 +44,7 @@ const AllObjectQuery = gql`query {
       region_y_max
       region_z_min
       region_z_max
-      is_active
+      is_processing
     }
     pipelineStages {
       id
@@ -53,7 +53,7 @@ const AllObjectQuery = gql`query {
       project_id
       previous_stage_id
       dst_path
-      is_active
+      is_processing
       function_type
       task {
         id
@@ -89,7 +89,7 @@ const CreateProjectMutation = gql`
       description
       root_path
       sample_number
-      is_active
+      is_processing
     }
   }
 `;
@@ -98,7 +98,7 @@ const SetProjectStatusMutation = gql`
   mutation SetProjectStatusMutation($id: String, $shouldBeActive: Boolean) {
     setProjectStatus(id:$id, shouldBeActive:$shouldBeActive) {
       id
-      is_active
+      is_processing
     }
   }
 `;
@@ -113,7 +113,7 @@ const SetPipelineStageStatusMutation = gql`
   mutation SetPipelineStageStatusMutation($id: String, $shouldBeActive: Boolean) {
     setPipelineStageStatus(id:$id, shouldBeActive:$shouldBeActive) {
       id
-      is_active
+      is_processing
     }
   }
 `;

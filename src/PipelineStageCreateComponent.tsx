@@ -317,7 +317,7 @@ const PipelineStagesForProjectQuery = gql`query($pipelinesForProjectId: String!)
      task_id
      previous_stage_id
      dst_path
-     is_active
+     is_processing
      function_type
      }
  }`;
@@ -332,7 +332,7 @@ const CreatePipelineStageMutation = gql`
       task_id
       previous_stage_id
       dst_path
-      is_active
+      is_processing
       function_type
     }
   }

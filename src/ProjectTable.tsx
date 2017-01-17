@@ -21,7 +21,7 @@ class ProjectRow extends React.Component<IProjectRowProps, any> {
     };
 
     onActiveClick = () => {
-        this.props.updateStatusCallback(this.props.project.id, !this.props.project.is_active);
+        this.props.updateStatusCallback(this.props.project.id, !this.props.project.is_processing);
     };
 
     getActivateText = isActive => isActive ? "Stop" : "Start";
@@ -49,9 +49,9 @@ class ProjectRow extends React.Component<IProjectRowProps, any> {
 
         return (
             <tr>
-                <td><Button bsSize="xsmall" bsStyle={this.getActivateStyle(project.is_active)}
+                <td><Button bsSize="xsmall" bsStyle={this.getActivateStyle(project.is_processing)}
                             onClick={this.onActiveClick}><Glyphicon
-                    glyph={this.getActivateGlyph(project.is_active)}/> {this.getActivateText(project.is_active)}
+                    glyph={this.getActivateGlyph(project.is_processing)}/> {this.getActivateText(project.is_processing)}
                 </Button></td>
                 <td>{project.sample_number}</td>
                 <td style={columnLimitStyle}>{project.name}<br/><span style={spanStyle}>{project.description}</span>
