@@ -6,6 +6,7 @@ import {
     ProjectsWithQuery, PipelineStagesWithQuery, TaskDefinitionsWithQuery,
     PipelineGraphWithQuery
 } from "./GraphQLComponents";
+import {PipelineTileMapWithQuery} from "./PipelineTileMap";
 
 export class BodyContainer extends React.Component<any, any> {
     render() {
@@ -55,6 +56,7 @@ export class BodyContainer extends React.Component<any, any> {
                     <small> Pipeline Server</small>
                 </PageHeader>
                 <PipelineGraphWithQuery loading={loading} refetch={refetch} projects={projects} pipelineStages={pipelineStages} tasks={tasks}/>
+                <PipelineTileMapWithQuery loading={loading} projects={projects} pipelineStages={pipelineStages} project_id="af8cb0d4-56c0-4db8-8a1b-7b39540b2d04" plane="0"/>
                 <ProjectsWithQuery loading={loading} refetch={refetch} projects={projects}/>
                 <PipelineStagesWithQuery loading={loading} refetch={refetch} projects={projects} pipelineStages={pipelineStages} tasks={tasks}/>
                 <Workers loading={loading} refetch={refetch} workers={workers}/>

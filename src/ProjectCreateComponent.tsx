@@ -101,6 +101,10 @@ export class ProjectCreateComponent extends React.Component<any, IStartTaskCompo
     };
 
     onSampleNumberChange = (event: any) => {
+        if (event.target.value.length === 0) {
+            this.setState({sampleNumber: -1, alertVisible: false}, null);
+            return;
+        }
         let x = parseInt(event.target.value);
         if (!isNaN(x) && x >= 0) {
             this.setState({sampleNumber: x, alertVisible: false}, null);
@@ -227,7 +231,7 @@ export class ProjectCreateComponent extends React.Component<any, IStartTaskCompo
                             <FormGroup bsSize="small">
                                 <ControlLabel>Sample Number</ControlLabel>
                                 <FormControl type="text" onChange={this.onSampleNumberChange}
-                                             value={this.state.sampleNumber.toString()}/>
+                                             value={this.formatRegionValue(this.state.sampleNumber)}/>
                             </FormGroup>
                         </Col>
                     </Row>
