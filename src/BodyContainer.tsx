@@ -56,7 +56,7 @@ export class BodyContainer extends React.Component<any, any> {
                     <small> Pipeline Server</small>
                 </PageHeader>
                 <PipelineGraphWithQuery loading={loading} refetch={refetch} projects={projects} pipelineStages={pipelineStages} tasks={tasks}/>
-                <PipelineTileMapWithQuery loading={loading} projects={projects} pipelineStages={pipelineStages} project_id="44e49773-1c19-494b-b283-54466b94b70f" plane="0"/>
+                <PipelineTileMapWithQuery loading={loading} projects={projects} pipelineStages={pipelineStages} project_id="44e49773-1c19-494b-b283-54466b94b70f" plane="277"/>
                 <ProjectsWithQuery loading={loading} refetch={refetch} projects={projects}/>
                 <PipelineStagesWithQuery loading={loading} refetch={refetch} projects={projects} pipelineStages={pipelineStages} tasks={tasks}/>
                 <Workers loading={loading} refetch={refetch} workers={workers}/>
