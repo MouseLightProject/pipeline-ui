@@ -152,10 +152,10 @@ class PipelineTileMap extends React.Component<any, any> {
             z = numeric.random([5, 7], 0);
         }
 
-        x = x.map(v => v.toString());
-        y = y.map(v => v.toString());
+        x// = x.map(v => v.toString());
+        //y = y.map(v => v.toString());
 
-        console.log(z);
+        //console.log(z);
 
         return (
             <div>
@@ -201,11 +201,11 @@ class Plot extends React.Component<any, any> {
             },
             xaxis: {
                 gridcolor: 'black',
-                type: 'category'
+            //    type: 'category'
             },
             yaxis: {
                 gridcolor: 'black',
-                type: 'category'
+            //    type: 'category'
             },
             annotations: this.props.annotations
         }, {
