@@ -12,6 +12,12 @@ export interface IProject {
     description: string;
     root_path: string;
     sample_number: number,
+    sample_x_min: number;
+    sample_x_max: number;
+    sample_y_min: number;
+    sample_y_max: number;
+    sample_z_min: number;
+    sample_z_max: number;
     region_x_min: number;
     region_x_max: number;
     region_y_min: number;

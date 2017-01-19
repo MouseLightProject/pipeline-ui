@@ -7,7 +7,7 @@ let numeric = require("numeric");
 
 import {Loading} from "./Loading";
 import graphql from "react-apollo/graphql";
-import {TilePipelineStatus} from "./QueryInterfaces";
+import {TilePipelineStatus, IProject} from "./QueryInterfaces";
 
 interface IStageStatus {
     stage_id: string;
@@ -76,12 +76,14 @@ class MapPanel extends React.Component<any, any> {
 
     componentDidMount = () => {
         if (this.state.projectId === "" && this.props.projects.length > 1) {
+            console.log(`componentDidMount project`);
             this.onProjectChanged(this.props.projects[0].id);
         }
     };
 
     componentDidUpdate = () => {
         if (this.state.projectId === "" && this.props.projects.length > 1) {
+            console.log(`componentDidUpdate project`);
             this.onProjectChanged(this.props.projects[0].id);
         }
     };
@@ -97,11 +99,17 @@ class MapPanel extends React.Component<any, any> {
         if (project.length > 0 && project[0].id !== this.state.projectId) {
             project = project[0];
 
-            if (project.region_z_min > -1) {
+            if (project.sample_z_min > -1) {
+                minZ = project.sample_z_min;
+            }
+            else if (project.region_z_min > -1) {
                 minZ = project.region_z_min;
             }
 
-            if (project.region_z_max > -1) {
+            if (project.sample_z_max > -1) {
+                maxZ = project.sample_z_max;
+            }
+            else if (project.region_z_max > -1) {
                 maxZ = project.region_z_max;
             }
 
@@ -150,6 +158,16 @@ class MapPanel extends React.Component<any, any> {
 
 class Plot extends React.Component<any, any> {
     componentDidMount() {
+        let projects = this.props.projects.filter(x => x.id === this.props.project_id);
+
+        let project: IProject = null;
+
+        if (projects.length > 0)  {
+            project = projects[0];
+        } else {
+            project = null;
+        }
+
         let pipelineStages = this.props.pipelineStages;
 
         let pipelineIds = pipelineStages.map(p => p.id);
@@ -165,8 +183,13 @@ class Plot extends React.Component<any, any> {
 
             zmax = data.max_depth + 1;
 
-            x = numeric.linspace(data.x_min, data.x_max);
-            y = numeric.linspace(data.y_min, data.y_max);
+            let xmin = project ? (project.sample_x_min >= 0 ?  project.sample_x_min : 0) : 0;
+            let xmax = project ? (project.sample_x_max >= 0 ?  project.sample_x_max : 0) : 0;
+            let ymin = project ? (project.sample_y_min >= 0 ?  project.sample_y_min : 0) : 0;
+            let ymax = project ? (project.sample_y_max >= 0 ?  project.sample_y_max : 0) : 0;
+
+            x = numeric.linspace(xmin, xmax);
+            y = numeric.linspace(ymin, ymax);
             z = numeric.rep([x.length, y.length], 0);
 
             data.tiles.map((tile: ITileStatus) => {
@@ -262,9 +285,17 @@ class Plot extends React.Component<any, any> {
                 }
             });
         } else {
-            x = numeric.linspace(0, 0);
-            y = numeric.linspace(0, 0);
-            z = numeric.rep([1, 1], 0);
+            let xmin = project ? (project.sample_x_min >= 0 ?  project.sample_x_min : 0) : 0;
+            let xmax = project ? (project.sample_x_max >= 0 ?  project.sample_x_max : 0) : 0;
+            let ymin = project ? (project.sample_y_min >= 0 ?  project.sample_y_min : 0) : 0;
+            let ymax = project ? (project.sample_y_max >= 0 ?  project.sample_y_max : 0) : 0;
+
+            console.log(`${xmin} ${xmax} ${ymin} ${ymax}`);
+
+            x = numeric.linspace(xmin, xmax);
+            y = numeric.linspace(ymin, ymax);
+            z = numeric.rep([x.length, y.length], -1);
+
             zmax = 1;
         }
 
@@ -272,7 +303,7 @@ class Plot extends React.Component<any, any> {
             x: x,
             y: y,
             z: z,
-            zmin: 0,
+            zmin: -1,
             zmax: zmax,
             margin: {
                 t: 100
@@ -307,8 +338,12 @@ class Plot extends React.Component<any, any> {
 
     render() {
 
+        let divStyle = {
+            "min-height": "700px"
+        };
+
         return (
-            <div id="tile_map_plot"></div>
+            <div style={divStyle} id="tile_map_plot"></div>
         );
     }
 }

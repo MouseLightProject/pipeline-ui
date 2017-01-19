@@ -38,6 +38,12 @@ const AllObjectQuery = gql`query {
       description
       root_path
       sample_number
+      sample_x_min
+      sample_x_max
+      sample_y_min
+      sample_y_max
+      sample_z_min
+      sample_z_max
       region_x_min
       region_x_max
       region_y_min
