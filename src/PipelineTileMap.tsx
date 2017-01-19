@@ -1,7 +1,7 @@
 import * as React from "react";
 import gql from "graphql-tag/index";
 
-import {Panel} from "react-bootstrap"
+import {Panel, NavItem, Nav, MenuItem, NavDropdown, Navbar} from "react-bootstrap"
 let Plotly = require("plotly.js");
 let numeric = require("numeric");
 
@@ -31,22 +31,110 @@ export class PipelineTileMap extends React.Component<any, any> {
         return (
             <div>
                 {this.props.loading ? <Loading/> :
-                    <MapPanel projects={this.props.projects} pipelineStages={this.props.pipelineStages} tasks={this.props.tasks}/>}
+                    <MapPanel projects={this.props.projects} pipelineStages={this.props.pipelineStages}
+                              tasks={this.props.tasks}/>}
             </div>
         );
     }
 }
 
-class MapPanel extends React.Component<any, any> {
+class ProjectMenu extends React.Component<any, any> {
+    handleChange = (eventKey) => {
+        this.props.onProjectSelectionChange(eventKey);
+    };
 
     render() {
-        // let project_id = "af8cb0d4-56c0-4db8-8a1b-7b39540b2d04";
-        let project_id = "44e49773-1c19-494b-b283-54466b94b70f";
+        let title = "";
+
+        let rows = this.props.projects.map(project => {
+            if (project.id === this.props.selectedProjectId) {
+                title = `${project.name} (Sample Id ${project.sample_number})`;
+            }
+
+            return (<MenuItem key={"pipeline_project_" +project.id}
+                              eventKey={project.id}>{`${project.name} (Sample Id ${project.sample_number})`}</MenuItem>)
+        });
+
+        return (
+            <NavDropdown id="tilemap-project-dropdown" title={title} onSelect={this.handleChange}>
+                {rows}
+            </NavDropdown>
+        )
+    }
+}
+
+class MapPanel extends React.Component<any, any> {
+    constructor(props) {
+        super(props);
+        this.state = {
+            projectId: "",
+            minZ: 0,
+            maxZ: 1e6,
+            plane: -1
+        };
+    }
+
+    onProjectChanged = (eventKey) => {
+        let project = this.props.projects.filter(x => x.id === eventKey);
+
+        console.log(project);
+
+        let minZ = 0;
+        let maxZ = 1e6;
+
+        if (project.length > 0 && project[0].id !== this.state.projectId) {
+            project = project[0];
+
+            if (project.region_z_min > -1) {
+                minZ = project.region_z_min;
+            }
+
+            if (project.region_z_max > -1) {
+                maxZ = project.region_z_max;
+            }
+
+            this.setState({projectId: eventKey, minZ: minZ, maxZ: maxZ, plane: minZ}, null);
+        }
+    };
+
+    onLeftClick = () => {
+        if (this.state.plane > this.state.minZ) {
+            this.setState({plane: this.state.plane - 1}, null);
+        }
+    };
+
+    onRightClick = () => {
+        if (this.state.plane < this.state.maxZ) {
+            this.setState({plane: this.state.plane + 1}, null);
+        }
+    };
+
+    render() {
+        let project_id = "af8cb0d4-56c0-4db8-8a1b-7b39540b2d04";
+        // let project_id = "44e49773-1c19-494b-b283-54466b94b70f";
 
         return (
 
             <Panel collapsible defaultExpanded header="Pipeline Tile Map" bsStyle="info">
-                <PlotWithQuery project_id={project_id} plane="389" projects={this.props.projects} pipelineStages={this.props.pipelineStages} tasks={this.props.tasks}/>
+                <Navbar inverse fluid>
+                    <Navbar.Header>
+                        <Navbar.Brand>
+                            Project
+                        </Navbar.Brand>
+                        <Navbar.Toggle />
+                    </Navbar.Header>
+                    <Nav>
+                        <ProjectMenu projects={this.props.projects} onProjectSelectionChange={this.onProjectChanged}/>
+                    </Nav>
+                    <Nav pullRight>
+                        <NavItem>Current Z Index</NavItem>
+                        <NavItem>{this.state.plane}</NavItem>
+                        <NavItem onClick={this.onLeftClick}>{"<"}</NavItem>
+                        <NavItem onClick={this.onRightClick}>{">"}</NavItem>
+                    </Nav>
+                </Navbar>
+                <PlotWithQuery project_id={project_id} plane={this.state.plane} projects={this.props.projects}
+                               pipelineStages={this.props.pipelineStages} tasks={this.props.tasks}/>
             </Panel>
         );
     }
@@ -54,8 +142,6 @@ class MapPanel extends React.Component<any, any> {
 
 class Plot extends React.Component<any, any> {
     componentDidMount() {
-        let tasks = this.props.tasks;
-
         let pipelineStages = this.props.pipelineStages;
 
         let pipelineIds = pipelineStages.map(p => p.id);
@@ -66,26 +152,24 @@ class Plot extends React.Component<any, any> {
         let zmax = 0;
         let annotations = [];
 
-        if (this.props.data && this.props.data.projectPlaneTileStatus) {
+        if (this.props.data && this.props.data.projectPlaneTileStatus && this.props.data.projectPlaneTileStatus.tiles.length > 0) {
             let data = this.props.data.projectPlaneTileStatus;
-
-            console.log(data);
 
             zmax = data.max_depth + 1;
 
             x = numeric.linspace(data.x_min, data.x_max);
             y = numeric.linspace(data.y_min, data.y_max);
-            z = numeric.rep([x.length, y.length], -1);
+            z = numeric.rep([x.length, y.length], 0);
 
             data.tiles.map((tile: ITileStatus) => {
                 let markedStages = tile.stages.reduce((depth, stage) => {
-                    if (stage.status === TilePipelineStatus.Incomplete) {
+                    if (stage.status === TilePipelineStatus.Waiting) {
                         // Queued or processing
                         if (depth[0] === null || stage.depth < depth[0].depth)
                             depth[0] = stage;
                     }
 
-                    if (stage.status > TilePipelineStatus.Incomplete && stage.status < TilePipelineStatus.Complete) {
+                    if (stage.status > TilePipelineStatus.Waiting && stage.status < TilePipelineStatus.Complete) {
                         // Queued or processing
                         if (depth[1] === null || stage.depth < depth[1].depth)
                             depth[1] = stage;
@@ -144,7 +228,7 @@ class Plot extends React.Component<any, any> {
                     }
                 }
 
-                let pseudoDepth = displayStage ? (displayStage.status === TilePipelineStatus.Complete ? displayStage.depth + 1 : (displayStage.status === TilePipelineStatus.Incomplete ? displayStage.depth - 0.5 : displayStage.depth)) : 0;
+                let pseudoDepth = displayStage ? (displayStage.status === TilePipelineStatus.Complete ? displayStage.depth + 1 : (displayStage.status === TilePipelineStatus.Waiting ? displayStage.depth - 0.5 : displayStage.depth)) : 0;
 
                 console.log(`${tile.x_index} ${tile.y_index} ${pseudoDepth}`);
                 let result = {
@@ -170,9 +254,10 @@ class Plot extends React.Component<any, any> {
                 }
             });
         } else {
-            x = numeric.linspace(0, 4);
-            y = numeric.linspace(0, 6);
-            z = numeric.random([5, 7], 0);
+            x = numeric.linspace(0, 0);
+            y = numeric.linspace(0, 0);
+            z = numeric.rep([1, 1], 0);
+            zmax = 1;
         }
 
         Plotly.newPlot('tile_map_plot', [{

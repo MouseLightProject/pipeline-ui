@@ -1,6 +1,6 @@
 export enum TilePipelineStatus {
     DoesNotExist = 0,
-    Incomplete = 1,
+    Waiting = 1,
     Queued = 2,
     Processing = 3,
     Complete = 4,

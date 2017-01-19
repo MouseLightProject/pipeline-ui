@@ -63,13 +63,18 @@ export class PipelineGraph extends React.Component<any, any> {
             currentRootIds.add(project.id);
         });
 
-        let waitings = pipelineStages.map(stage => stage.performance === null ? 0 : stage.performance.num_ready_to_process);
-        let maxWaiting = Math.max(...waitings);
+        let waiting = pipelineStages.map(stage => stage.performance === null ? 0 : stage.performance.num_ready_to_process);
+
+        let maxWaiting = Math.max(...waiting);
 
         pipelineStages.forEach(stage => {
-            let task = tasks.filter(task => task.id === stage.task.id);
+            let name = stage.name;
 
-            let name = task.length > 0 ? task[0].name : stage.id.slice(0, 8);
+            if (!name || name.length === 0) {
+                let task = tasks.filter(task => task.id === stage.task.id);
+
+                name = task.length > 0 ? task[0].name : stage.id.slice(0, 8);
+            }
 
             let simpleName = name;
 

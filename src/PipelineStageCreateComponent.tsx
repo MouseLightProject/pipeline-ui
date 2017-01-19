@@ -34,7 +34,7 @@ class CreatePipelineStageFailedAlert extends React.Component<any, any> {
 
 class CreatePipelineStageButton extends React.Component<any, any> {
     onClick = () => {
-        this.props.createCallback(this.props.project_id, this.props.task_id, this.props.previous_stage_id, this.props.dst_path);
+        this.props.createCallback(this.props.name, this.props.description, this.props.project_id, this.props.task_id, this.props.previous_stage_id, this.props.dst_path, this.props.function_type);
     };
 
     render() {
@@ -128,7 +128,12 @@ class PreviousStageMenu extends React.Component<any, any> {
 
 class FunctionTypeMenu extends React.Component<any, any> {
     handleChange = (eventKey) => {
-        this.props.onFunctionSelectionChange(eventKey);
+        if (eventKey.length === 0) {
+            this.props.onFunctionSelectionChange(2);
+        } else {
+            let x = parseInt(eventKey);
+            this.props.onFunctionSelectionChange(x);
+        }
     };
 
     render() {
@@ -160,11 +165,14 @@ class FunctionTypeMenu extends React.Component<any, any> {
 }
 
 interface IPipelineStageComponentState {
+    name?: string;
+    description?: string;
     project_id?: string;
     task_id?: string;
     previous_stage_id?: string;
     dst_path?: string;
     function_type?: number;
+    nameValidation?: any;
     dstPathValidation?: any;
     alertVisible?: boolean;
     pipelinesForProject?: IPipelineStage[];
@@ -175,15 +183,32 @@ class PipelineStageCreateComponent extends React.Component<any, IPipelineStageCo
         super(props);
 
         this.state = {
+            name: "",
+            description: "",
             project_id: "",
             task_id: "",
             previous_stage_id: "",
             dst_path: "",
             function_type: 0,
+            nameValidation: "error",
             dstPathValidation: "error",
             alertVisible: false
         };
     }
+
+    onNameChange = (event: any) => {
+        let name = event.target.value;
+        this.setState({
+            name: name,
+            alertVisible: false,
+            nameValidation: name.length > 0 ? null : "error"
+        }, null);
+    };
+
+    onDescriptionChange = (event: any) => {
+        let description = event.target.value;
+        this.setState({description: description}, null);
+    };
 
     onProjectSelectionChange = (selectedProjectId: any) => {
         this.setState({project_id: selectedProjectId, alertVisible: false}, null);
@@ -211,8 +236,8 @@ class PipelineStageCreateComponent extends React.Component<any, IPipelineStageCo
         }, null);
     };
 
-    onCreateProject = (project_id, task_id, previous_stage_id, dst_path, function_type) => {
-        this.props.createMutation(project_id, task_id, previous_stage_id, dst_path, function_type)
+    onCreateProject = (name, description, project_id, task_id, previous_stage_id, dst_path, function_type) => {
+        this.props.createMutation(name, description, project_id, task_id, previous_stage_id, dst_path, function_type)
         .then(() => {
             this.props.refetch();
         }).catch((err) => {
@@ -248,6 +273,12 @@ class PipelineStageCreateComponent extends React.Component<any, IPipelineStageCo
             <Panel collapsible defaultExpanded header="Add Stage" bsStyle="info">
                 <Grid fluid>
                     <Row>
+                        <Col lg={3}>
+                            <FormGroup controlId="nameText" bsSize="small" validationState={this.state.nameValidation}>
+                                <ControlLabel>Name</ControlLabel>
+                                <FormControl type="text" onChange={this.onNameChange} value={this.state.name}/>
+                            </FormGroup>
+                        </Col>
                         <Col lg={2}>
                             <FormGroup bsSize="small">
                                 <ControlLabel>Add to Acquisition Pipeline</ControlLabel>
@@ -256,27 +287,12 @@ class PipelineStageCreateComponent extends React.Component<any, IPipelineStageCo
                                              selectedProjectId={this.state.project_id}/>
                             </FormGroup>
                         </Col>
-                        <Col lg={2}>
-                            <FormGroup bsSize="small">
-                                <ControlLabel>Execute Task</ControlLabel>
-                                <TaskMenu onTaskSelectionChange={this.onTaskSelectionChange}
-                                          tasks={this.props.tasks}
-                                          selectedTaskId={this.state.task_id}/>
-                            </FormGroup>
-                        </Col>
-                        <Col lg={2}>
+                        <Col lg={3}>
                             <FormGroup bsSize="small">
                                 <ControlLabel>Previous Stage</ControlLabel>
                                 <PreviousStageMenu onPreviousStageSelectionChange={this.onPreviousStageSelectionChange}
                                                    pipelinesForProject={this.state.pipelinesForProject}
                                                    selectedPreviousId={this.state.previous_stage_id}/>
-                            </FormGroup>
-                        </Col>
-                        <Col lg={2}>
-                            <FormGroup bsSize="small">
-                                <ControlLabel>Tile Function</ControlLabel>
-                                <FunctionTypeMenu onFunctionSelectionChange={this.onFunctionSelectionChange}
-                                                  selectedFunctionType={this.state.function_type}/>
                             </FormGroup>
                         </Col>
                         <Col lg={4}>
@@ -289,8 +305,35 @@ class PipelineStageCreateComponent extends React.Component<any, IPipelineStageCo
                         </Col>
                     </Row>
                     <Row>
+                        <Col lg={3}>
+                            <FormGroup controlId="descriptionText" bsSize="small">
+                                <ControlLabel>Description</ControlLabel>
+                                <FormControl type="text" onChange={this.onDescriptionChange}
+                                             value={this.state.description}/>
+                            </FormGroup>
+                        </Col>
+                        <Col lg={2}>
+                            <FormGroup bsSize="small">
+                                <ControlLabel>Execute Task</ControlLabel>
+                                <TaskMenu onTaskSelectionChange={this.onTaskSelectionChange}
+                                          tasks={this.props.tasks}
+                                          selectedTaskId={this.state.task_id}/>
+                            </FormGroup>
+                        </Col>
+                        <Col lg={4}>
+                            <FormGroup bsSize="small">
+                                <ControlLabel>Tile Function</ControlLabel>
+                                <FunctionTypeMenu onFunctionSelectionChange={this.onFunctionSelectionChange}
+                                                  selectedFunctionType={this.state.function_type}/>
+                            </FormGroup>
+                        </Col>
+                        <Col lg={3}>
+                        </Col>
+                    </Row>
+                    <Row>
                         <Col lg={1}>
-                            <CreatePipelineStageButton project_id={this.state.project_id} task_id={this.state.task_id}
+                            <CreatePipelineStageButton name={this.state.name} description={this.state.description}
+                                                       project_id={this.state.project_id} task_id={this.state.task_id}
                                                        previous_stage_id={this.state.previous_stage_id}
                                                        dst_path={this.state.dst_path}
                                                        function_type={this.state.function_type}
@@ -323,8 +366,8 @@ const PipelineStagesForProjectQuery = gql`query($pipelinesForProjectId: String!)
  }`;
 
 const CreatePipelineStageMutation = gql`
-  mutation CreatePipelineStageMutation($project_id: String, $task_id: String, $previous_stage_id: String, $dst_path: String, $function_type: Int) {
-    createPipelineStage(project_id:$project_id, task_id:$task_id, previous_stage_id:$previous_stage_id, dst_path:$dst_path, function_type:$function_type) {
+  mutation CreatePipelineStageMutation($name: String, $description: String, $project_id: String, $task_id: String, $previous_stage_id: String, $dst_path: String, $function_type: Int) {
+    createPipelineStage(name:$name, description:$description, project_id:$project_id, task_id:$task_id, previous_stage_id:$previous_stage_id, dst_path:$dst_path, function_type:$function_type) {
       id
       name
       description
@@ -345,8 +388,10 @@ export const PipelineStageCreateWithQuery = graphql(PipelineStagesForProjectQuer
     })
 })(graphql(CreatePipelineStageMutation, {
     props: ({mutate}) => ({
-        createMutation: (project_id: string, task_id: string, previous_stage_id: string, dst_path: string, function_type: number) => mutate({
+        createMutation: (name: string, description: string, project_id: string, task_id: string, previous_stage_id: string, dst_path: string, function_type: number) => mutate({
             variables: {
+                name: name,
+                description: description,
                 project_id: project_id,
                 task_id: task_id,
                 previous_stage_id: previous_stage_id,
