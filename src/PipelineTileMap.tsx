@@ -51,7 +51,7 @@ class ProjectMenu extends React.Component<any, any> {
                 title = `${project.name} (Sample Id ${project.sample_number})`;
             }
 
-            return (<MenuItem key={"pipeline_project_" +project.id}
+            return (<MenuItem key={"pipeline_project_" + project.id}
                               eventKey={project.id}>{`${project.name} (Sample Id ${project.sample_number})`}</MenuItem>)
         });
 
@@ -72,6 +72,12 @@ class MapPanel extends React.Component<any, any> {
             maxZ: 1e6,
             plane: -1
         };
+    }
+
+    componentDidMount = () => {
+        if (this.state.projectId === "" && this.props.projects.length > 1) {
+            this.onProjectChanged(this.props.projects[0].id);
+        }
     }
 
     onProjectChanged = (eventKey) => {
@@ -120,7 +126,7 @@ class MapPanel extends React.Component<any, any> {
                         <Navbar.Toggle />
                     </Navbar.Header>
                     <Nav>
-                        <ProjectMenu projects={this.props.projects} onProjectSelectionChange={this.onProjectChanged}/>
+                        <ProjectMenu selectedProjectId={this.state.projectId} projects={this.props.projects} onProjectSelectionChange={this.onProjectChanged}/>
                     </Nav>
                     <Nav pullRight>
                         <NavItem>Current Z Index</NavItem>
