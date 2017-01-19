@@ -4,9 +4,7 @@ var webpack = require("webpack");
 module.exports = {
     devtool: "sourcemap",
     entry: [
-        "react-hot-loader/patch",
-        "webpack-dev-server/client?http://localhost:4000",
-        "webpack/hot/only-dev-server",
+        "webpack-dev-server/client?http://localhost:4000/",
         "./src/index"
     ],
     devServer: {
@@ -24,9 +22,6 @@ module.exports = {
     resolve: {
         extensions: ["", ".webpack.js", ".web.js", ".ts", ".tsx", ".js"]
     },
-    plugins: [
-        new webpack.HotModuleReplacementPlugin()
-    ],
     module: {
         loaders: [
             {
