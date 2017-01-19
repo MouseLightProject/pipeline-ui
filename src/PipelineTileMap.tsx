@@ -21,14 +21,35 @@ interface ITileStatus {
     stages: IStageStatus[];
 }
 
-class PipelineTileMap extends React.Component<any, any> {
+export class PipelineTileMap extends React.Component<any, any> {
     constructor(props) {
         super(props);
-
-        this.state = {};
     }
 
     render() {
+
+        return (
+            <div>
+                {this.props.loading ? <Loading/> :
+                    <MapPanel projects={this.props.projects} pipelineStages={this.props.pipelineStages} tasks={this.props.tasks}/>}
+            </div>
+        );
+    }
+}
+
+class MapPanel extends React.Component<any, any> {
+    render() {
+        return (
+
+            <Panel collapsible defaultExpanded header="Pipeline Tile Map" bsStyle="info">
+                <PlotWithQuery project_id="af8cb0d4-56c0-4db8-8a1b-7b39540b2d04" plane="0" projects={this.props.projects} pipelineStages={this.props.pipelineStages} tasks={this.props.tasks}/>
+            </Panel>
+        );
+    }
+}
+
+class Plot extends React.Component<any, any> {
+    componentDidMount() {
         let tasks = this.props.tasks;
 
         let pipelineStages = this.props.pipelineStages;
@@ -108,20 +129,18 @@ class PipelineTileMap extends React.Component<any, any> {
 
                 console.log(foo);
 
-                let stageText = "";
+                let stageText = "acquisition<br>WAITING";
 
                 if (displayStage) {
                     let pipelineStageIndex = pipelineIds.indexOf(displayStage.stage_id);
 
                     if (pipelineStageIndex > -1) {
                         let pipelineStage = pipelineStages[pipelineStageIndex];
-                        stageText = pipelineStage.id.slice(0, 8) + "<br>";
-
+                        stageText = `${pipelineStage.name}<br>` + TilePipelineStatus[displayStage.status];
                     }
                 }
 
                 let pseudoDepth = displayStage ? (displayStage.status === TilePipelineStatus.Complete ? displayStage.depth + 1 : (displayStage.status === TilePipelineStatus.Incomplete ? displayStage.depth - 0.5 : displayStage.depth)) : 0;
-
 
                 console.log(`${tile.x_index} ${tile.y_index} ${pseudoDepth}`);
                 let result = {
@@ -129,7 +148,7 @@ class PipelineTileMap extends React.Component<any, any> {
                     yref: 'y1',
                     x: tile.x_index,
                     y: tile.y_index,
-                    text: `${stageText}${pseudoDepth}`,
+                    text: `${stageText}`,
                     font: {
                         family: 'Arial',
                         size: 12,
@@ -152,40 +171,12 @@ class PipelineTileMap extends React.Component<any, any> {
             z = numeric.random([5, 7], 0);
         }
 
-        x// = x.map(v => v.toString());
-        //y = y.map(v => v.toString());
-
-        //console.log(z);
-
-        return (
-            <div>
-                {this.props.loading ? <Loading/> :
-                    <MapPanel xdata={x} ydata={y} zdata={z} zmax={zmax} annotations={annotations}/>}
-            </div>
-        );
-    }
-}
-
-class MapPanel extends React.Component<any, any> {
-    render() {
-        return (
-
-            <Panel collapsible defaultExpanded header="Pipeline Tile Map" bsStyle="info">
-                <Plot xdata={this.props.xdata} ydata={this.props.ydata} zdata={this.props.zdata} zmax={this.props.zmax}
-                      annotations={this.props.annotations}/>
-            </Panel>
-        );
-    }
-}
-
-class Plot extends React.Component<any, any> {
-    componentDidMount() {
         Plotly.newPlot('tile_map_plot', [{
-            x: this.props.xdata,
-            y: this.props.ydata,
-            z: this.props.zdata,
+            x: x,
+            y: y,
+            z: z,
             zmin: 0,
-            zmax: this.props.zmax,
+            zmax: zmax,
             margin: {
                 t: 100
             },
@@ -201,19 +192,24 @@ class Plot extends React.Component<any, any> {
             },
             xaxis: {
                 gridcolor: 'black',
-            //    type: 'category'
+                //    type: 'category'
             },
             yaxis: {
                 gridcolor: 'black',
-            //    type: 'category'
+                //    type: 'category'
             },
-            annotations: this.props.annotations
+            annotations: annotations
         }, {
             displayModeBar: false
         });
     }
 
+    componentWillUpdate = () => {
+        this.componentDidMount();
+    }
+
     render() {
+
         return (
             <div id="tile_map_plot"></div>
         );
@@ -239,7 +235,7 @@ const PipelineTileMapQuery = gql`query($project_id: String, $plane: Int) {
   }
 }`;
 
-export const PipelineTileMapWithQuery = graphql(PipelineTileMapQuery, {
+const PlotWithQuery = graphql(PipelineTileMapQuery, {
     options: ({project_id, plane}) => ({
         pollInterval: 5000,
         variables: {
@@ -247,4 +243,4 @@ export const PipelineTileMapWithQuery = graphql(PipelineTileMapQuery, {
             plane: plane
         }
     })
-})(PipelineTileMap);
+})(Plot);
