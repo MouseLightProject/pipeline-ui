@@ -38,11 +38,15 @@ export class PipelineTileMap extends React.Component<any, any> {
 }
 
 class MapPanel extends React.Component<any, any> {
+
     render() {
+        // let project_id = "af8cb0d4-56c0-4db8-8a1b-7b39540b2d04";
+        let project_id = "44e49773-1c19-494b-b283-54466b94b70f";
+
         return (
 
             <Panel collapsible defaultExpanded header="Pipeline Tile Map" bsStyle="info">
-                <PlotWithQuery project_id="af8cb0d4-56c0-4db8-8a1b-7b39540b2d04" plane="0" projects={this.props.projects} pipelineStages={this.props.pipelineStages} tasks={this.props.tasks}/>
+                <PlotWithQuery project_id={project_id} plane="389" projects={this.props.projects} pipelineStages={this.props.pipelineStages} tasks={this.props.tasks}/>
             </Panel>
         );
     }
