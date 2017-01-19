@@ -188,13 +188,6 @@ class Plot extends React.Component<any, any> {
             let ymin = project ? (project.sample_y_min >= 0 ?  project.sample_y_min : data.y_min) : data.y_min;
             let ymax = project ? (project.sample_y_max >= 0 ?  project.sample_y_max : data.y_max) : data.y_max;
 
-            if (this.props.project_id === "44e49773-1c19-494b-b283-54466b94B70f") {
-                xmin = 265;
-                xmax = 285;
-                ymin = 30;
-                ymax = 45;
-            }
-
             x = numeric.linspace(xmin, xmax);
             y = numeric.linspace(ymin, ymax);
             z = numeric.rep([y.length, x.length], 0);
@@ -253,7 +246,11 @@ class Plot extends React.Component<any, any> {
 
                     if (pipelineStageIndex > -1) {
                         let pipelineStage = pipelineStages[pipelineStageIndex];
-                        stageText = `${pipelineStage.name}<br>` + TilePipelineStatus[displayStage.status];
+                        if (displayStage.depth === 1 && displayStage.status === TilePipelineStatus.Waiting) {
+                            stageText = "OoS";
+                        } else {
+                            stageText = `${pipelineStage.name}<br>` + TilePipelineStatus[displayStage.status];
+                        }
                     }
                 }
 
