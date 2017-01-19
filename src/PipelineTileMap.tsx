@@ -110,11 +110,7 @@ class MapPanel extends React.Component<any, any> {
     };
 
     render() {
-        let project_id = "af8cb0d4-56c0-4db8-8a1b-7b39540b2d04";
-        // let project_id = "44e49773-1c19-494b-b283-54466b94b70f";
-
         return (
-
             <Panel collapsible defaultExpanded header="Pipeline Tile Map" bsStyle="info">
                 <Navbar inverse fluid>
                     <Navbar.Header>
@@ -133,7 +129,7 @@ class MapPanel extends React.Component<any, any> {
                         <NavItem onClick={this.onRightClick}>{">"}</NavItem>
                     </Nav>
                 </Navbar>
-                <PlotWithQuery project_id={project_id} plane={this.state.plane} projects={this.props.projects}
+                <PlotWithQuery project_id={this.state.projectId} plane={this.state.plane} projects={this.props.projects}
                                pipelineStages={this.props.pipelineStages} tasks={this.props.tasks}/>
             </Panel>
         );
