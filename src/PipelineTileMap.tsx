@@ -189,14 +189,15 @@ class Plot extends React.Component<any, any> {
             let ymax = project ? (project.sample_y_max >= 0 ?  project.sample_y_max : data.y_max) : data.y_max;
 
             if (this.props.project_id === "44e49773-1c19-494b-b283-54466b94B70f") {
-                xmin = 266;
+                xmin = 265;
+                xmax = 285;
                 ymin = 30;
-                ymax = 45
+                ymax = 45;
             }
 
             x = numeric.linspace(xmin, xmax);
             y = numeric.linspace(ymin, ymax);
-            z = numeric.rep([x.length, y.length], 0);
+            z = numeric.rep([y.length, x.length], 0);
 
             data.tiles.map((tile: ITileStatus) => {
                 let markedStages = tile.stages.reduce((depth, stage) => {
@@ -245,16 +246,7 @@ class Plot extends React.Component<any, any> {
                     }
                 }
 
-                let foo = {
-                    x: tile.x_index,
-                    y: tile.y_index,
-                    sa: markedStages,
-                    ds: displayStage
-                };
-
-                console.log(foo);
-
-                let stageText = "acquisition<br>WAITING";
+                let stageText = "acquisition<br>Waiting";
 
                 if (displayStage) {
                     let pipelineStageIndex = pipelineIds.indexOf(displayStage.stage_id);
@@ -267,7 +259,6 @@ class Plot extends React.Component<any, any> {
 
                 let pseudoDepth = displayStage ? (displayStage.status === TilePipelineStatus.Complete ? displayStage.depth + 1 : (displayStage.status === TilePipelineStatus.Waiting ? displayStage.depth - 0.5 : displayStage.depth)) : 0;
 
-                console.log(`${tile.x_index} ${tile.y_index} ${pseudoDepth}`);
                 let result = {
                     xref: 'x1',
                     yref: 'y1',
@@ -285,9 +276,9 @@ class Plot extends React.Component<any, any> {
                 annotations.push(result);
 
                 if (displayStage) {
-                    z[tile.y_index - data.y_min][tile.x_index - data.x_min] = pseudoDepth;
+                    z[tile.y_index - ymin][tile.x_index - xmin] = pseudoDepth;
                 } else {
-                    z[tile.y_index - data.y_min][tile.x_index - data.x_min] = 0;
+                    z[tile.y_index - ymin][tile.x_index - xmin] = 0;
                 }
             });
         } else {
@@ -295,8 +286,6 @@ class Plot extends React.Component<any, any> {
             let xmax = project ? (project.sample_x_max >= 0 ?  project.sample_x_max : 0) : 0;
             let ymin = project ? (project.sample_y_min >= 0 ?  project.sample_y_min : 0) : 0;
             let ymax = project ? (project.sample_y_max >= 0 ?  project.sample_y_max : 0) : 0;
-
-            console.log(`${xmin} ${xmax} ${ymin} ${ymax}`);
 
             x = numeric.linspace(xmin, xmax);
             y = numeric.linspace(ymin, ymax);
@@ -345,7 +334,7 @@ class Plot extends React.Component<any, any> {
     render() {
 
         let divStyle = {
-            "min-height": "700px"
+            "height": "1000px"
         };
 
         return (
