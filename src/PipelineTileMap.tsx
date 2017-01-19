@@ -75,9 +75,13 @@ class MapPanel extends React.Component<any, any> {
     }
 
     componentDidMount = () => {
-        console.log("componentDidMount");
         if (this.state.projectId === "" && this.props.projects.length > 1) {
-            console.log(`\tselect ${this.props.projects[0].id}`);
+            this.onProjectChanged(this.props.projects[0].id);
+        }
+    };
+
+    componentDidUpdate = () => {
+        if (this.state.projectId === "" && this.props.projects.length > 1) {
             this.onProjectChanged(this.props.projects[0].id);
         }
     };
