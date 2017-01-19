@@ -70,7 +70,8 @@ class MapPanel extends React.Component<any, any> {
             projectId: "",
             minZ: 0,
             maxZ: 1e6,
-            plane: -1
+            plane: -1,
+            autozoom: true
         };
     }
 
@@ -90,8 +91,6 @@ class MapPanel extends React.Component<any, any> {
 
     onProjectChanged = (eventKey) => {
         let project = this.props.projects.filter(x => x.id === eventKey);
-
-        console.log(project);
 
         let minZ = 0;
         let maxZ = 1e6;
@@ -117,6 +116,14 @@ class MapPanel extends React.Component<any, any> {
         }
     };
 
+    onResetZoom = () => {
+        this.setState({autozoom: true}, null);
+    };
+
+    onManualZoom = () => {
+        this.setState({autozoom: false}, null);
+    }
+
     onLeftClick = () => {
         if (this.state.plane > this.state.minZ) {
             this.setState({plane: this.state.plane - 1}, null);
@@ -127,6 +134,22 @@ class MapPanel extends React.Component<any, any> {
         if (this.state.plane < this.state.maxZ) {
             this.setState({plane: this.state.plane + 1}, null);
         }
+    };
+
+    onLeftClickDouble = () => {
+        let p = this.state.plane - 10;
+        if (p < this.state.minZ) {
+            p = this.state.minZ;
+        }
+        this.setState({plane: p}, null);
+    };
+
+    onRightClickDouble = () => {
+        let p = this.state.plane + 10;
+        if (p > this.state.maxZ) {
+            p = this.state.maxZ;
+        }
+        this.setState({plane: p}, null);
     };
 
     render() {
@@ -140,29 +163,42 @@ class MapPanel extends React.Component<any, any> {
                         <Navbar.Toggle />
                     </Navbar.Header>
                     <Nav>
-                        <ProjectMenu selectedProjectId={this.state.projectId} projects={this.props.projects} onProjectSelectionChange={this.onProjectChanged}/>
+                        <ProjectMenu selectedProjectId={this.state.projectId} projects={this.props.projects}
+                                     onProjectSelectionChange={this.onProjectChanged}/>
                     </Nav>
                     <Nav pullRight>
                         <NavItem>Current Z Index</NavItem>
                         <NavItem>{this.state.plane}</NavItem>
+                        <NavItem onClick={this.onLeftClickDouble}>{"<<"}</NavItem>
                         <NavItem onClick={this.onLeftClick}>{"<"}</NavItem>
                         <NavItem onClick={this.onRightClick}>{">"}</NavItem>
+                        <NavItem onClick={this.onRightClickDouble}>{">>"}</NavItem>
                     </Nav>
                 </Navbar>
                 <PlotWithQuery project_id={this.state.projectId} plane={this.state.plane} projects={this.props.projects}
-                               pipelineStages={this.props.pipelineStages} tasks={this.props.tasks}/>
+                               pipelineStages={this.props.pipelineStages} tasks={this.props.tasks}
+                               autozoom={this.state.autozoom} onManualZoom={this.onManualZoom}/>
             </Panel>
         );
     }
 }
 
 class Plot extends React.Component<any, any> {
-    componentDidMount() {
+    constructor(props) {
+        super(props);
+        this.state = {
+            autorange: true,
+            xrange: [],
+            yrange: []
+        };
+    }
+
+    componentDidMount = () => {
         let projects = this.props.projects.filter(x => x.id === this.props.project_id);
 
         let project: IProject = null;
 
-        if (projects.length > 0)  {
+        if (projects.length > 0) {
             project = projects[0];
         } else {
             project = null;
@@ -183,10 +219,10 @@ class Plot extends React.Component<any, any> {
 
             zmax = data.max_depth + 1;
 
-            let xmin = project ? (project.sample_x_min >= 0 ?  project.sample_x_min : data.x_min) : data.x_min;
-            let xmax = project ? (project.sample_x_max >= 0 ?  project.sample_x_max : data.x_max) : data.x_max;
-            let ymin = project ? (project.sample_y_min >= 0 ?  project.sample_y_min : data.y_min) : data.y_min;
-            let ymax = project ? (project.sample_y_max >= 0 ?  project.sample_y_max : data.y_max) : data.y_max;
+            let xmin = project ? (project.sample_x_min >= 0 ? project.sample_x_min : data.x_min) : data.x_min;
+            let xmax = project ? (project.sample_x_max >= 0 ? project.sample_x_max : data.x_max) : data.x_max;
+            let ymin = project ? (project.sample_y_min >= 0 ? project.sample_y_min : data.y_min) : data.y_min;
+            let ymax = project ? (project.sample_y_max >= 0 ? project.sample_y_max : data.y_max) : data.y_max;
 
             x = numeric.linspace(xmin, xmax);
             y = numeric.linspace(ymin, ymax);
@@ -257,15 +293,15 @@ class Plot extends React.Component<any, any> {
                 let pseudoDepth = displayStage ? (displayStage.status === TilePipelineStatus.Complete ? displayStage.depth + 1 : (displayStage.status === TilePipelineStatus.Waiting ? displayStage.depth - 0.5 : displayStage.depth)) : 0;
 
                 let result = {
-                    xref: 'x1',
-                    yref: 'y1',
+                    xref: "x1",
+                    yref: "y1",
                     x: tile.x_index,
                     y: tile.y_index,
                     text: `${stageText}`,
                     font: {
-                        family: 'Arial',
+                        family: "Arial",
                         size: 12,
-                        color: 'white'
+                        color: "white"
                     },
                     showarrow: false
                 };
@@ -279,10 +315,10 @@ class Plot extends React.Component<any, any> {
                 }
             });
         } else {
-            let xmin = project ? (project.sample_x_min >= 0 ?  project.sample_x_min : 0) : 0;
-            let xmax = project ? (project.sample_x_max >= 0 ?  project.sample_x_max : 0) : 0;
-            let ymin = project ? (project.sample_y_min >= 0 ?  project.sample_y_min : 0) : 0;
-            let ymax = project ? (project.sample_y_max >= 0 ?  project.sample_y_max : 0) : 0;
+            let xmin = project ? (project.sample_x_min >= 0 ? project.sample_x_min : 0) : 0;
+            let xmax = project ? (project.sample_x_max >= 0 ? project.sample_x_max : 0) : 0;
+            let ymin = project ? (project.sample_y_min >= 0 ? project.sample_y_min : 0) : 0;
+            let ymax = project ? (project.sample_y_max >= 0 ? project.sample_y_max : 0) : 0;
 
             x = numeric.linspace(xmin, xmax);
             y = numeric.linspace(ymin, ymax);
@@ -291,7 +327,12 @@ class Plot extends React.Component<any, any> {
             zmax = 1;
         }
 
-        Plotly.newPlot('tile_map_plot', [{
+        let myDiv = document.getElementById("tile_map_plot");
+
+        let xrange = this.state.autorage ? [] : this.state.xrange;
+        let yrange = this.state.autorage ? [] : this.state.yrange;
+
+        Plotly.newPlot(myDiv, [{
             x: x,
             y: y,
             z: z,
@@ -301,9 +342,9 @@ class Plot extends React.Component<any, any> {
                 t: 100
             },
             colorscale: [
-                [0, 'black'],
-                [.2, 'red'],
-                [1, 'green']
+                [0, "black"],
+                [.2, "red"],
+                [1, "green"]
             ],
             type: "heatmap"
         }], {
@@ -311,20 +352,43 @@ class Plot extends React.Component<any, any> {
                 t: 20, r: 0, l: 30
             },
             xaxis: {
-                gridcolor: 'black',
-                //    type: 'category'
+                gridcolor: "black",
+                autorange: this.state.autorange,
+                range: xrange
+                //    type: "category"
             },
             yaxis: {
-                gridcolor: 'black',
-                //    type: 'category'
+                gridcolor: "black",
+                autorange: this.state.autorange,
+                range: yrange
+                //    type: "category"
             },
             annotations: annotations
         }, {
             displayModeBar: false
         });
+
+        myDiv.on("plotly_doubleclick", (eventdata) => {
+            this.setState({autorange: true, xrange: [], yrange: []}, null);
+        });
+
+        myDiv.on("plotly_relayout", (eventdata) => {
+            if (eventdata && eventdata["xaxis.range[0]"]) {
+            //    this.props.onManualZoom();
+                this.setState({
+                    autorange: false,
+                    xrange: [eventdata["xaxis.range[0]"], eventdata["xaxis.range[1]"]],
+                    yrange: [eventdata["yaxis.range[0]"], eventdata["yaxis.range[1]"]]
+                }, null);
+            }
+        });
     }
 
     componentWillUpdate = () => {
+       // if (this.state.autozoom) {
+       //     this.setState({autorange: true, xrange: [], yrange: []}, null);
+       // }
+
         this.componentDidMount();
     }
 
