@@ -99,18 +99,18 @@ class MapPanel extends React.Component<any, any> {
         if (project.length > 0 && project[0].id !== this.state.projectId) {
             project = project[0];
 
-            if (project.sample_z_min > -1) {
-                minZ = project.sample_z_min;
-            }
-            else if (project.region_z_min > -1) {
+            if (project.region_z_min > -1) {
                 minZ = project.region_z_min;
             }
-
-            if (project.sample_z_max > -1) {
-                maxZ = project.sample_z_max;
+            else if (project.sample_z_min > -1) {
+                minZ = project.sample_z_min;
             }
-            else if (project.region_z_max > -1) {
+
+            if (project.region_z_max > -1) {
                 maxZ = project.region_z_max;
+            }
+            else if (project.sample_z_max > -1) {
+                maxZ = project.sample_z_max;
             }
 
             this.setState({projectId: eventKey, minZ: minZ, maxZ: maxZ, plane: minZ}, null);
@@ -183,10 +183,16 @@ class Plot extends React.Component<any, any> {
 
             zmax = data.max_depth + 1;
 
-            let xmin = project ? (project.sample_x_min >= 0 ?  project.sample_x_min : 0) : 0;
-            let xmax = project ? (project.sample_x_max >= 0 ?  project.sample_x_max : 0) : 0;
-            let ymin = project ? (project.sample_y_min >= 0 ?  project.sample_y_min : 0) : 0;
-            let ymax = project ? (project.sample_y_max >= 0 ?  project.sample_y_max : 0) : 0;
+            let xmin = project ? (project.sample_x_min >= 0 ?  project.sample_x_min : data.x_min) : data.x_min;
+            let xmax = project ? (project.sample_x_max >= 0 ?  project.sample_x_max : data.x_max) : data.x_max;
+            let ymin = project ? (project.sample_y_min >= 0 ?  project.sample_y_min : data.y_min) : data.y_min;
+            let ymax = project ? (project.sample_y_max >= 0 ?  project.sample_y_max : data.y_max) : data.y_max;
+
+            if (this.props.project_id === "44e49773-1c19-494b-b283-54466b94B70f") {
+                xmin = 266;
+                ymin = 30;
+                ymax = 45
+            }
 
             x = numeric.linspace(xmin, xmax);
             y = numeric.linspace(ymin, ymax);
@@ -294,7 +300,7 @@ class Plot extends React.Component<any, any> {
 
             x = numeric.linspace(xmin, xmax);
             y = numeric.linspace(ymin, ymax);
-            z = numeric.rep([x.length, y.length], -1);
+            z = numeric.rep([x.length, y.length], 0);
 
             zmax = 1;
         }
@@ -303,7 +309,7 @@ class Plot extends React.Component<any, any> {
             x: x,
             y: y,
             z: z,
-            zmin: -1,
+            zmin: 0,
             zmax: zmax,
             margin: {
                 t: 100
