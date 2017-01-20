@@ -33,6 +33,8 @@ export class PipelineGraph extends React.Component<any, any> {
         let nodes = [];
         let edges = [];
 
+        let rootMap = new Map<string, number>();
+
         projects.forEach(project => {
             let ele = null;
 
@@ -50,6 +52,8 @@ export class PipelineGraph extends React.Component<any, any> {
                         id: project.id,
                         name: project.name,
                         isProject: 1,
+                        depth: 0,
+                        breadth: rootMap.size,
                         bgColor: project.is_processing ? "#86B342" : "#FF0000",
                         shape: "roundrectangle"
                     }
@@ -58,6 +62,8 @@ export class PipelineGraph extends React.Component<any, any> {
                 ele.data("name", project.name);
                 ele.data("bgColor", project.is_processing ? "#86B342" : "#FF0000");
             }
+
+            rootMap.set(project.id, rootMap.size);
 
             currentNodeIds.add(project.id);
             currentRootIds.add(project.id);
@@ -104,13 +110,14 @@ export class PipelineGraph extends React.Component<any, any> {
             let totalProcessed = stage.performance.num_in_process + stage.performance.num_ready_to_process + stage.performance.num_complete + stage.performance.num_error;
 
             if (ele === null) {
-
                 nodes.push({
                     data: {
                         group: "nodes",
                         id: stage.id,
                         name: name,
                         isProject: 0,
+                        depth: stage.depth,
+                        breadth: rootMap.get(stage.project_id),
                         isPie: 1,
                         shortName: simpleName,
                         numInProcess: stage.performance.num_in_process / totalProcessed,
@@ -179,7 +186,7 @@ export class PipelineGraph extends React.Component<any, any> {
 
         let pan = this.cy.pan();
         let zoom = this.cy.zoom();
-
+/*
         this.cy.layout({
             name: "breadthfirst",
             directed: true,
@@ -187,6 +194,18 @@ export class PipelineGraph extends React.Component<any, any> {
             animate: false,
             padding: 10,
             roots: currentRootIds
+        });
+*/
+        this.cy.layout({
+            name: "grid",
+            rows: currentRootIds.size,
+            position: (node) => {
+                let data = node.json().data;
+                return  {
+                    row: data.breadth,
+                    col: data.depth
+                }
+            }
         });
 
         this.cy.nodes().unlock();
