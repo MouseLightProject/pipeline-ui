@@ -441,7 +441,7 @@ class Plot extends React.Component<any, any> {
                     font: {
                         family: "Arial",
                         size: 12,
-                        color: "#AAAAAA"
+                        color: "#CCCCCC"
                     },
                     showarrow: false
                 };
