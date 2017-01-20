@@ -409,20 +409,24 @@ class Plot extends React.Component<any, any> {
                 if (displayStage) {
                     let pipelineStageIndex = pipelineIds.indexOf(displayStage.stage_id);
 
+                    let status = displayStage.status;
+
                     if (pipelineStageIndex > -1) {
                         let pipelineStage = pipelineStages[pipelineStageIndex];
 
                         if (useFullText) {
-                            if (displayStage.depth === 1 && displayStage.status === TilePipelineStatus.Waiting) {
+                            if (displayStage.depth === 1 && status === TilePipelineStatus.Waiting) {
                                 stageText = "OoS";
                             } else {
-                                stageText = `${pipelineStage.name}<br>` + TilePipelineStatus[displayStage.status];
+                                status = (status === TilePipelineStatus.Waiting) ? TilePipelineStatus.Queued : status;
+                                stageText = `${pipelineStage.name}<br>` + TilePipelineStatus[status];
                             }
                         } else {
-                            if (displayStage.depth === 1 && displayStage.status === TilePipelineStatus.Waiting) {
+                            if (displayStage.depth === 1 && status === TilePipelineStatus.Waiting) {
                                 stageText = "";
                             } else {
-                                stageText = `${pipelineStage.name.substr(0, 1)}-${TilePipelineStatus[displayStage.status].substr(0, 1)}`;
+                                status = (status === TilePipelineStatus.Waiting) ? TilePipelineStatus.Queued : status;
+                                stageText = `${pipelineStage.name.substr(0, 1)}-${TilePipelineStatus[status].substr(0, 1)}`;
                             }
                         }
                     }
@@ -437,7 +441,7 @@ class Plot extends React.Component<any, any> {
                     font: {
                         family: "Arial",
                         size: 12,
-                        color: "white"
+                        color: "#AAAAAA"
                     },
                     showarrow: false
                 };
@@ -571,6 +575,8 @@ class Plot extends React.Component<any, any> {
          shapes: data.x.slice(1).map(makeLineVert).concat(data.y.slice(1).map(makeLineHoriz))
          });
          */
+
+
         tileMapDiv.data = [{
             x: data.x,
             y: data.y,
