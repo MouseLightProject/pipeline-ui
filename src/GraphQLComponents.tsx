@@ -59,6 +59,7 @@ const AllObjectQuery = gql`query {
       project_id
       previous_stage_id
       dst_path
+      depth
       is_processing
       function_type
       task {
