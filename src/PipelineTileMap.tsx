@@ -404,7 +404,7 @@ class Plot extends React.Component<any, any> {
 
                 let useFullText = this.state.xrange.length > 1 && (this.state.xrange[1] - this.state.xrange[0] < 15);
 
-                let pseudoDepth = displayStage ? (displayStage.status === TilePipelineStatus.Complete ? displayStage.depth + 1 : (displayStage.status === TilePipelineStatus.Waiting ? displayStage.depth : displayStage.depth)) : 0;
+                let pseudoDepth = displayStage ? (displayStage.status === TilePipelineStatus.Complete ? displayStage.depth + 1 : (displayStage.depth === 1 && displayStage.status === TilePipelineStatus.Waiting ? displayStage.depth - 0.5 : displayStage.depth)) : 0;
 
                 if (displayStage) {
                     let pipelineStageIndex = pipelineIds.indexOf(displayStage.stage_id);
