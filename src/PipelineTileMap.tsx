@@ -27,7 +27,6 @@ export class PipelineTileMap extends React.Component<any, any> {
     }
 
     render() {
-
         return (
             <div>
                 {this.props.loading ? <Loading/> :
@@ -77,14 +76,12 @@ class MapPanel extends React.Component<any, any> {
 
     componentDidMount = () => {
         if (this.state.projectId === "" && this.props.projects.length > 1) {
-            console.log(`componentDidMount project`);
             this.onProjectChanged(this.props.projects[0].id);
         }
     };
 
     componentDidUpdate = () => {
         if (this.state.projectId === "" && this.props.projects.length > 1) {
-            console.log(`componentDidUpdate project`);
             this.onProjectChanged(this.props.projects[0].id);
         }
     };
@@ -193,7 +190,133 @@ class Plot extends React.Component<any, any> {
         };
     }
 
-    componentDidMount = () => {
+    shouldComponentUpdate(nextProps, nextState) {
+        return true;
+        console.log("----");
+        console.log(nextProps);
+        console.log(this.props);
+        if (nextProps.project_id !== this.props.project_id) {
+            console.log("shouldUpdate 1");
+            return true;
+        }
+
+        if (nextProps.data !== this.props.data) {
+            console.log("shouldUpdate 2");
+            return true;
+        }
+
+        if (!nextProps.data) {
+            console.log("shouldNotUpdate 3");
+            return false;
+        }
+
+        if (nextProps.data.loading !== this.props.data.loading) {
+            console.log("shouldUpdate 4a");
+            return true;
+        }
+
+        if (nextProps.data.projectPlaneTileStatus !== this.props.data.projectPlaneTileStatus) {
+            console.log("shouldUpdate 4");
+            return true;
+        }
+
+        if (!nextProps.data.projectPlaneTileStatus) {
+            console.log("shouldNotUpdate 5");
+            return false;
+        }
+
+        if (nextProps.data.projectPlaneTileStatus.max_depth !== this.props.data.projectPlaneTileStatus.max_depth) {
+            console.log("shouldUpdate 5a");
+            return true;
+        }
+
+
+        if (nextProps.data.projectPlaneTileStatus.x_min !== this.props.data.projectPlaneTileStatus.x_min) {
+            console.log("shouldUpdate 5a");
+            return true;
+        }
+
+        if (nextProps.data.projectPlaneTileStatus.x_max !== this.props.data.projectPlaneTileStatus.x_max) {
+            console.log("shouldUpdate 5b");
+            return true;
+        }
+
+        if (nextProps.data.projectPlaneTileStatus.y_min !== this.props.data.projectPlaneTileStatus.y_min) {
+            console.log("shouldUpdate 5c");
+            return true;
+        }
+
+        if (nextProps.data.projectPlaneTileStatus.y_max !== this.props.data.projectPlaneTileStatus.y_max) {
+            console.log("shouldUpdate 5d");
+            return true;
+        }
+
+        let thisTiles = this.props.data.projectPlaneTileStatus.tiles;
+
+        let nextTiles = nextProps.data.projectPlaneTileStatus.tiles;
+
+        if (thisTiles.length !== nextTiles.length) {
+            console.log("shouldUpdate 6");
+            return true;
+        }
+
+        if (thisTiles.length === 0) {
+            console.log("shouldNotUpdate 7");
+            return false;
+        }
+
+        let shouldUpdate = thisTiles.some((thisTile, index) => {
+            let nextTile = nextTiles[index];
+
+            if (thisTile.stages.length != nextTile.stages.length) {
+                console.log("shouldUpdate 8");
+                return true;
+            }
+
+            if (thisTile.x_index != nextTile.x_index) {
+                console.log("shouldUpdate 9");
+                return true;
+            }
+
+            if (thisTile.y_index != nextTile.y_index) {
+                console.log("shouldUpdate 10");
+                return true;
+            }
+
+            if (thisTile.stages.length === 0) {
+                return false;
+            }
+
+            let shouldUpdate2 = thisTile.stages.some((thisStage, index) => {
+                let nextStage = nextTile.stages[index];
+
+                if (thisStage.status != nextStage.status) {
+                    console.log("shouldUpdate 11");
+                    return true;
+                }
+
+                if (thisStage.stage_id != nextStage.stage_id) {
+                    console.log("shouldUpdate 12");
+                    return true;
+                }
+
+                if (thisStage.depth != nextStage.depth) {
+                    console.log("shouldUpdate 13");
+                    return true;
+                }
+
+                return false;
+            });
+
+            return shouldUpdate2;
+        });
+
+        console.log(`${shouldUpdate ? "shouldUpdate" : "shouldNotUpdate"}`);
+
+        return shouldUpdate;
+    }
+
+    createFigure = () => {
         let projects = this.props.projects.filter(x => x.id === this.props.project_id);
 
         let project: IProject = null;
@@ -214,7 +337,10 @@ class Plot extends React.Component<any, any> {
         let zmax = 0;
         let annotations = [];
 
-        if (this.props.data && this.props.data.projectPlaneTileStatus && this.props.data.projectPlaneTileStatus.tiles.length > 0) {
+        console.log("***");
+        console.log(this.props);
+
+        if (this.props.data && this.props.data.projectPlaneTileStatus) {
             let data = this.props.data.projectPlaneTileStatus;
 
             zmax = data.max_depth + 1;
@@ -275,22 +401,33 @@ class Plot extends React.Component<any, any> {
                     }
                 }
 
-                let stageText = "acquisition<br>Waiting";
+                let stageText = "";
+
+                let useFullText = this.state.xrange.length > 1 && (this.state.xrange[1] - this.state.xrange[0] < 15);
+
+                let pseudoDepth = displayStage ? (displayStage.status === TilePipelineStatus.Complete ? displayStage.depth + 1 : (displayStage.status === TilePipelineStatus.Waiting ? displayStage.depth - 0.5 : displayStage.depth)) : 0;
 
                 if (displayStage) {
                     let pipelineStageIndex = pipelineIds.indexOf(displayStage.stage_id);
 
                     if (pipelineStageIndex > -1) {
                         let pipelineStage = pipelineStages[pipelineStageIndex];
-                        if (displayStage.depth === 1 && displayStage.status === TilePipelineStatus.Waiting) {
-                            stageText = "OoS";
+
+                        if (useFullText) {
+                            if (displayStage.depth === 1 && displayStage.status === TilePipelineStatus.Waiting) {
+                                stageText = "OoS";
+                            } else {
+                                stageText = `${pipelineStage.name}<br>` + TilePipelineStatus[displayStage.status];
+                            }
                         } else {
-                            stageText = `${pipelineStage.name}<br>` + TilePipelineStatus[displayStage.status];
+                            if (displayStage.depth === 1 && displayStage.status === TilePipelineStatus.Waiting) {
+                                stageText = "";
+                            } else {
+                                stageText = `${pipelineStage.name.substr(0, 1)}-${TilePipelineStatus[displayStage.status].substr(0, 1)}`;
+                            }
                         }
                     }
                 }
-
-                let pseudoDepth = displayStage ? (displayStage.status === TilePipelineStatus.Complete ? displayStage.depth + 1 : (displayStage.status === TilePipelineStatus.Waiting ? displayStage.depth - 0.5 : displayStage.depth)) : 0;
 
                 let result = {
                     xref: "x1",
@@ -327,54 +464,68 @@ class Plot extends React.Component<any, any> {
             zmax = 1;
         }
 
-        let myDiv = document.getElementById("tile_map_plot");
 
         let xrange = this.state.autorage ? [] : this.state.xrange;
         let yrange = this.state.autorage ? [] : this.state.yrange;
 
-        Plotly.newPlot(myDiv, [{
+        return {
             x: x,
             y: y,
             z: z,
-            zmin: 0,
             zmax: zmax,
+            xrange: xrange,
+            yrange: yrange,
+            annotations: annotations
+        }
+    };
+
+    componentDidMount = () => {
+        let data = this.createFigure();
+
+        let tileMapDiv = document.getElementById("tile_map_plot");
+
+        Plotly.newPlot(tileMapDiv, [{
+            x: data.x,
+            y: data.y,
+            z: data.z,
+            zmin: 0,
+            zmax: data.zmax,
             margin: {
                 t: 100
             },
-            colorscale: [
-                [0, "black"],
-                [.2, "red"],
-                [1, "green"]
-            ],
+            colorscale: 'Jet',
+            colorbar: {
+                tick0: 0,
+                dtick: 1
+            },
             type: "heatmap"
         }], {
             margin: {
                 t: 20, r: 0, l: 30
             },
             xaxis: {
-                gridcolor: "black",
-                autorange: this.state.autorange,
-                range: xrange
-                //    type: "category"
+                showgrid: false,
+                // autorange: this.state.autorange,
+                //  range: data.xrange
             },
             yaxis: {
-                gridcolor: "black",
-                autorange: this.state.autorange,
-                range: yrange
-                //    type: "category"
+                showgrid: false,
+                //  autorange: this.state.autorange,
+                //  range: data.yrange
             },
-            annotations: annotations
+            annotations: data.annotations,
+            shapes: data.x.slice(1).map(makeLineVert).concat(data.y.slice(1).map(makeLineHoriz))
         }, {
             displayModeBar: false
         });
 
-        myDiv.on("plotly_doubleclick", (eventdata) => {
+        tileMapDiv.on("plotly_doubleclick", (eventdata) => {
             this.setState({autorange: true, xrange: [], yrange: []}, null);
         });
 
-        myDiv.on("plotly_relayout", (eventdata) => {
+        tileMapDiv.on("plotly_relayout", (eventdata) => {
             if (eventdata && eventdata["xaxis.range[0]"]) {
-            //    this.props.onManualZoom();
+                //    this.props.onManualZoom();
                 this.setState({
                     autorange: false,
                     xrange: [eventdata["xaxis.range[0]"], eventdata["xaxis.range[1]"]],
@@ -382,15 +533,84 @@ class Plot extends React.Component<any, any> {
                 }, null);
             }
         });
-    }
+    };
 
     componentWillUpdate = () => {
-       // if (this.state.autozoom) {
-       //     this.setState({autorange: true, xrange: [], yrange: []}, null);
-       // }
+        // if (this.state.autozoom) {
+        //     this.setState({autorange: true, xrange: [], yrange: []}, null);
+        // }
 
-        this.componentDidMount();
-    }
+        // this.componentDidMount();
+
+        console.log("componentWillUpdate");
+        console.log(this.props);
+        let data = this.createFigure();
+
+        console.log(data);
+
+        let tileMapDiv = document.getElementById("tile_map_plot");
+        /*
+         console.log(data);
+
+         Plotly.restyle(tileMapDiv, [{
+         x: data.x,
+         y: data.y,
+         z: data.z,
+         zmax: data.zmax
+         }]);
+
+         Plotly.relayout(tileMapDiv, {
+         xaxis: {
+         showgrid: false,
+         autorange: this.state.autorange,
+         range: data.xrange
+         },
+         yaxis: {
+         showgrid: false,
+         autorange: this.state.autorange,
+         range: data.yrange
+         },
+         annotations: data.annotations,
+         shapes: data.x.slice(1).map(makeLineVert).concat(data.y.slice(1).map(makeLineHoriz))
+         });
+         */
+        tileMapDiv.data = [{
+            x: data.x,
+            y: data.y,
+            z: data.z,
+            zmin: 0,
+            zmax: data.zmax,
+            margin: {
+                t: 100
+            },
+            colorscale: 'Jet',
+            colorbar: {
+                tick0: 0,
+                dtick: 1
+            },
+            type: "heatmap"
+        }];
+
+        tileMapDiv.layout = {
+            margin: {
+                t: 20, r: 0, l: 30
+            },
+            xaxis: {
+                showgrid: false,
+                autorange: this.state.autorange,
+                range: data.xrange
+            },
+            yaxis: {
+                showgrid: false,
+                autorange: this.state.autorange,
+                range: data.yrange
+            },
+            annotations: data.annotations,
+            shapes: data.x.slice(1).map(makeLineVert).concat(data.y.slice(1).map(makeLineHoriz))
+        };
+
+        Plotly.redraw(tileMapDiv);
+    };
 
     render() {
 
@@ -425,10 +645,42 @@ const PipelineTileMapQuery = gql`query($project_id: String, $plane: Int) {
 
 const PlotWithQuery = graphql(PipelineTileMapQuery, {
     options: ({project_id, plane}) => ({
-        pollInterval: 5000,
+        pollInterval: 60000,
         variables: {
             project_id: project_id,
             plane: plane
         }
     })
 })(Plot);
+
+function makeLineVert(x) {
+    return {
+        type: 'line',
+        xref: 'x',
+        yref: 'paper',
+        x0: x - 0.5,
+        y0: 0,
+        x1: x - 0.5,
+        y1: 1,
+        line: {
+            color: 'rgb(255, 255, 255)',
+            width: 0.5
+        }
+    };
+}
+
+function makeLineHoriz(y) {
+    return {
+        type: 'line',
+        xref: 'paper',
+        yref: 'y',
+        x0: 0,
+        y0: y - 0.5,
+        x1: 1,
+        y1: y - 0.5,
+        line: {
+            color: 'rgb(255, 255, 255)',
+            width: 0.5
+        }
+    };
+}
