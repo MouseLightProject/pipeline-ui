@@ -191,7 +191,6 @@ class Plot extends React.Component<any, any> {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        return true;
         console.log("----");
         console.log(nextProps);
         console.log(this.props);
@@ -316,8 +315,8 @@ class Plot extends React.Component<any, any> {
         return shouldUpdate;
     }
 
-    createFigure = () => {
-        let projects = this.props.projects.filter(x => x.id === this.props.project_id);
+    createFigure = (props) => {
+        let projects = props.projects.filter(x => x.id === props.project_id);
 
         let project: IProject = null;
 
@@ -327,7 +326,7 @@ class Plot extends React.Component<any, any> {
             project = null;
         }
 
-        let pipelineStages = this.props.pipelineStages;
+        let pipelineStages = props.pipelineStages;
 
         let pipelineIds = pipelineStages.map(p => p.id);
 
@@ -338,10 +337,10 @@ class Plot extends React.Component<any, any> {
         let annotations = [];
 
         console.log("***");
-        console.log(this.props);
+        console.log(props);
 
-        if (this.props.data && this.props.data.projectPlaneTileStatus) {
-            let data = this.props.data.projectPlaneTileStatus;
+        if (props.data && props.data.projectPlaneTileStatus) {
+            let data = props.data.projectPlaneTileStatus;
 
             zmax = data.max_depth + 1;
 
@@ -480,7 +479,7 @@ class Plot extends React.Component<any, any> {
     };
 
     componentDidMount = () => {
-        let data = this.createFigure();
+        let data = this.createFigure(this.props);
 
         let tileMapDiv = document.getElementById("tile_map_plot");
 
@@ -535,16 +534,14 @@ class Plot extends React.Component<any, any> {
         });
     };
 
-    componentWillUpdate = () => {
+    componentWillReceiveProps = (props) => {
         // if (this.state.autozoom) {
         //     this.setState({autorange: true, xrange: [], yrange: []}, null);
         // }
 
         // this.componentDidMount();
 
-        console.log("componentWillUpdate");
-        console.log(this.props);
-        let data = this.createFigure();
+        let data = this.createFigure(props);
 
         console.log(data);
 
@@ -684,3 +681,4 @@ function makeLineHoriz(y) {
         }
     };
 }
+
