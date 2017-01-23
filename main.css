@@ -15,3 +15,7 @@ label {
 th {
     font-weight: 500;
 }
+
+.panel-body {
+    padding: 0px;
+}

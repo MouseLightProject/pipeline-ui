@@ -7,6 +7,7 @@ import {
     PipelineGraphWithQuery
 } from "./GraphQLComponents";
 import {PipelineTileMap} from "./PipelineTileMap";
+import {PipelineTileMapHighCharts} from "./PipelineTileMapHighCharts";
 
 export class BodyContainer extends React.Component<any, any> {
     render() {

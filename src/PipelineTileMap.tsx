@@ -9,6 +9,12 @@ import {Loading} from "./Loading";
 import graphql from "react-apollo/graphql";
 import {TilePipelineStatus, IProject} from "./QueryInterfaces";
 
+enum TileStatusSortIndex {
+    Incomplete = 0,
+    Queued = 1,
+    Complete = 2,
+    Failed = 3,
+}
 interface IStageStatus {
     stage_id: string;
     depth: number;
@@ -19,6 +25,12 @@ interface ITileStatus {
     x_index: number;
     y_index: number;
     stages: IStageStatus[];
+}
+
+interface IPlotlyHtmlElement extends HTMLElement {
+    layout: any;
+    data: any;
+    on(event: string, eventFcn: any);
 }
 
 export class PipelineTileMap extends React.Component<any, any> {
@@ -67,20 +79,19 @@ class MapPanel extends React.Component<any, any> {
         super(props);
         this.state = {
             projectId: "",
+            plane: 0,
             minZ: 0,
-            maxZ: 1e6,
-            plane: -1,
-            autozoom: true
+            maxZ: 1,
         };
     }
 
-    componentDidMount = () => {
+    public componentDidMount() {
         if (this.state.projectId === "" && this.props.projects.length > 1) {
             this.onProjectChanged(this.props.projects[0].id);
         }
     };
 
-    componentDidUpdate = () => {
+    public componentDidUpdate() {
         if (this.state.projectId === "" && this.props.projects.length > 1) {
             this.onProjectChanged(this.props.projects[0].id);
         }
@@ -112,14 +123,6 @@ class MapPanel extends React.Component<any, any> {
             this.setState({projectId: eventKey, minZ: minZ, maxZ: maxZ, plane: minZ}, null);
         }
     };
-
-    onResetZoom = () => {
-        this.setState({autozoom: true}, null);
-    };
-
-    onManualZoom = () => {
-        this.setState({autozoom: false}, null);
-    }
 
     onLeftClick = () => {
         if (this.state.plane > this.state.minZ) {
@@ -173,8 +176,7 @@ class MapPanel extends React.Component<any, any> {
                     </Nav>
                 </Navbar>
                 <PlotWithQuery project_id={this.state.projectId} plane={this.state.plane} projects={this.props.projects}
-                               pipelineStages={this.props.pipelineStages} tasks={this.props.tasks}
-                               autozoom={this.state.autozoom} onManualZoom={this.onManualZoom}/>
+                               pipelineStages={this.props.pipelineStages} tasks={this.props.tasks}/>
             </Panel>
         );
     }
@@ -184,135 +186,15 @@ class Plot extends React.Component<any, any> {
     constructor(props) {
         super(props);
         this.state = {
-            autorange: true,
-            xrange: [],
-            yrange: []
-        };
+            xRange: [],
+            yRange: []
+        }
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        console.log("----");
-        console.log(nextProps);
-        console.log(this.props);
-        if (nextProps.project_id !== this.props.project_id) {
-            console.log("shouldUpdate 1");
-            return true;
-        }
+    private updateDimensions() {
+        let tileMapDiv = document.getElementById("tile_map_plot") as IPlotlyHtmlElement;
 
-        if (nextProps.data !== this.props.data) {
-            console.log("shouldUpdate 2");
-            return true;
-        }
-
-        if (!nextProps.data) {
-            console.log("shouldNotUpdate 3");
-            return false;
-        }
-
-        if (nextProps.data.loading !== this.props.data.loading) {
-            console.log("shouldUpdate 4a");
-            return true;
-        }
-
-        if (nextProps.data.projectPlaneTileStatus !== this.props.data.projectPlaneTileStatus) {
-            console.log("shouldUpdate 4");
-            return true;
-        }
-
-        if (!nextProps.data.projectPlaneTileStatus) {
-            console.log("shouldNotUpdate 5");
-            return false;
-        }
-
-        if (nextProps.data.projectPlaneTileStatus.max_depth !== this.props.data.projectPlaneTileStatus.max_depth) {
-            console.log("shouldUpdate 5a");
-            return true;
-        }
-
-
-        if (nextProps.data.projectPlaneTileStatus.x_min !== this.props.data.projectPlaneTileStatus.x_min) {
-            console.log("shouldUpdate 5a");
-            return true;
-        }
-
-        if (nextProps.data.projectPlaneTileStatus.x_max !== this.props.data.projectPlaneTileStatus.x_max) {
-            console.log("shouldUpdate 5b");
-            return true;
-        }
-
-        if (nextProps.data.projectPlaneTileStatus.y_min !== this.props.data.projectPlaneTileStatus.y_min) {
-            console.log("shouldUpdate 5c");
-            return true;
-        }
-
-        if (nextProps.data.projectPlaneTileStatus.y_max !== this.props.data.projectPlaneTileStatus.y_max) {
-            console.log("shouldUpdate 5d");
-            return true;
-        }
-
-        let thisTiles = this.props.data.projectPlaneTileStatus.tiles;
-
-        let nextTiles = nextProps.data.projectPlaneTileStatus.tiles;
-
-        if (thisTiles.length !== nextTiles.length) {
-            console.log("shouldUpdate 6");
-            return true;
-        }
-
-        if (thisTiles.length === 0) {
-            console.log("shouldNotUpdate 7");
-            return false;
-        }
-
-        let shouldUpdate = thisTiles.some((thisTile, index) => {
-            let nextTile = nextTiles[index];
-
-            if (thisTile.stages.length != nextTile.stages.length) {
-                console.log("shouldUpdate 8");
-                return true;
-            }
-
-            if (thisTile.x_index != nextTile.x_index) {
-                console.log("shouldUpdate 9");
-                return true;
-            }
-
-            if (thisTile.y_index != nextTile.y_index) {
-                console.log("shouldUpdate 10");
-                return true;
-            }
-
-            if (thisTile.stages.length === 0) {
-                return false;
-            }
-
-            let shouldUpdate2 = thisTile.stages.some((thisStage, index) => {
-                let nextStage = nextTile.stages[index];
-
-                if (thisStage.status != nextStage.status) {
-                    console.log("shouldUpdate 11");
-                    return true;
-                }
-
-                if (thisStage.stage_id != nextStage.stage_id) {
-                    console.log("shouldUpdate 12");
-                    return true;
-                }
-
-                if (thisStage.depth != nextStage.depth) {
-                    console.log("shouldUpdate 13");
-                    return true;
-                }
-
-                return false;
-            });
-
-            return shouldUpdate2;
-        });
-
-        console.log(`${shouldUpdate ? "shouldUpdate" : "shouldNotUpdate"}`);
-
-        return shouldUpdate;
+        Plotly.Plots.resize(tileMapDiv);
     }
 
     createFigure = (props) => {
@@ -333,49 +215,63 @@ class Plot extends React.Component<any, any> {
         let x = [];
         let y = [];
         let z = [];
-        let zmax = 0;
+        let zMax = 0;
         let annotations = [];
-
-        console.log("***");
-        console.log(props);
 
         if (props.data && props.data.projectPlaneTileStatus) {
             let data = props.data.projectPlaneTileStatus;
 
-            zmax = data.max_depth + 1;
+            zMax = data.max_depth + 1;
 
-            let xmin = project ? (project.sample_x_min >= 0 ? project.sample_x_min : data.x_min) : data.x_min;
-            let xmax = project ? (project.sample_x_max >= 0 ? project.sample_x_max : data.x_max) : data.x_max;
-            let ymin = project ? (project.sample_y_min >= 0 ? project.sample_y_min : data.y_min) : data.y_min;
-            let ymax = project ? (project.sample_y_max >= 0 ? project.sample_y_max : data.y_max) : data.y_max;
+            let xmin = findMinValue(project, "sample_x_min", data, "x_min");
+            let xmax = findMinValue(project, "sample_x_max", data, "x_max");
+            let ymin = findMinValue(project, "sample_y_min", data, "y_min");
+            let ymax = findMinValue(project, "sample_y_max", data, "y_max");
 
             x = numeric.linspace(xmin, xmax);
             y = numeric.linspace(ymin, ymax);
             z = numeric.rep([y.length, x.length], 0);
 
             data.tiles.map((tile: ITileStatus) => {
+                if (tile.x_index < xmin || tile.x_index > xmax) {
+                    return;
+                }
+
+                if (tile.y_index < ymin || tile.y_index > ymax) {
+                    return
+                }
+
                 let markedStages = tile.stages.reduce((depth, stage) => {
                     if (stage.status === TilePipelineStatus.Waiting) {
                         // Queued or processing
-                        if (depth[0] === null || stage.depth < depth[0].depth)
-                            depth[0] = stage;
+                        if (depth[TileStatusSortIndex.Incomplete] === null || stage.depth < depth[TileStatusSortIndex.Incomplete].depth)
+                            depth[TileStatusSortIndex.Incomplete] = stage;
                     }
 
                     if (stage.status > TilePipelineStatus.Waiting && stage.status < TilePipelineStatus.Complete) {
                         // Queued or processing
-                        if (depth[1] === null || stage.depth < depth[1].depth)
-                            depth[1] = stage;
+                        if (depth[TileStatusSortIndex.Queued] === null || stage.depth < depth[TileStatusSortIndex.Queued].depth)
+                            depth[TileStatusSortIndex.Queued] = stage;
                     }
 
                     if (stage.status === TilePipelineStatus.Complete) {
-                        // Queued or processing
-                        if (depth[2] === null || stage.depth > depth[2].depth)
-                            depth[2] = stage;
+                        // Complete
+                        if (depth[TileStatusSortIndex.Complete] === null || stage.depth > depth[TileStatusSortIndex.Complete].depth)
+                            depth[TileStatusSortIndex.Complete] = stage;
                     }
-                    return depth;
-                }, [null, null, null]);
 
-                // Have lowest incomplete, lowest processing, and lowest complete.
+                    if (stage.status === TilePipelineStatus.Failed) {
+                        // Failed
+                        if (depth[TileStatusSortIndex.Failed] === null || stage.depth > depth[TileStatusSortIndex.Failed].depth)
+                            depth[TileStatusSortIndex.Failed] = stage;
+                    }
+
+                    return depth;
+                }, [null, null, null, null]);
+
+                // Have lowest incomplete, processing, complete, and failed stages.
+
+                // Failed stages take priority to be down over anything else.
 
                 // In a pipeline is done, incomplete and queued/processing should be NONE and we can
                 // just show complete (at max-depth + 1).
@@ -388,23 +284,45 @@ class Plot extends React.Component<any, any> {
 
                 let displayStage = null;
 
-                if (!markedStages[0] && !markedStages[1]) {
-                    if (markedStages[2]) {
-                        displayStage = markedStages[2];
+                if (markedStages[TileStatusSortIndex.Failed]) {
+                    displayStage = markedStages[TileStatusSortIndex.Failed];
+                } else if (!markedStages[TileStatusSortIndex.Incomplete] && !markedStages[TileStatusSortIndex.Queued]) {
+                    if (markedStages[TileStatusSortIndex.Complete]) {
+                        displayStage = markedStages[TileStatusSortIndex.Complete];
                     }
                 } else {
-                    if (markedStages[1]) {
-                        displayStage = markedStages[1];
-                    } else if (markedStages[0]) {
-                        displayStage = markedStages[0];
+                    if (markedStages[TileStatusSortIndex.Queued]) {
+                        displayStage = markedStages[TileStatusSortIndex.Queued];
+                    } else if (markedStages[TileStatusSortIndex.Incomplete]) {
+                        displayStage = markedStages[TileStatusSortIndex.Incomplete];
                     }
                 }
 
                 let stageText = "";
 
-                let useFullText = this.state.xrange.length > 1 && (this.state.xrange[1] - this.state.xrange[0] < 15);
+                let tileMapDiv = document.getElementById("tile_map_plot") as IPlotlyHtmlElement;
 
-                let pseudoDepth = displayStage ? (displayStage.status === TilePipelineStatus.Complete ? displayStage.depth + 1 : (displayStage.depth === 1 && displayStage.status === TilePipelineStatus.Waiting ? displayStage.depth - 0.5 : displayStage.depth)) : 0;
+                let useFullText = false;
+
+                if (tileMapDiv && tileMapDiv.layout && tileMapDiv.layout.xaxis && tileMapDiv.layout.xaxis.range) {
+                    useFullText = tileMapDiv.layout.xaxis.range.length > 1 && (tileMapDiv.layout.xaxis.range[1] - tileMapDiv.layout.xaxis.range[0] < 15);
+                }
+
+                let pseudoDepth = 0;
+
+                if (displayStage) {
+                    if (displayStage.status === TilePipelineStatus.Complete) {
+                        pseudoDepth = displayStage.depth + 1
+                    } else if (displayStage.depth === 1 && displayStage.status === TilePipelineStatus.Waiting) {
+                        pseudoDepth = displayStage.depth - 0.5;
+                    } else if (displayStage.status === TilePipelineStatus.Processing) {
+                        pseudoDepth = displayStage.depth + 0.5;
+                    } else {
+                        pseudoDepth = displayStage.depth;
+                    }
+                } else {
+                    pseudoDepth = 0;
+                }
 
                 if (displayStage) {
                     let pipelineStageIndex = pipelineIds.indexOf(displayStage.stage_id);
@@ -432,7 +350,11 @@ class Plot extends React.Component<any, any> {
                     }
                 }
 
-                let result = {
+                let color = (pseudoDepth / zMax < 0.3 || pseudoDepth / zMax > 0.8) ? "#CCC" : "#111";
+                let failed = displayStage && displayStage.status === TilePipelineStatus.Failed;
+                let bold = displayStage && (displayStage.status === TilePipelineStatus.Processing || displayStage.status === TilePipelineStatus.Failed);
+
+                let annotation = {
                     xref: "x1",
                     yref: "y1",
                     x: tile.x_index,
@@ -440,52 +362,147 @@ class Plot extends React.Component<any, any> {
                     text: `${stageText}`,
                     font: {
                         family: "Arial",
-                        size: 12,
-                        color: "#CCCCCC"
+                        size: bold ? 16 : 12,
+                        color: color
                     },
+                    bordercolor: failed ? "#FF0000" : "#00FF00",
+                    borderwidth: 0,
                     showarrow: false
                 };
 
-                annotations.push(result);
+                annotations.push(annotation);
 
-                if (displayStage) {
-                    z[tile.y_index - ymin][tile.x_index - xmin] = pseudoDepth;
-                } else {
-                    z[tile.y_index - ymin][tile.x_index - xmin] = 0;
-                }
+                z[tile.y_index - ymin][tile.x_index - xmin] = pseudoDepth;
             });
         } else {
-            let xmin = project ? (project.sample_x_min >= 0 ? project.sample_x_min : 0) : 0;
-            let xmax = project ? (project.sample_x_max >= 0 ? project.sample_x_max : 0) : 0;
-            let ymin = project ? (project.sample_y_min >= 0 ? project.sample_y_min : 0) : 0;
-            let ymax = project ? (project.sample_y_max >= 0 ? project.sample_y_max : 0) : 0;
+            let xmin = findMinValue(project, "sample_x_min");
+            let xmax = findMinValue(project, "sample_x_max");
+            let ymin = findMinValue(project, "sample_y_min");
+            let ymax = findMinValue(project, "sample_y_max");
 
             x = numeric.linspace(xmin, xmax);
             y = numeric.linspace(ymin, ymax);
             z = numeric.rep([x.length, y.length], 0);
 
-            zmax = 1;
+            zMax = 1;
         }
-
-
-        let xrange = this.state.autorage ? [] : this.state.xrange;
-        let yrange = this.state.autorage ? [] : this.state.yrange;
 
         return {
             x: x,
             y: y,
             z: z,
-            zmax: zmax,
-            xrange: xrange,
-            yrange: yrange,
+            zmax: zMax,
             annotations: annotations
         }
     };
 
-    componentDidMount = () => {
+    shouldComponentUpdate(nextProps, nextState) {
+        if (nextState.xRange !== this.state.xRange) {
+            return true;
+        }
+
+        if (nextState.yRange !== this.state.yRange) {
+            return true;
+        }
+
+        // Not using a deep compare library so we can control how it is evaluated based on which properties change
+        // most frequently.
+        if (nextProps.project_id !== this.props.project_id) {
+            return true;
+        }
+
+        if (nextProps.data !== this.props.data) {
+            return true;
+        }
+
+        if (!nextProps.data) {
+            return false;
+        }
+
+        if (nextProps.data.loading !== this.props.data.loading) {
+            return true;
+        }
+
+        if (nextProps.data.projectPlaneTileStatus !== this.props.data.projectPlaneTileStatus) {
+            return true;
+        }
+
+        if (!nextProps.data.projectPlaneTileStatus) {
+            return false;
+        }
+
+        if (nextProps.data.projectPlaneTileStatus.max_depth !== this.props.data.projectPlaneTileStatus.max_depth) {
+            return true;
+        }
+
+
+        if (nextProps.data.projectPlaneTileStatus.x_min !== this.props.data.projectPlaneTileStatus.x_min) {
+            return true;
+        }
+
+        if (nextProps.data.projectPlaneTileStatus.x_max !== this.props.data.projectPlaneTileStatus.x_max) {
+            return true;
+        }
+
+        if (nextProps.data.projectPlaneTileStatus.y_min !== this.props.data.projectPlaneTileStatus.y_min) {
+            return true;
+        }
+
+        if (nextProps.data.projectPlaneTileStatus.y_max !== this.props.data.projectPlaneTileStatus.y_max) {
+            return true;
+        }
+
+        let thisTiles = this.props.data.projectPlaneTileStatus.tiles;
+
+        let nextTiles = nextProps.data.projectPlaneTileStatus.tiles;
+
+        if (thisTiles.length !== nextTiles.length) {
+            return true;
+        }
+
+        if (thisTiles.length === 0) {
+            return false;
+        }
+
+        return thisTiles.some((thisTile, index) => {
+            let nextTile = nextTiles[index];
+
+            if (thisTile.stages.length != nextTile.stages.length) {
+                return true;
+            }
+
+            if (thisTile.x_index != nextTile.x_index) {
+                return true;
+            }
+
+            if (thisTile.y_index != nextTile.y_index) {
+                return true;
+            }
+
+            if (thisTile.stages.length === 0) {
+                return false;
+            }
+
+            return thisTile.stages.some((thisStage, index) => {
+                let nextStage = nextTile.stages[index];
+
+                if (thisStage.status != nextStage.status) {
+                    return true;
+                }
+
+                if (thisStage.stage_id != nextStage.stage_id) {
+                    return true;
+                }
+
+                return (thisStage.depth != nextStage.depth);
+            });
+        });
+    }
+
+    componentDidMount() {
         let data = this.createFigure(this.props);
 
-        let tileMapDiv = document.getElementById("tile_map_plot");
+        let tileMapDiv = document.getElementById("tile_map_plot") as IPlotlyHtmlElement;
 
         Plotly.newPlot(tileMapDiv, [{
             x: data.x,
@@ -508,13 +525,15 @@ class Plot extends React.Component<any, any> {
             },
             xaxis: {
                 showgrid: false,
-                // autorange: this.state.autorange,
-                //  range: data.xrange
+                dtick: 1,
+                autorage: this.state.xRange.length > 0,
+                range: this.state.xRange
             },
             yaxis: {
                 showgrid: false,
-                //  autorange: this.state.autorange,
-                //  range: data.yrange
+                dtick: 1,
+                autorage: this.state.yRange.length > 0,
+                range: this.state.yRange
             },
             annotations: data.annotations,
             shapes: data.x.slice(1).map(makeLineVert).concat(data.y.slice(1).map(makeLineHoriz))
@@ -522,60 +541,31 @@ class Plot extends React.Component<any, any> {
             displayModeBar: false
         });
 
-        tileMapDiv.on("plotly_doubleclick", (eventdata) => {
-            this.setState({autorange: true, xrange: [], yrange: []}, null);
-        });
-
-        tileMapDiv.on("plotly_relayout", (eventdata) => {
-            if (eventdata && eventdata["xaxis.range[0]"]) {
-                //    this.props.onManualZoom();
-                this.setState({
-                    autorange: false,
-                    xrange: [eventdata["xaxis.range[0]"], eventdata["xaxis.range[1]"]],
-                    yrange: [eventdata["yaxis.range[0]"], eventdata["yaxis.range[1]"]]
-                }, null);
+        tileMapDiv.on("plotly_relayout", (eventData) => {
+            if (eventData) {
+                if (eventData["xaxis.autorange"]) {
+                    this.setState({xRange: [], yRange: []}, null);
+                    this.forceUpdate();
+                } else if (eventData["xaxis.range[0]"]) {
+                    let x = [eventData["xaxis.range[0]"], eventData["xaxis.range[1]"]];
+                    let y = [eventData["yaxis.range[0]"], eventData["yaxis.range[1]"]];
+                    this.setState({xRange: x, yRange: y}, null);
+                    this.forceUpdate();
+                }
             }
         });
+
+        window.addEventListener("resize", this.updateDimensions);
     };
 
-    componentWillReceiveProps = (props) => {
-        // if (this.state.autozoom) {
-        //     this.setState({autorange: true, xrange: [], yrange: []}, null);
-        // }
+    componentWillReceiveProps(nextProps) {
+        if (!this.shouldComponentUpdate(this.props, nextProps)) {
+            return;
+        }
 
-        // this.componentDidMount();
+        let data = this.createFigure(nextProps);
 
-        let data = this.createFigure(props);
-
-        console.log(data);
-
-        let tileMapDiv = document.getElementById("tile_map_plot");
-        /*
-         console.log(data);
-
-         Plotly.restyle(tileMapDiv, [{
-         x: data.x,
-         y: data.y,
-         z: data.z,
-         zmax: data.zmax
-         }]);
-
-         Plotly.relayout(tileMapDiv, {
-         xaxis: {
-         showgrid: false,
-         autorange: this.state.autorange,
-         range: data.xrange
-         },
-         yaxis: {
-         showgrid: false,
-         autorange: this.state.autorange,
-         range: data.yrange
-         },
-         annotations: data.annotations,
-         shapes: data.x.slice(1).map(makeLineVert).concat(data.y.slice(1).map(makeLineHoriz))
-         });
-         */
-
+        let tileMapDiv = document.getElementById("tile_map_plot") as IPlotlyHtmlElement;
 
         tileMapDiv.data = [{
             x: data.x,
@@ -600,31 +590,54 @@ class Plot extends React.Component<any, any> {
             },
             xaxis: {
                 showgrid: false,
-                autorange: this.state.autorange,
-                range: data.xrange
+                dtick: 1,
+                autorage: this.state.xRange.length > 0,
+                range: this.state.xRange
             },
             yaxis: {
                 showgrid: false,
-                autorange: this.state.autorange,
-                range: data.yrange
+                dtick: 1,
+                autorage: this.state.yRange.length > 0,
+                range: this.state.yRange
             },
             annotations: data.annotations,
             shapes: data.x.slice(1).map(makeLineVert).concat(data.y.slice(1).map(makeLineHoriz))
         };
 
         Plotly.redraw(tileMapDiv);
+
     };
 
-    render() {
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.updateDimensions);
+    }
 
+    render() {
         let divStyle = {
-            "height": "1000px"
+            "width": "100%",
+            "height": "100%"
         };
 
         return (
             <div style={divStyle} id="tile_map_plot"></div>
         );
     }
+}
+
+function findMinValue(project, property, backupSource = null, backupProperty = null) {
+    if (project) {
+        if (project[property]) {
+            return project[property];
+        }
+    }
+
+    if (backupSource) {
+        if (backupSource[backupProperty]) {
+            return backupSource[backupProperty];
+        }
+    }
+
+    return 0;
 }
 
 const PipelineTileMapQuery = gql`query($project_id: String, $plane: Int) { 
