@@ -96,6 +96,60 @@ const jet = [
     [1.00, "#800000"],
 ];
 
+(function (H) {
+    H.wrap(H.Chart.prototype, 'pan', function (proceed) {
+        let chart = this,
+            hoverPoints = chart.hoverPoints,
+            doRedraw,
+            e = arguments[1],
+            each = H.each;
+
+        // remove active points for shared tooltip
+        if (hoverPoints) {
+            each(hoverPoints, function (point) {
+                point.setState();
+            });
+        }
+
+        let mousePosX = e.chartX,
+            mousePosY = e.chartY,
+            xAxis = chart.xAxis[0],
+            yAxis = chart.yAxis[0],
+            startPosX = chart.mouseDownX,
+            startPosY = chart.mouseDownY,
+            halfPointRangeX = (xAxis.pointRange || 0) / 2,
+            halfPointRangeY = (yAxis.pointRange || 0) / 2,
+            extremesX = xAxis.getExtremes(),
+            newMinX = xAxis.toValue(startPosX - mousePosX, true) + halfPointRangeX,
+            newMaxX = xAxis.toValue(startPosX + chart.plotWidth - mousePosX, true) - halfPointRangeX,
+            extremesY = yAxis.getExtremes(),
+            newMaxY = yAxis.toValue(startPosY - mousePosY, true) + halfPointRangeY,
+            newMinY = yAxis.toValue(startPosY + chart.plotHeight - mousePosY, true) - halfPointRangeY;
+
+        if (xAxis.series.length && newMinX > Math.min(extremesX.dataMin - 1, extremesX.min) && newMaxX < Math.max(extremesX.dataMax + 1, extremesX.max)) {
+            xAxis.setExtremes(newMinX, newMaxX, false, false, {
+                trigger: 'pan'
+            });
+            doRedraw = true;
+        }
+
+        if (xAxis.series.length && newMinY > Math.min(extremesY.dataMin - 1, extremesY.min) && newMaxY < Math.max(extremesY.dataMax + 1, extremesY.max)) {
+            yAxis.setExtremes(newMinY, newMaxY, false, false, {
+                trigger: 'pan'
+            });
+            doRedraw = true;
+        }
+
+        chart.mouseDownX = mousePosX;
+        chart.mouseDownY = mousePosY;// set new reference for next run
+
+        if (doRedraw) {
+            chart.redraw(false);
+        }
+    });
+
+}(Highcharts));
+
 export class PipelineTileMapHighCharts extends React.Component<any, any> {
     constructor(props) {
         super(props);
@@ -463,15 +517,6 @@ class Plot extends React.Component<any, any> {
                     }
                 }
 
-/*
-                let useFullText = false;
-
-                if (this.chartContainer && this.chartContainer.series[0]) {
-                    let range = this.chartContainer.series[0].xAxis.getExtremes();
-
-                    useFullText = (range.max - range.min) < 14;
-                }
-*/
                 let pseudoDepth = 0;
 
                 if (displayStage) {
@@ -500,19 +545,19 @@ class Plot extends React.Component<any, any> {
                         let pipelineStage = pipelineStages[pipelineStageIndex];
 
                         // if (useFullText) {
-                            if (displayStage.depth === 1 && status === TilePipelineStatus.Waiting) {
-                                stageText = "OoS";
-                            } else {
-                                status = (status === TilePipelineStatus.Waiting) ? TilePipelineStatus.Queued : status;
-                                stageText = `${pipelineStage.name}<br>` + TilePipelineStatus[status];
-                            }
+                        if (displayStage.depth === 1 && status === TilePipelineStatus.Waiting) {
+                            stageText = "OoS";
+                        } else {
+                            status = (status === TilePipelineStatus.Waiting) ? TilePipelineStatus.Queued : status;
+                            stageText = `${pipelineStage.name}<br>` + TilePipelineStatus[status];
+                        }
                         // } else {
-                            if (displayStage.depth === 1 && status === TilePipelineStatus.Waiting) {
-                                stageAbbr = "";
-                            } else {
-                                status = (status === TilePipelineStatus.Waiting) ? TilePipelineStatus.Queued : status;
-                                stageAbbr = `${pipelineStage.name.substr(0, 1)}-${TilePipelineStatus[status].substr(0, 1)}`;
-                            }
+                        if (displayStage.depth === 1 && status === TilePipelineStatus.Waiting) {
+                            stageAbbr = "";
+                        } else {
+                            status = (status === TilePipelineStatus.Waiting) ? TilePipelineStatus.Queued : status;
+                            stageAbbr = `${pipelineStage.name.substr(0, 1)}-${TilePipelineStatus[status].substr(0, 1)}`;
+                        }
                         // }
                     }
                 }
@@ -538,8 +583,8 @@ class Plot extends React.Component<any, any> {
             y: y,
             z: z,
             zMax: zMax,
-            xRange: [xMin, xMax],
-            yRange: [yMin, yMax]
+            xRange: [xMin - 0.5, xMax + 0.5],
+            yRange: [yMin - 0.5, yMax + 0.5]
         }
     };
 
@@ -622,7 +667,8 @@ class Plot extends React.Component<any, any> {
         if (eventData.point.annotation) {
             if (useFullText) {
                 return eventData.point.annotation.text;
-            } {
+            }
+            {
                 return eventData.point.annotation.abbr;
             }
         } else {
@@ -681,9 +727,11 @@ function createConfig(owner) {
     return {
 
         chart: {
-            animation: false,
+            animation: true,
             type: "heatmap",
+            height: 800,
             panKey: "shift",
+            panning: true,
             marginTop: 10,
             marginBottom: 84,
             plotBorderWidth: 1,
@@ -701,12 +749,16 @@ function createConfig(owner) {
 
         xAxis: {
             min: 0,
-            tickInterval: 1
+            tickInterval: 1,
+            gridLineWidth: 0
         },
 
         yAxis: {
             title: null,
-            tickInterval: 1
+            tickInterval: 1,
+            gridLineWidth: 0,
+            startOnTick: false,
+            endOnTick: false
         },
 
         colorAxis: {
@@ -732,6 +784,8 @@ function createConfig(owner) {
             data: [],
             dataLabels: {
                 enabled: true,
+                align: "center",
+                crop: true,
                 color: "#000000",
                 shadow: false,
                 formatter: function () { // Note: arrow function would bind this to Component rather than highcharts data.
@@ -741,7 +795,9 @@ function createConfig(owner) {
                     fontWeight: "normal",
                     textOutline: null
                 },
-                allowOverlap: false
+                allowOverlap: false,
+                oveflow: "none",
+                verticalAlign: "middle"
             }
         }]
     };
