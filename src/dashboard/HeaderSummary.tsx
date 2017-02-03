@@ -4,9 +4,8 @@ import graphql from "react-apollo/graphql";
 import {Grid, Row, Col, Panel} from "react-bootstrap";
 
 import * as moment from "moment";
-import {WorkersOnlineTile, IWorkersOnlineTileProps} from "./WorkersOnlineTile";
 import {Loading} from "../Loading";
-import {IWorker} from "../QueryInterfaces";
+import {IWorker, IProject} from "../QueryInterfaces";
 import {calculateDurationFromNow} from "../helpers/Utils";
 import {ICountTileProps, CountTile} from "./CountTile";
 // const HighCharts = require("highcharts");
@@ -72,31 +71,97 @@ class TextSummary extends React.Component<any, any> {
         }
     }
 
+    private buildPipelineProps(projects: IProject[]): ICountTileProps {
+        let activeCount = projects.filter(project => {
+            return project.is_processing;
+        }).length;
+
+        return {
+            title: "Active Pipelines",
+            count: activeCount,
+            message: `${projects.length - activeCount} idle`
+        }
+    }
+
     public render() {
         console.log(this.props);
 
         const workerProps = this.buildWorkersProps(this.props.data.pipelineWorkers);
+
+        const projectProps = this.buildPipelineProps(this.props.data.projects);
 
         return (
             <Row style={tileCountStyle}>
                 <Col lg={lgCol} md={mdCol} sm={smCol} xs={xsCol} className="tile_stat">
                     <CountTile {...workerProps}/>
                 </Col>
+                <Col lg={lgCol} md={mdCol} sm={smCol} xs={xsCol} className="tile_stat">
+                    <CountTile {...projectProps}/>
+                </Col>
             </Row>
         );
     }
 }
 
-const HeaderSummaryQuery = gql`query { 
-    pipelineWorkers {
+const HeaderSummaryQuery = gql`query {
+  projects {
+    id
+    name
+    description
+    root_path
+    sample_number
+    sample_x_min
+    sample_x_max
+    sample_y_min
+    sample_y_max
+    sample_z_min
+    sample_z_max
+    region_x_min
+    region_x_max
+    region_y_min
+    region_y_max
+    region_z_min
+    region_z_max
+    is_processing
+    stages {
       id
       name
-      machine_id
-      work_unit_capacity
-      last_seen
-      task_load
-      status
+      depth
+      previous_stage_id
+      task_id
+      task {
+        id
+        name
+      }
+      performance {
+        id
+        num_in_process
+        num_ready_to_process
+        num_execute
+        num_complete
+        num_error
+        num_cancel
+        cpu_average
+        cpu_high
+        cpu_low
+        memory_average
+        memory_high
+        memory_low
+        duration_average
+        duration_high
+        duration_low
+      }
     }
+  }
+  pipelineWorkers {
+    id
+    name
+    machine_id
+    work_unit_capacity
+    last_seen
+    task_load
+    status
+  }
 }`;
 
 export const HeaderSummaryWithQuery = graphql(HeaderSummaryQuery, {
