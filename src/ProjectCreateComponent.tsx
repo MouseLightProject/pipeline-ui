@@ -27,7 +27,7 @@ class CreateProjectFailedAlert extends React.Component<any, any> {
 
 class CreateProjectButton extends React.Component<any, any> {
     onClick = () => {
-        let region = {
+        const region = {
             x_min: this.props.regionMinX,
             x_max: this.props.regionMaxX,
             y_min: this.props.regionMinY,
@@ -36,7 +36,15 @@ class CreateProjectButton extends React.Component<any, any> {
             z_max: this.props.regionMaxZ
         };
 
-        this.props.createCallback(this.props.name, this.props.description, this.props.rootPath, this.props.sampleNumber, region);
+        const project = {
+            name: this.props.name,
+            description: this.props.description,
+            root_path: this.props.rootPath,
+            sample_number: this.props.sampleNumber,
+            region_bounds: region
+        };
+
+        this.props.createCallback(project);
     };
 
     render() {

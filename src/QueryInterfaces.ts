@@ -6,27 +6,6 @@ export enum TilePipelineStatus {
     Complete = 4,
     Failed = 5
 }
-export interface IProject {
-    id: string;
-    name: string;
-    description: string;
-    root_path: string;
-    sample_number: number,
-    sample_x_min: number;
-    sample_x_max: number;
-    sample_y_min: number;
-    sample_y_max: number;
-    sample_z_min: number;
-    sample_z_max: number;
-    region_x_min: number;
-    region_x_max: number;
-    region_y_min: number;
-    region_y_max: number;
-    region_z_min: number;
-    region_z_max: number;
-    is_processing: boolean;
-}
-
 export interface ITaskDefinition {
     id: string;
     name: string;
@@ -64,8 +43,31 @@ export interface IPipelineStage {
     performance: IPipelinePerformance;
     previous_stage_id: string;
     dst_path: string;
+    depth: number;
     is_processing: boolean;
     function_type: number;
+}
+
+export interface IProject {
+    id: string;
+    name: string;
+    description: string;
+    root_path: string;
+    sample_number: number,
+    sample_x_min: number;
+    sample_x_max: number;
+    sample_y_min: number;
+    sample_y_max: number;
+    sample_z_min: number;
+    sample_z_max: number;
+    region_x_min: number;
+    region_x_max: number;
+    region_y_min: number;
+    region_y_max: number;
+    region_z_min: number;
+    region_z_max: number;
+    is_processing: boolean;
+    stages: IPipelineStage[];
 }
 
 export interface IWorker {

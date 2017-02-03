@@ -40,14 +40,18 @@ class PipelineStageRow extends React.Component<IPipelineStageRowProps, any> {
 
         return (
             <tr>
-                <td><Button bsSize="xs" bsStyle={this.getActivateStyle(pipelineStage.is_processing)} onClick={this.onActiveClick}><Glyphicon glyph={this.getActivateGlyph(pipelineStage.is_processing)} /> {this.getActivateText(pipelineStage.is_processing)}</Button></td>
+                <td><Button bsSize="xs" bsStyle={this.getActivateStyle(pipelineStage.is_processing)}
+                            onClick={this.onActiveClick}><Glyphicon
+                    glyph={this.getActivateGlyph(pipelineStage.is_processing)}/> {this.getActivateText(pipelineStage.is_processing)}
+                </Button></td>
                 <td>{pipelineStage.id.slice(0, 8)}</td>
                 <td>{pipelineStage.project_id.slice(0, 8)}</td>
                 <td>{pipelineStage.task.id.slice(0, 8)}</td>
                 <td>{pipelineStage.previous_stage_id ? pipelineStage.previous_stage_id.slice(0, 8) : previousStageIsAcquisitionRoot}</td>
                 <td>{pipelineStage.dst_path}</td>
                 <td>{this.formatPerformance(pipelineStage.performance)}</td>
-                <td><Button bsSize="xs" bsStyle="warning" onClick={this.onDelete}><Glyphicon glyph="trash" /> Remove</Button></td>
+                <td><Button bsSize="xs" bsStyle="warning" onClick={this.onDelete}><Glyphicon glyph="trash"/>
+                    Remove</Button></td>
             </tr>);
     }
 }
@@ -61,9 +65,15 @@ interface IPipelineStageTable {
 
 export class PipelineStageTable extends React.Component<IPipelineStageTable, any> {
     render() {
-        let rows = this.props.pipelineStages.map(pipelineStage => (
-            <PipelineStageRow key={"tr_pipeline" + pipelineStage.id} pipelineStage={pipelineStage} updateStatusCallback={this.props.updateStatusCallback}
-                              deleteCallback={this.props.deleteCallback}/>));
+        let rows = [];
+
+        if (this.props.pipelineStages) {
+            rows = this.props.pipelineStages.map(pipelineStage => (
+                <PipelineStageRow key={"tr_pipeline" + pipelineStage.id} pipelineStage={pipelineStage}
+                                  updateStatusCallback={this.props.updateStatusCallback}
+                                  deleteCallback={this.props.deleteCallback}/>));
+        }
+
         return (
             <Table condensed>
                 <thead>

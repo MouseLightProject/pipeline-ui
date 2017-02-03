@@ -3,34 +3,43 @@ import {Panel} from "react-bootstrap"
 
 import {TaskDefinitionsTable} from "./TaskDefinitionTable";
 import {Loading} from "./Loading";
+import gql from "graphql-tag/index";
+import graphql from "react-apollo/graphql";
 
 export class TaskDefinitions extends React.Component<any, any> {
-    onStartTask = (taskDefinitionId: string, scriptArgs: string[]) =>  {
-        this.props.startTaskMutation(taskDefinitionId, scriptArgs)
-        .then(() => {
-            this.props.refetch();
-        }).catch((error) => {
-            console.log("there was an error sending the query", error);
-        });
-    };
-
     render() {
         return (
-            <div>
-                {this.props.loading ? <Loading/> : <TablePanel taskDefinitions={this.props.tasks} startTask={this.onStartTask}/>}
-            </div>
+            <TaskPanelQuery/>
         );
     }
 }
 
-class TablePanel extends React.Component<any, any> {
+class TaskPanel extends React.Component<any, any> {
     render() {
+        const loading = !this.props.data || this.props.data.loading;
+
+        const tasks = !loading ? this.props.data.taskDefinitions : [];
+
         return (
-            <div>
-                <Panel collapsible defaultExpanded header="Task Definitions" bsStyle="primary">
-                    <TaskDefinitionsTable taskDefinitions={this.props.taskDefinitions}/>
-                </Panel>
-            </div>
+            <Panel collapsible defaultExpanded header="Task Definitions" bsStyle="primary">
+                {loading ? <Loading/> : <TaskDefinitionsTable taskDefinitions={tasks}/>}
+            </Panel>
         );
     }
 }
+
+const TaskQuery = gql`query { 
+    taskDefinitions {
+      id
+      name
+      description
+      script
+      interpreter
+    }
+}`;
+
+const TaskPanelQuery = graphql(TaskQuery, {
+    options: {
+        pollInterval: 5 * 1000
+    }
+})(TaskPanel);

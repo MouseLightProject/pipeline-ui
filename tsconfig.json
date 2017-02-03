@@ -4,7 +4,8 @@
     "module": "commonjs",
     "target": "es6",
     "jsx": "react",
-    "sourceMap": true
+    "sourceMap": true,
+    "experimentalDecorators": true
   },
   "include": [
     "declaration.d.ts",

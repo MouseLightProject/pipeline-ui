@@ -29,7 +29,7 @@ module.exports = {
                 loaders: ["babel"],
                 include: path.join(__dirname, "src")
             }, {
-                test: /\.tsx?$/, loader: "ts-loader"
+                test: /\.tsx?$/, loader: "babel-loader?presets[]=es2015!ts-loader"
             }
         ],
         noParse: [

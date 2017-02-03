@@ -1,14 +1,15 @@
 import * as React from "react";
 import gql from "graphql-tag/index";
-import {Panel, NavItem, Nav, MenuItem, NavDropdown, Navbar} from "react-bootstrap"
+import {Panel, NavItem, Nav, Navbar} from "react-bootstrap"
 let numeric = require("numeric");
 
-const Highcharts = require("highcharts");
-require("highcharts/modules/heatmap")(Highcharts);
+const HighCharts = require("highcharts");
+require("highcharts/modules/heatmap")(HighCharts);
+require("highcharts/modules/map")(HighCharts);
 
-import {Loading} from "./Loading";
 import graphql from "react-apollo/graphql";
 import {TilePipelineStatus, IProject} from "./QueryInterfaces";
+import {ProjectMenuStyle, ProjectMenu} from "./helpers/ProjectMenu";
 
 interface IStageStatus {
     stage_id: string;
@@ -148,7 +149,7 @@ const jet = [
         }
     });
 
-}(Highcharts));
+}(HighCharts));
 
 export class PipelineTileMapHighCharts extends React.Component<any, any> {
     constructor(props) {
@@ -157,37 +158,54 @@ export class PipelineTileMapHighCharts extends React.Component<any, any> {
 
     render() {
         return (
-            <div>
-                {this.props.loading ? <Loading/> :
-                    <MapPanel projects={this.props.projects} pipelineStages={this.props.pipelineStages}
-                              tasks={this.props.tasks}/>}
-            </div>
+            <MapPanelQuery/>
         );
     }
 }
+/*
+ class ProjectMenu extends React.Component<any, any> {
+ handleChange = (eventKey) => {
+ this.props.onProjectSelectionChange(eventKey);
+ };
 
-class ProjectMenu extends React.Component<any, any> {
-    handleChange = (eventKey) => {
-        this.props.onProjectSelectionChange(eventKey);
-    };
+ render() {
+ let title = "";
 
+ let rows = [];
+
+ if (this.props.project) {
+ let rows = this.props.projects.map(project => {
+ if (project.id === this.props.selectedProjectId) {
+ title = `${project.name} (Sample Id ${project.sample_number})`;
+ }
+
+ return (<MenuItem key={"pipeline_project_" + project.id}
+ eventKey={project.id}>{`${project.name} (Sample Id ${project.sample_number})`}</MenuItem>)
+ });
+ }
+
+ return (
+ <NavDropdown id="tilemap-project-dropdown" title={title} onSelect={this.handleChange}>
+ {rows}
+ </NavDropdown>
+ )
+ }
+ }*/
+
+class ProjectStatusPanel extends React.Component<any, any> {
     render() {
-        let title = "";
+        const style = {
+            textAlign: "center"
+        };
 
-        let rows = this.props.projects.map(project => {
-            if (project.id === this.props.selectedProjectId) {
-                title = `${project.name} (Sample Id ${project.sample_number})`;
-            }
-
-            return (<MenuItem key={"pipeline_project_" + project.id}
-                              eventKey={project.id}>{`${project.name} (Sample Id ${project.sample_number})`}</MenuItem>)
-        });
+        const details = this.props.details || "";
 
         return (
-            <NavDropdown id="tilemap-project-dropdown" title={title} onSelect={this.handleChange}>
-                {rows}
-            </NavDropdown>
-        )
+            <div style={style}>
+                <h2>{this.props.message}</h2>
+                <p>{details}</p>
+            </div>
+        );
     }
 }
 
@@ -203,25 +221,31 @@ class MapPanel extends React.Component<any, any> {
     }
 
     componentDidMount() {
-        if (this.state.projectId === "" && this.props.projects.length > 1) {
-            this.onProjectChanged(this.props.projects[0].id);
+        const projects = (this.props.data && !this.props.data.loading) ? this.props.data.projects : [];
+
+        if (this.state.projectId === "" && projects.length > 1) {
+            this.onProjectChanged(projects[0].id);
         }
     };
 
     componentDidUpdate() {
-        if (this.state.projectId === "" && this.props.projects.length > 1) {
-            this.onProjectChanged(this.props.projects[0].id);
+        const projects = (this.props.data && !this.props.data.loading) ? this.props.data.projects : [];
+
+        if (this.state.projectId === "" && projects && projects.length > 1) {
+            this.onProjectChanged(projects[0].id);
         }
     };
 
     onProjectChanged = (eventKey) => {
-        let project = this.props.projects.filter(x => x.id === eventKey);
+        let projects = (this.props.data && !this.props.data.loading) ? this.props.data.projects : [];
+
+        projects = projects.filter(x => x.id === eventKey);
 
         let minZ = 0;
         let maxZ = 1e6;
 
-        if (project.length > 0 && project[0].id !== this.state.projectId) {
-            project = project[0];
+        if (projects.length > 0 && projects[0].id !== this.state.projectId) {
+            const project = projects[0];
 
             if (project.region_z_min > -1) {
                 minZ = project.region_z_min;
@@ -269,7 +293,29 @@ class MapPanel extends React.Component<any, any> {
         this.setState({plane: p}, null);
     };
 
+    private choosePanel(projects) {
+        if (!projects) {
+            return (<ProjectStatusPanel message="There are no projects"/>);
+        }
+
+        projects = projects.filter(project => project.id === this.state.projectId);
+
+        if (!projects || projects.length === 0) {
+            return (<ProjectStatusPanel message="There is no selected pipeline"/>);
+        }
+
+        if (!projects[0].is_processing) {
+            return (<ProjectStatusPanel message="The selected pipeline must be running to view the tile map"/>);
+        }
+
+        return (<PlotWithQuery project_id={this.state.projectId} plane={this.state.plane}/>)
+    }
+
     render() {
+        const loading = !this.props.data || this.props.data.loading;
+
+        const projects = !loading ? this.props.data.projects : [];
+
         return (
             <Panel collapsible defaultExpanded header="Pipeline Tile Map" bsStyle="info">
                 <Navbar inverse fluid>
@@ -280,8 +326,12 @@ class MapPanel extends React.Component<any, any> {
                         <Navbar.Toggle />
                     </Navbar.Header>
                     <Nav>
-                        <ProjectMenu selectedProjectId={this.state.projectId} projects={this.props.projects}
-                                     onProjectSelectionChange={this.onProjectChanged}/>
+                        <ProjectMenu keyPrefix="pipelineStageCreateProjects"
+                                     menuStyle={ProjectMenuStyle.NavDropDown}
+                                     onProjectSelectionChange={this.onProjectChanged}
+                                     projects={projects}
+                                     selectedProjectId={this.state.projectId}
+                                     includeAllProjects={false}/>
                     </Nav>
                     <Nav pullRight>
                         <NavItem>Current Z Index</NavItem>
@@ -292,9 +342,7 @@ class MapPanel extends React.Component<any, any> {
                         <NavItem onClick={this.onRightClickDouble}>{">>"}</NavItem>
                     </Nav>
                 </Navbar>
-                <PlotWithQuery project_id={this.state.projectId} plane={this.state.plane} projects={this.props.projects}
-                               pipelineStages={this.props.pipelineStages} tasks={this.props.tasks}
-                               loading={this.props.data && this.props.data.loading}/>
+                {this.choosePanel(projects)}
             </Panel>
         );
     }
@@ -309,111 +357,116 @@ class Plot extends React.Component<any, any> {
         };
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        if (nextState.xRange !== this.state.xRange) {
-            return true;
-        }
+    /*
+     shouldComponentUpdate(nextProps, nextState) {
+     if (nextState.xRange !== this.state.xRange) {
+     return true;
+     }
 
-        if (nextState.yRange !== this.state.yRange) {
-            return true;
-        }
+     if (nextState.yRange !== this.state.yRange) {
+     return true;
+     }
 
-        // Not using a deep compare library so we can control how it is evaluated based on which properties change
-        // most frequently.
-        if (nextProps.project_id !== this.props.project_id) {
-            return true;
-        }
+     // Not using a deep compare library so we can control how it is evaluated based on which properties change
+     // most frequently.
+     if (nextProps.project_id !== this.props.project_id) {
+     return true;
+     }
 
-        if (nextProps.data !== this.props.data) {
-            return true;
-        }
+     if (nextProps.data !== this.props.data) {
+     return true;
+     }
 
-        if (!nextProps.data) {
-            return false;
-        }
+     if (!nextProps.data) {
+     return false;
+     }
 
-        if (nextProps.data.loading !== this.props.data.loading) {
-            return true;
-        }
+     if (nextProps.data.loading !== this.props.data.loading) {
+     return true;
+     }
 
-        if (nextProps.data.projectPlaneTileStatus !== this.props.data.projectPlaneTileStatus) {
-            return true;
-        }
+     if (nextProps.data.projectPlaneTileStatus !== this.props.data.projectPlaneTileStatus) {
+     return true;
+     }
 
-        if (!nextProps.data.projectPlaneTileStatus) {
-            return false;
-        }
+     if (!nextProps.data.projectPlaneTileStatus) {
+     return false;
+     }
 
-        if (nextProps.data.projectPlaneTileStatus.max_depth !== this.props.data.projectPlaneTileStatus.max_depth) {
-            return true;
-        }
+     if (nextProps.data.projectPlaneTileStatus.max_depth !== this.props.data.projectPlaneTileStatus.max_depth) {
+     return true;
+     }
 
 
-        if (nextProps.data.projectPlaneTileStatus.x_min !== this.props.data.projectPlaneTileStatus.x_min) {
-            return true;
-        }
+     if (nextProps.data.projectPlaneTileStatus.x_min !== this.props.data.projectPlaneTileStatus.x_min) {
+     return true;
+     }
 
-        if (nextProps.data.projectPlaneTileStatus.x_max !== this.props.data.projectPlaneTileStatus.x_max) {
-            return true;
-        }
+     if (nextProps.data.projectPlaneTileStatus.x_max !== this.props.data.projectPlaneTileStatus.x_max) {
+     return true;
+     }
 
-        if (nextProps.data.projectPlaneTileStatus.y_min !== this.props.data.projectPlaneTileStatus.y_min) {
-            return true;
-        }
+     if (nextProps.data.projectPlaneTileStatus.y_min !== this.props.data.projectPlaneTileStatus.y_min) {
+     return true;
+     }
 
-        if (nextProps.data.projectPlaneTileStatus.y_max !== this.props.data.projectPlaneTileStatus.y_max) {
-            return true;
-        }
+     if (nextProps.data.projectPlaneTileStatus.y_max !== this.props.data.projectPlaneTileStatus.y_max) {
+     return true;
+     }
 
-        let thisTiles = this.props.data.projectPlaneTileStatus.tiles;
+     let thisTiles = this.props.data.projectPlaneTileStatus.tiles;
 
-        let nextTiles = nextProps.data.projectPlaneTileStatus.tiles;
+     let nextTiles = nextProps.data.projectPlaneTileStatus.tiles;
 
-        if (thisTiles.length !== nextTiles.length) {
-            return true;
-        }
+     if (thisTiles.length !== nextTiles.length) {
+     return true;
+     }
 
-        if (thisTiles.length === 0) {
-            return false;
-        }
+     if (thisTiles.length === 0) {
+     return false;
+     }
 
-        return thisTiles.some((thisTile, index) => {
-            let nextTile = nextTiles[index];
+     return thisTiles.some((thisTile, index) => {
+     let nextTile = nextTiles[index];
 
-            if (thisTile.stages.length != nextTile.stages.length) {
-                return true;
-            }
+     if (thisTile.stages.length != nextTile.stages.length) {
+     return true;
+     }
 
-            if (thisTile.x_index != nextTile.x_index) {
-                return true;
-            }
+     if (thisTile.x_index != nextTile.x_index) {
+     return true;
+     }
 
-            if (thisTile.y_index != nextTile.y_index) {
-                return true;
-            }
+     if (thisTile.y_index != nextTile.y_index) {
+     return true;
+     }
 
-            if (thisTile.stages.length === 0) {
-                return false;
-            }
+     if (thisTile.stages.length === 0) {
+     return false;
+     }
 
-            return thisTile.stages.some((thisStage, index) => {
-                let nextStage = nextTile.stages[index];
+     return thisTile.stages.some((thisStage, index) => {
+     let nextStage = nextTile.stages[index];
 
-                if (thisStage.status != nextStage.status) {
-                    return true;
-                }
+     if (thisStage.status != nextStage.status) {
+     return true;
+     }
 
-                if (thisStage.stage_id != nextStage.stage_id) {
-                    return true;
-                }
+     if (thisStage.stage_id != nextStage.stage_id) {
+     return true;
+     }
 
-                return (thisStage.depth != nextStage.depth);
-            });
-        });
-    }
-
+     return (thisStage.depth != nextStage.depth);
+     });
+     });
+     }
+     */
     createFigure = (props) => {
-        let projects = props.projects.filter(x => x.id === props.project_id);
+        if (!props.data || !props.data.projects) {
+            return null;
+        }
+
+        let projects = props.data.projects.filter(x => x.id === props.project_id);
 
         let project: IProject = null;
 
@@ -423,9 +476,9 @@ class Plot extends React.Component<any, any> {
             project = null;
         }
 
-        let pipelineStages = props.pipelineStages;
+        // let pipelineStages = props.pipelineStages;
 
-        let pipelineIds = pipelineStages.map(p => p.id);
+        let pipelineIds = project.stages.map(p => p.id);
 
         let x = [];
         let y = [];
@@ -438,7 +491,7 @@ class Plot extends React.Component<any, any> {
         let yMax = 0;
         let zMax = 0;
 
-        if (props.data && props.data.projectPlaneTileStatus) {
+        if (props.data.projectPlaneTileStatus) {
             let data = props.data.projectPlaneTileStatus;
 
             zMax = data.max_depth + 1;
@@ -542,7 +595,7 @@ class Plot extends React.Component<any, any> {
                     let status = displayStage.status;
 
                     if (pipelineStageIndex > -1) {
-                        let pipelineStage = pipelineStages[pipelineStageIndex];
+                        let pipelineStage = project.stages[pipelineStageIndex];
 
                         // if (useFullText) {
                         if (displayStage.depth === 1 && status === TilePipelineStatus.Waiting) {
@@ -591,61 +644,65 @@ class Plot extends React.Component<any, any> {
     private chartContainer = null;
 
     componentDidMount() {
-        this.chartContainer = Highcharts.chart("tile_map_plot", createConfig(this));
+        this.chartContainer = HighCharts.chart("tile_map_plot", createConfig(this));
     };
 
     componentWillUpdate(nextProps) {
         let data = this.createFigure(nextProps);
 
         if (this.chartContainer) {
-            if (!nextProps.loading) {
+            if (nextProps.data && !nextProps.data.loading) {
                 this.chartContainer.hideLoading();
             } else {
-                this.chartContainer.showLoading();
+                this.chartContainer.showLoading("Waiting for update");
             }
         }
 
-        let z = data.z.sort((a, b) => {
-            if (a[2] === b[2]) {
-                if (a[1] === b[1]) {
-                    if (a[0] === b[0]) {
-                        return 0;
+        if (data) {
+            let z = data.z.sort((a, b) => {
+                if (a[2] === b[2]) {
+                    if (a[1] === b[1]) {
+                        if (a[0] === b[0]) {
+                            return 0;
+                        } else {
+                            return a[0] - b[0];
+                        }
                     } else {
-                        return a[0] - b[0];
+                        return a[1] - b[1];
                     }
                 } else {
-                    return a[1] - b[1];
+                    return a[2] - b[2];
                 }
-            } else {
-                return a[2] - b[2];
-            }
-        });
-
-        this.chartContainer.update({
-            xAxis: {
-                min: data.xRange[0],
-                max: data.xRange[1]
-            },
-
-            yAxis: {
-                min: data.yRange[0],
-                max: data.yRange[1]
-            },
-            colorAxis: {
-                min: 0,
-                max: data.zMax,
-                stops: jet,
-            },
-        });
-
-        if (this.chartContainer) {
-            this.chartContainer.series[0].setData(z);
-        }
-
-        if (this.chartContainer.series[0].colorAxis) {
-            this.chartContainer.series[0].colorAxis.update({
-                max: data.zMax
             });
+
+            this.chartContainer.update({
+                xAxis: {
+                    min: data.xRange[0],
+                    max: data.xRange[1]
+                },
+
+                yAxis: {
+                    min: data.yRange[0],
+                    max: data.yRange[1]
+                },
+                colorAxis: {
+                    min: 0,
+                    max: data.zMax,
+                    stops: jet,
+                },
+            });
+
+            if (this.chartContainer) {
+                this.chartContainer.series[0].setData(z);
+            }
+
+            if (this.chartContainer.series[0].colorAxis) {
+                this.chartContainer.series[0].colorAxis.update({
+                    max: data.zMax
+                });
+            }
+        } else {
+            this.chartContainer.series[0].setData([]);
         }
     };
 
@@ -657,6 +714,20 @@ class Plot extends React.Component<any, any> {
 
     componentDidUpdate() {
         this.chartContainer.redraw();
+    }
+
+    public onZoomIn() {
+        if (!this.chartContainer.resetZoomButton) {
+            this.chartContainer.showResetZoom();
+        }
+        this.chartContainer.mapZoom(0.5);
+    }
+
+    public onZoomOut() {
+        if (!this.chartContainer.resetZoomButton) {
+            this.chartContainer.showResetZoom();
+        }
+        this.chartContainer.mapZoom(2);
     }
 
     public onDataLabel(eventData) {
@@ -694,6 +765,78 @@ const PipelineTileMapQuery = gql`query($project_id: String, $plane: Int) {
       }
     }
   }
+  projects {
+    id
+    name
+    description
+    root_path
+    sample_number
+    sample_x_min
+    sample_x_max
+    sample_y_min
+    sample_y_max
+    sample_z_min
+    sample_z_max
+    region_x_min
+    region_x_max
+    region_y_min
+    region_y_max
+    region_z_min
+    region_z_max
+    is_processing
+    stages {
+      id
+      name
+      depth
+      previous_stage_id
+      task_id
+      task {
+        id
+        name
+      }
+      performance {
+        id
+        num_in_process
+        num_ready_to_process
+        num_execute
+        num_complete
+        num_error
+        num_cancel
+        cpu_average
+        cpu_high
+        cpu_low
+        memory_average
+        memory_high
+        memory_low
+        duration_average
+        duration_high
+        duration_low
+      }
+    }
+  }
+}`;
+
+const ProjectsQuery = gql`query { 
+  projects {
+    id
+    name
+    description
+    root_path
+    sample_number
+    sample_x_min
+    sample_x_max
+    sample_y_min
+    sample_y_max
+    sample_z_min
+    sample_z_max
+    region_x_min
+    region_x_max
+    region_y_min
+    region_y_max
+    region_z_min
+    region_z_max
+    is_processing
+  }
 }`;
 
 const PlotWithQuery = graphql(PipelineTileMapQuery, {
@@ -705,6 +848,12 @@ const PlotWithQuery = graphql(PipelineTileMapQuery, {
         }
     })
 })(Plot);
+
+const MapPanelQuery = graphql(ProjectsQuery, {
+    options: {
+        pollInterval: 5 * 1000
+    }
+})(MapPanel);
 
 function findMinValue(project, property, backupSource = null, backupProperty = null) {
     if (project) {
@@ -732,15 +881,30 @@ function createConfig(owner) {
             height: 800,
             panKey: "shift",
             panning: true,
+            marginLeft: 30,
             marginTop: 10,
-            marginBottom: 84,
+            marginBottom: 90,
             plotBorderWidth: 1,
-            zoomType: "xy",
-            events: {
-                selection: function (event) {
-                    // owner.onSelection(event);
+            zoomType: "xy"
+        },
+
+        mapNavigation: {
+            enabled: true,
+            enableButtons: true,
+            enableMouseWheelZoom: false,
+            mouseWheelSensitivity: 1.1,
+            buttons: {
+                zoomIn: {
+                    onclick: function (event) {
+                        owner.onZoomIn(event);
+                    }
+                },
+                zoomOut: {
+                    onclick: function (event) {
+                        owner.onZoomOut(event);
+                    }
                 }
-            },
+            }
         },
 
         title: {

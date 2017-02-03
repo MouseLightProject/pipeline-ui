@@ -28,9 +28,13 @@ interface ITaskDefinitionsTable {
 
 export class TaskDefinitionsTable extends React.Component<ITaskDefinitionsTable, any> {
     render() {
-        let rows = this.props.taskDefinitions.map(taskDefinition => (
-            <TaskDefinitionRow key={"tr_task" + taskDefinition.id}
-                               taskDefinition={taskDefinition}/>));
+        let rows = [];
+
+        if (this.props.taskDefinitions) {
+            rows = this.props.taskDefinitions.map(taskDefinition => (
+                <TaskDefinitionRow key={"tr_task" + taskDefinition.id}
+                                   taskDefinition={taskDefinition}/>));
+        }
 
         return (
             <Table condensed>

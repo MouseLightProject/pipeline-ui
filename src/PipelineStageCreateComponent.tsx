@@ -18,6 +18,7 @@ import {
     HelpBlock
 } from "react-bootstrap";
 import {IPipelineStage} from "./QueryInterfaces";
+import {ProjectMenu, ProjectMenuStyle} from "./helpers/ProjectMenu";
 
 const useAcquisitionRoot = "none (use acquisition root)";
 
@@ -44,33 +45,6 @@ class CreatePipelineStageButton extends React.Component<any, any> {
     }
 }
 
-class ProjectMenu extends React.Component<any, any> {
-    handleChange = (eventKey) => {
-        this.props.onProjectSelectionChange(eventKey);
-    };
-
-    render() {
-        let title = "";
-
-        let rows = this.props.projects.map(project => {
-            if (project.id === this.props.selectedProjectId) {
-                title = `${project.name} (Sample Id ${project.sample_number})`;
-            }
-
-            return (<MenuItem key={"pipeline_project_" +project.id}
-                              eventKey={project.id}>{`${project.name} (Sample Id ${project.sample_number})`}</MenuItem>)
-        });
-
-        return (
-            <div>
-                <DropdownButton bsSize="sm" id="project-dropdown" title={title} onSelect={this.handleChange}>
-                    {rows}
-                </DropdownButton>
-            </div>
-        )
-    }
-}
-
 class TaskMenu extends React.Component<any, any> {
     handleChange = (eventKey) => {
         this.props.onTaskSelectionChange(eventKey);
@@ -79,21 +53,23 @@ class TaskMenu extends React.Component<any, any> {
     render() {
         let title = "";
 
-        let rows = this.props.tasks.map(task => {
-            if (task.id === this.props.selectedTaskId) {
-                title = `${task.name}`;
-            }
+        let rows = [];
 
-            return (<MenuItem key={"pipeline_task_" + task.id} eventKey={task.id}>{`${task.name}`}</MenuItem>)
-        });
+        if (this.props.tasks) {
+            rows = this.props.tasks.map(task => {
+                if (task.id === this.props.selectedTaskId) {
+                    title = `${task.name}`;
+                }
+
+                return (<MenuItem key={"pipeline_task_" + task.id} eventKey={task.id}>{`${task.name}`}</MenuItem>)
+            });
+        }
 
         return (
-            <div>
-                <DropdownButton bsSize="sm" id="task-for-pipeline-stage-dropdown" title={title}
-                                onSelect={this.handleChange}>
-                    {rows}
-                </DropdownButton>
-            </div>
+            <DropdownButton bsSize="sm" id="task-for-pipeline-stage-dropdown" title={title}
+                            onSelect={this.handleChange}>
+                {rows}
+            </DropdownButton>
         )
     }
 }
@@ -250,13 +226,17 @@ class PipelineStageCreateComponent extends React.Component<any, IPipelineStageCo
         this.setState({alertVisible: true}, null);
     };
 
-    componentDidMount = () => {
-        if (this.state.project_id === "" && this.props.projects.length > 1) {
-            this.onProjectSelectionChange(this.props.projects[0].id);
+    componentWillReceiveProps(nextProps) {
+        const loading = !nextProps.data || nextProps.data.loading;
+
+        const tasks = !loading ? nextProps.data.taskDefinitions : [];
+
+        if (this.state.project_id === "" && nextProps.projects && nextProps.projects.length > 1) {
+            this.onProjectSelectionChange(nextProps.projects[0].id);
         }
 
-        if (this.state.task_id === "" && this.props.tasks.length > 0) {
-            this.onTaskSelectionChange(this.props.tasks[0].id);
+        if (this.state.task_id === "" && tasks && tasks.length > 1) {
+            this.onTaskSelectionChange(tasks[0].id);
         }
 
         this.onFunctionSelectionChange(2);
@@ -268,6 +248,10 @@ class PipelineStageCreateComponent extends React.Component<any, IPipelineStageCo
         if (this.props.data && this.props.data.pipelineStagesForProject) {
             this.state.pipelinesForProject = this.props.data.pipelineStagesForProject;
         }
+
+        const loading = !this.props.data || this.props.data.loading;
+
+        const tasks = !loading ? this.props.data.taskDefinitions : [];
 
         return (
             <Panel collapsible defaultExpanded header="Add Stage" bsStyle="info">
@@ -282,7 +266,9 @@ class PipelineStageCreateComponent extends React.Component<any, IPipelineStageCo
                         <Col lg={2}>
                             <FormGroup bsSize="small">
                                 <ControlLabel>Add to Acquisition Pipeline</ControlLabel>
-                                <ProjectMenu onProjectSelectionChange={this.onProjectSelectionChange}
+                                <ProjectMenu keyPrefix="pipelineStageCreateProjects"
+                                             menuStyle={ProjectMenuStyle.DropDownButton}
+                                             onProjectSelectionChange={this.onProjectSelectionChange}
                                              projects={this.props.projects}
                                              selectedProjectId={this.state.project_id}/>
                             </FormGroup>
@@ -316,18 +302,18 @@ class PipelineStageCreateComponent extends React.Component<any, IPipelineStageCo
                             <FormGroup bsSize="small">
                                 <ControlLabel>Execute Task</ControlLabel>
                                 <TaskMenu onTaskSelectionChange={this.onTaskSelectionChange}
-                                          tasks={this.props.tasks}
-                                          selectedTaskId={this.state.task_id}/>
+                                          selectedTaskId={this.state.task_id}
+                                          tasks={tasks}/>
                             </FormGroup>
-                        </Col>
-                        <Col lg={4}>
+                        </Col>{/*
+                        <Col lg={3}>
                             <FormGroup bsSize="small">
                                 <ControlLabel>Tile Function</ControlLabel>
                                 <FunctionTypeMenu onFunctionSelectionChange={this.onFunctionSelectionChange}
                                                   selectedFunctionType={this.state.function_type}/>
                             </FormGroup>
-                        </Col>
-                        <Col lg={3}>
+                        </Col>*/}
+                        <Col lg={4}>
                         </Col>
                     </Row>
                     <Row>
@@ -350,20 +336,26 @@ class PipelineStageCreateComponent extends React.Component<any, IPipelineStageCo
     }
 }
 
-
 const PipelineStagesForProjectQuery = gql`query($pipelinesForProjectId: String!) {
-     pipelineStagesForProject(id: $pipelinesForProjectId) {
-     id
-     name
-     description
-     project_id
-     task_id
-     previous_stage_id
-     dst_path
-     is_processing
-     function_type
-     }
- }`;
+  pipelineStagesForProject(id: $pipelinesForProjectId) {
+    id
+    name
+    description
+    project_id
+    task_id
+    previous_stage_id
+    dst_path
+    is_processing
+    function_type
+  }
+  taskDefinitions {
+    id
+    name
+    description
+    script
+    interpreter
+  }
+}`;
 
 const CreatePipelineStageMutation = gql`
   mutation CreatePipelineStageMutation($name: String, $description: String, $project_id: String, $task_id: String, $previous_stage_id: String, $dst_path: String, $function_type: Int) {
@@ -401,4 +393,3 @@ export const PipelineStageCreateWithQuery = graphql(PipelineStagesForProjectQuer
         })
     })
 })(PipelineStageCreateComponent));
-

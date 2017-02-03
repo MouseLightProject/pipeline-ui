@@ -44,7 +44,11 @@ interface IWorkerTable {
 
 export class WorkerTable extends React.Component<IWorkerTable, any> {
     render() {
-        let rows = this.props.workers.map(worker => (<WorkerRow key={"tr_worker" + worker.id} worker={worker}/>));
+        let rows = [];
+
+        if (this.props.workers) {
+            rows = this.props.workers.map(worker => (<WorkerRow key={"tr_worker" + worker.id} worker={worker}/>));
+        }
 
         return (
             <Table condensed>
