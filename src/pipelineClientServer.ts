@@ -1,9 +1,9 @@
 import * as webpack from "webpack";
 import * as WebpackDevServer from "webpack-dev-server";
 
-const config = require("./webpack.config.js");
+const config = require("./../webpack.config.js");
 
-import systemConfig from "./system.config";
+import systemConfig from "../system.config";
 
 const systemConfiguration = systemConfig();
 

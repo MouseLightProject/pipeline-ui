@@ -8,9 +8,7 @@
     "experimentalDecorators": true
   },
   "include": [
-    "declaration.d.ts",
     "src/**/*",
-    "pipelineClientServer.ts",
     "webpack.config.ts"
   ],
   "exclude": [
