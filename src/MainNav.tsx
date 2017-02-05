@@ -3,6 +3,7 @@ import * as React from "react";
 import {Navbar, Nav, NavItem} from "react-bootstrap";
 import Sidebar from "react-sidebar";
 import {MainSideBar} from "./MainSideBar";
+import {HeaderSummaryWithQuery} from "./dashboard/HeaderSummary";
 
 export class MainNav extends React.Component<any, any> {
     render() {
@@ -44,6 +45,9 @@ export class MainNav extends React.Component<any, any> {
                             Mouse Light<br/><small>Acquisition Pipelines</small>
                         </Navbar.Brand>
                     </Navbar.Header>
+                    <Nav pullRight>
+                        <HeaderSummaryWithQuery isNavTile={true}/>
+                    </Nav>
                 </Navbar>
                 <Sidebar styles={sidebarStyle} sidebar={sidebarContent} open docked shadow={false} transitions={false}>
                     {this.props.pages}

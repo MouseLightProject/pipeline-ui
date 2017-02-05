@@ -26,6 +26,15 @@ th {
     text-align: left !important;
 }
 
+.nav_tile_stats_count:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    height: 40px;
+    border-left: 1px solid #ADB2B5;
+    margin-top: 5px
+}
+
 .tile_stats_count:before {
     content: "";
     position: absolute;

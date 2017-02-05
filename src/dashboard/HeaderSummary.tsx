@@ -1,47 +1,106 @@
 import * as React from "react";
 import gql from "graphql-tag/index";
 import graphql from "react-apollo/graphql";
-import {Grid, Row, Col, Panel} from "react-bootstrap";
-
+import {Grid, Row, Col, Clearfix} from "react-bootstrap";
 import * as moment from "moment";
+import * as Radium from "radium";
+
+import {IColumnLayout} from "../helpers/BootstrapUtils";
+import {calculateDurationFromNow} from "../helpers/DateUtils";
 import {Loading} from "../Loading";
-import {IWorker, IProject} from "../QueryInterfaces";
-import {calculateDurationFromNow} from "../helpers/Utils";
-import {ICountTileProps, CountTile} from "./CountTile";
+import {IWorker, IProject, PipelineWorkerStatus} from "../QueryInterfaces";
+import {ICountTileProps, CountTile, CountUnit} from "./CountTile";
+import {NavTile} from "./NavTile";
+import isValidElement = React.isValidElement;
+
 // const HighCharts = require("highcharts");
 
-const lgCol = 2;
-const mdCol = 4;
-const smCol = 6;
-const xsCol = 12;
+const fullTextVisibilityStyle = {
+    display: "none",
 
+    "@media (min-width:992px)": {
+        display: "block",
+    }
+};
+
+const abbrevTextVisibilityStyle = {
+    display: "none",
+
+    "@media (min-width:767px) and  (max-width:991px)": {
+        display: "block",
+    }
+};
+
+@Radium
 class HeaderSummary extends React.Component<any, any> {
-    render() {
+    private getAbbreviatedComponent(isNavTile: boolean) {
+        if (isNavTile) {
+           return ( <div style={isNavTile ? abbrevTextVisibilityStyle : {}}>
+                <AbbreviatedTextSummary data={this.props.data} isNavTile={isNavTile}/>
+            </div>);
+        } else {
+            return null;
+        }
+    }
+    public render() {
         const isLoading = !this.props.data || this.props.data.loading;
+
+        const isNavTile = this.props.isNavTile || false;
 
         if (isLoading) {
             return (<Loading/>);
         } else {
             return (
-                <Grid fluid>
-                    <TextSummary data={this.props.data}/>
-                </Grid>
+                <div>
+                    {this.getAbbreviatedComponent(isNavTile)}
+                    <div style={isNavTile ? fullTextVisibilityStyle : {}}>
+                        <Grid fluid>
+                            <FullTextSummary data={this.props.data} isNavTile={isNavTile}/>
+                        </Grid>
+                    </div>
+                </div>
             );
         }
     }
 }
 
 const tileCountStyle = {
-    marginBottom: "20px",
-    marginTop: "20px"
+    marginBottom: "0px",
+    marginTop: "0px",
+    visibility: "visible",
+
+    "@media (max-width:991px)": {
+        visibility: "hidden",
+    }
 };
 
-class TextSummary extends React.Component<any, any> {
-    public constructor(props) {
-        super(props);
-    }
+interface ICumulativeStats {
+    inProcess: number;
+    toProcess: number;
+    complete: number;
+    errors: number;
+}
 
-    private buildWorkersProps(workers: IWorker[]): ICountTileProps {
+interface ITextSummaryState {
+    columnLayout?: IColumnLayout;
+}
+
+const NavTileColumnLayout: IColumnLayout = {
+    lg: 2,
+    md: 2,
+    sm: 2,
+    xs: 2
+};
+
+const DefaultTileColumnLayout: IColumnLayout = {
+    lg: 2,
+    md: 4,
+    sm: 6,
+    xs: 12
+};
+
+class AbstractSummary<P, S> extends React.Component<P, S> {
+    protected buildWorkersProps(workers: IWorker[]): ICountTileProps {
         const now = new Date();
 
         let lastSeen = null;
@@ -71,7 +130,28 @@ class TextSummary extends React.Component<any, any> {
         }
     }
 
-    private buildPipelineProps(projects: IProject[]): ICountTileProps {
+    protected buildWorkerLoadProps(workers: IWorker[]): ICountTileProps {
+        let capacity = 0;
+        let load = 0;
+
+        workers.forEach(worker => {
+            capacity += worker.work_unit_capacity;
+
+            if (worker.status !== PipelineWorkerStatus.Unavailable && worker.task_load >= 0) {
+                load += worker.task_load;
+            }
+        });
+
+        return {
+            title: "Worker Load",
+            count: 100 * load / capacity,
+            units: CountUnit.Percent,
+            precision: 1,
+            message: ``
+        }
+    }
+
+    protected buildPipelineProps(projects: IProject[]): ICountTileProps {
         let activeCount = projects.filter(project => {
             return project.is_processing;
         }).length;
@@ -83,23 +163,120 @@ class TextSummary extends React.Component<any, any> {
         }
     }
 
+    protected buildStageStats(projects: IProject[]): ICumulativeStats {
+        let stats: ICumulativeStats = {
+            inProcess: 0,
+            toProcess: 0,
+            complete: 0,
+            errors: 0
+        };
+
+        return projects.map(project => project.stages)
+        .reduce((prev, arrStages) => prev.concat(arrStages), [])
+        .reduce((previous, stage) => {
+            previous.inProcess += stage.performance.num_in_process;
+            previous.toProcess += stage.performance.num_ready_to_process;
+            previous.complete += stage.performance.num_complete;
+            previous.errors += stage.performance.num_error;
+
+            return previous;
+        }, stats);
+    }
+
+    protected buildStageInProcessProps(stats: ICumulativeStats) {
+        return {
+            title: "Processing",
+            count: stats.inProcess,
+            message: ``
+        }
+    }
+
+    protected buildStageToProcessProps(stats: ICumulativeStats) {
+        return {
+            title: "Queued",
+            count: stats.toProcess,
+            message: ``
+        }
+    }
+
+    protected buildStageCompleteProps(stats: ICumulativeStats) {
+        return {
+            title: "Complete",
+            count: stats.complete,
+            message: `${stats.errors} errors`
+        }
+    }
+}
+
+class AbbreviatedTextSummary extends AbstractSummary<any, ITextSummaryState> {
     public render() {
-        console.log(this.props);
 
-        const workerProps = this.buildWorkersProps(this.props.data.pipelineWorkers);
+        let Component = this.props.isNavTile ? NavTile : CountTile;
 
-        const projectProps = this.buildPipelineProps(this.props.data.projects);
+        const cumulativeStats = this.buildStageStats(this.props.data.projects);
+
+        return (
+            <table style={tileCountStyle}>
+                <tr>
+                    <td className="tile_stat">
+                        <Component {...this.buildWorkerLoadProps(this.props.data.pipelineWorkers)}/>
+                    </td>
+                    <td className="tile_stat">
+                        <Component {...this.buildStageInProcessProps(cumulativeStats)}/>
+                    </td>
+                    <td className="tile_stat">
+                        <Component {...this.buildStageToProcessProps(cumulativeStats)}/>
+                    </td>
+                </tr>
+            </table>
+        );
+    }
+}
+
+class FullTextSummary extends AbstractSummary<any, ITextSummaryState> {
+    public constructor(props) {
+        super(props);
+
+        this.state = {
+            columnLayout: NavTileColumnLayout
+        }
+    }
+
+    public render() {
+
+        let Component = this.props.isNavTile ? NavTile : CountTile;
+
+        const cumulativeStats = this.buildStageStats(this.props.data.projects);
+
+        const layout = this.state.columnLayout;
 
         return (
             <Row style={tileCountStyle}>
-                <Col lg={lgCol} md={mdCol} sm={smCol} xs={xsCol} className="tile_stat">
-                    <CountTile {...workerProps}/>
+                <Col lg={layout.lg} md={layout.md} sm={layout.sm} xs={layout.xs} className="tile_stat">
+                    <Component {...this.buildWorkersProps(this.props.data.pipelineWorkers)}/>
                 </Col>
-                <Col lg={lgCol} md={mdCol} sm={smCol} xs={xsCol} className="tile_stat">
-                    <CountTile {...projectProps}/>
+                <Col lg={layout.lg} md={layout.md} sm={layout.sm} xs={layout.xs} className="tile_stat">
+                    <Component {...this.buildWorkerLoadProps(this.props.data.pipelineWorkers)}/>
+                </Col>
+                <Col lg={layout.lg} md={layout.md} sm={layout.sm} xs={layout.xs} className="tile_stat">
+                    <Component {...this.buildPipelineProps(this.props.data.projects)}/>
+                </Col>
+                <Col lg={layout.lg} md={layout.md} sm={layout.sm} xs={layout.xs} className="tile_stat">
+                    <Component {...this.buildStageInProcessProps(cumulativeStats)}/>
+                </Col>
+                <Clearfix visibleSmBlock/>
+                <Col lg={layout.lg} md={layout.md} sm={layout.sm} xs={layout.xs} className="tile_stat">
+                    <Component {...this.buildStageToProcessProps(cumulativeStats)}/>
+                </Col>
+                <Col lg={layout.lg} md={layout.md} sm={layout.sm} xs={layout.xs} className="tile_stat">
+                    <Component {...this.buildStageCompleteProps(cumulativeStats)}/>
                 </Col>
             </Row>
         );
+    }
+
+    public componentDidMount() {
+        this.setState({columnLayout: this.props.isNavTile ? NavTileColumnLayout : DefaultTileColumnLayout}, null);
     }
 }
 

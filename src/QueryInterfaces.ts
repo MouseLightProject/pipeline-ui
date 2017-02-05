@@ -1,3 +1,10 @@
+export enum PipelineWorkerStatus {
+    Unavailable = 0,
+    Connected,
+    Idle,
+    Processing
+}
+
 export enum TilePipelineStatus {
     DoesNotExist = 0,
     Waiting = 1,
