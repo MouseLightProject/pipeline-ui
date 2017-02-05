@@ -10,7 +10,8 @@
   "include": [
     "declaration.d.ts",
     "src/**/*",
-    "pipelineClientServer.ts"
+    "pipelineClientServer.ts",
+    "webpack.config.ts"
   ],
   "exclude": [
     "node_modules"

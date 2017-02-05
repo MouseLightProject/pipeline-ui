@@ -1,16 +1,18 @@
-var path = require("path");
-var webpack = require("webpack");
+const path = require("path");
+const webpack = require("webpack");
+
+const config = require("./system.config").default();
 
 module.exports = {
     devtool: "sourcemap",
     entry: [
-        "webpack-dev-server/client?http://localhost:4000/",
+        `webpack-dev-server/client?http://localhost:${config.port}/`,
         "./src/index"
     ],
     devServer: {
         proxy: {
             "/graphql": {
-                target: 'http://localhost:3000'
+                target: `http://localhost:${config.apiPort}`
             }
         }
     },
