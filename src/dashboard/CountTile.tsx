@@ -23,10 +23,18 @@ export class CountTile extends React.Component<ICountTileProps, any> {
     render() {
         const units = this.props.units === CountUnit.Percent ? "%" : "";
 
+        let countMessage = "";
+
+        if (isNaN(this.props.count)) {
+            countMessage = "N/A";
+        } else {
+            countMessage = `${this.props.count.toFixed(this.props.precision || 0)}${units}`;
+        }
+
         return (
             <div className="tile_stats_count" style={statsContainerStyle}>
                 <span style={statsCountSpanStyle}>{this.props.title}</span>
-                <div style={statsCountStyle}>{`${this.props.count.toFixed(this.props.precision || 0)}${units}`}</div>
+                <div style={statsCountStyle}>{countMessage}</div>
                 <span style={statsCountSpanStyle}>{this.props.message || ""}</span>
             </div>
         );
