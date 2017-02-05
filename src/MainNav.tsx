@@ -10,7 +10,7 @@ export class MainNav extends React.Component<any, any> {
         const navBarStyle = {
             height: "60px",
             color: "#23527C",
-            backgroundColor: "#ECECECEE",
+            backgroundColor: "rgba(236, 236, 236, 0.95)",
             borderBottom: "1px solid #DEDEDE"
         };
         const sidebarStyle = {

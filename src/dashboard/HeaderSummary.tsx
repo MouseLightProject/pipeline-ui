@@ -26,7 +26,7 @@ const fullTextVisibilityStyle = {
 const abbrevTextVisibilityStyle = {
     display: "none",
 
-    "@media (min-width:767px) and  (max-width:991px)": {
+    "@media (min-width:767px) and (max-width:991px)": {
         display: "block",
     }
 };
@@ -35,13 +35,14 @@ const abbrevTextVisibilityStyle = {
 class HeaderSummary extends React.Component<any, any> {
     private getAbbreviatedComponent(isNavTile: boolean) {
         if (isNavTile) {
-           return ( <div style={isNavTile ? abbrevTextVisibilityStyle : {}}>
+            return ( <div style={isNavTile ? abbrevTextVisibilityStyle : {}}>
                 <AbbreviatedTextSummary data={this.props.data} isNavTile={isNavTile}/>
             </div>);
         } else {
             return null;
         }
     }
+
     public render() {
         const isLoading = !this.props.data || this.props.data.loading;
 
@@ -68,10 +69,6 @@ const tileCountStyle = {
     marginBottom: "0px",
     marginTop: "0px",
     visibility: "visible",
-
-    "@media (max-width:991px)": {
-        visibility: "hidden",
-    }
 };
 
 interface ICumulativeStats {
@@ -217,6 +214,7 @@ class AbbreviatedTextSummary extends AbstractSummary<any, ITextSummaryState> {
 
         return (
             <table style={tileCountStyle}>
+                <tbody>
                 <tr>
                     <td className="tile_stat">
                         <Component {...this.buildWorkerLoadProps(this.props.data.pipelineWorkers)}/>
@@ -228,6 +226,7 @@ class AbbreviatedTextSummary extends AbstractSummary<any, ITextSummaryState> {
                         <Component {...this.buildStageToProcessProps(cumulativeStats)}/>
                     </td>
                 </tr>
+                </tbody>
             </table>
         );
     }
