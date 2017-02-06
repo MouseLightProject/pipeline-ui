@@ -15,7 +15,6 @@
     "@types/express-serve-static-core": "^4.0.37",
     "@types/highcharts": "^4.2.46",
     "@types/isomorphic-fetch": "0.0.31",
-    "@types/moment": "^2.13.0",
     "@types/plotly.js": "0.0.5",
     "@types/radium": "^0.18.20",
     "@types/react": "^0.14.41",
