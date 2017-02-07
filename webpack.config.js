@@ -6,6 +6,7 @@ const config = require("./system.config").default();
 module.exports = {
     devtool: "sourcemap",
     entry: [
+        "babel-polyfill",
         `webpack-dev-server/client?http://localhost:${config.port}/`,
         "./src/index"
     ],
