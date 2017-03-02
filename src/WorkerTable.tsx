@@ -1,8 +1,10 @@
 import * as React from "react";
-import {Table} from "react-bootstrap"
+import {Table, Glyphicon, Button} from "react-bootstrap"
 import * as moment from "moment";
 
 import {IWorker} from "./QueryInterfaces";
+import gql from "graphql-tag/index";
+import graphql from "react-apollo/graphql";
 
 enum PipelineWorkerStatus {
     Unavailable = 0,
@@ -12,10 +14,22 @@ enum PipelineWorkerStatus {
 }
 interface IWorkerRowProps {
     worker: IWorker;
+
+    setWorkerAvailability(id: string, shouldBeInSchedulerPool: boolean);
 }
 
 class WorkerRow extends React.Component<IWorkerRowProps, any> {
-    render() {
+    private onActiveClick() {
+        this.props.setWorkerAvailability(this.props.worker.id, !this.props.worker.is_in_scheduler_pool);
+    }
+
+    private getActivateText = isInSchedulerPool => isInSchedulerPool ? "Remove" : "Add";
+
+    private getActivateGlyph = isInSchedulerPool => isInSchedulerPool ? "stop" : "play";
+
+    private getActivateStyle = isInSchedulerPool => isInSchedulerPool ? "warning" : "success";
+
+    public render() {
         let worker = this.props.worker;
 
         worker.last_seen = moment(new Date(parseInt(worker.last_seen))).fromNow();
@@ -30,6 +44,11 @@ class WorkerRow extends React.Component<IWorkerRowProps, any> {
 
         return (
             <tr>
+                <td>
+                    <Button bsSize="xs" bsStyle={this.getActivateStyle(worker.is_in_scheduler_pool)}
+                            onClick={() => this.onActiveClick()}><Glyphicon
+                        glyph={this.getActivateGlyph(worker.is_in_scheduler_pool)}/> {this.getActivateText(worker.is_in_scheduler_pool)}
+                    </Button></td>
                 <td>{worker.name}</td>
                 <td>{worker.machine_id.slice(0, 8)}</td>
                 <td>{worker.last_seen}</td>
@@ -38,22 +57,33 @@ class WorkerRow extends React.Component<IWorkerRowProps, any> {
     }
 }
 
-interface IWorkerTable {
+interface IWorkerTableProps {
     workers: IWorker[];
+
+    setWorkerAvailability(id: string, shouldBeInSchedulerPool: boolean);
 }
 
-export class WorkerTable extends React.Component<IWorkerTable, any> {
-    render() {
+class WorkerTable extends React.Component<IWorkerTableProps, any> {
+    public setWorkerAvailability(id: string, shouldBeInSchedulerPool: boolean) {
+        this.props.setWorkerAvailability(id, shouldBeInSchedulerPool).then(() => {
+        }).catch(err => {
+            console.log(err);
+        });
+    }
+
+    public render() {
         let rows = [];
 
         if (this.props.workers) {
-            rows = this.props.workers.map(worker => (<WorkerRow key={"tr_worker" + worker.id} worker={worker}/>));
+            rows = this.props.workers.map(worker => (<WorkerRow key={"tr_worker" + worker.id} worker={worker}
+                                                                setWorkerAvailability={(id: string, shouldBeInSchedulerPool: boolean) => this.setWorkerAvailability(id, shouldBeInSchedulerPool)}/>));
         }
 
         return (
             <Table condensed>
                 <thead>
                 <tr>
+                    <th>Scheduler Pool</th>
                     <th>Name</th>
                     <th>Machine Id</th>
                     <th>Last Seen</th>
@@ -67,3 +97,23 @@ export class WorkerTable extends React.Component<IWorkerTable, any> {
         );
     }
 }
+
+const SetWorkerInPoolMutation = gql`
+  mutation SetPipelineStageStatusMutation($id: String!, $shouldBeInSchedulerPool: Boolean!) {
+    setWorkerAvailability(id:$id, shouldBeInSchedulerPool:$shouldBeInSchedulerPool) {
+      id
+      is_in_scheduler_pool
+    }
+  }
+`;
+
+export const WorkerTableWithMutation = graphql(SetWorkerInPoolMutation, {
+    props: ({mutate}) => ({
+        setWorkerAvailability: (id: string, shouldBeInSchedulerPool: boolean) => mutate({
+            variables: {
+                id: id,
+                shouldBeInSchedulerPool: shouldBeInSchedulerPool
+            }
+        })
+    })
+})(WorkerTable);

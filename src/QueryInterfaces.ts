@@ -86,4 +86,5 @@ export interface IWorker {
     last_seen: string;
     task_load: number;
     status: number;
+    is_in_scheduler_pool: boolean;
 }

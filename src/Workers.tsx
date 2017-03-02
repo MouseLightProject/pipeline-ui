@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Panel} from "react-bootstrap"
 
-import {WorkerTable} from "./WorkerTable";
+import {WorkerTableWithMutation} from "./WorkerTable";
 import {Loading} from "./Loading";
 import gql from "graphql-tag/index";
 import graphql from "react-apollo/graphql";
@@ -22,7 +22,7 @@ class WorkersPanel extends React.Component<any, any> {
 
         return (
             <Panel collapsible defaultExpanded header="Workers" bsStyle="primary">
-                {loading ? <Loading/> : <WorkerTable workers={workers}/>}
+                {loading ? <Loading/> : <WorkerTableWithMutation workers={workers}/>}
             </Panel>
         );
     }
@@ -37,6 +37,7 @@ const WorkerQuery = gql`query {
       last_seen
       task_load
       status
+      is_in_scheduler_pool
     }
 }`;
 
