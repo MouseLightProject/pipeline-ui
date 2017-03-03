@@ -87,7 +87,7 @@ class WorkerTable extends React.Component<IWorkerTableProps, any> {
                     <th>Name</th>
                     <th>Machine Id</th>
                     <th>Last Seen</th>
-                    <th>Status (Load)</th>
+                    <th>Status (Load/Capacity)</th>
                 </tr>
                 </thead>
                 <tbody>
