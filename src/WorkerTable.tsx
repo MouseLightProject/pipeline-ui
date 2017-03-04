@@ -53,6 +53,7 @@ class WorkerRow extends React.Component<IWorkerRowProps, any> {
                 <td>{worker.machine_id.slice(0, 8)}</td>
                 <td>{worker.last_seen}</td>
                 <td>{status}</td>
+                <td>{worker.is_cluster_proxy ? "Yes" : "No"}</td>
             </tr>);
     }
 }
@@ -88,6 +89,7 @@ class WorkerTable extends React.Component<IWorkerTableProps, any> {
                     <th>Machine Id</th>
                     <th>Last Seen</th>
                     <th>Status (Load/Capacity)</th>
+                    <th>Cluster Proxy</th>
                 </tr>
                 </thead>
                 <tbody>

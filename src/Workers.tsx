@@ -38,6 +38,7 @@ const WorkerQuery = gql`query {
       task_load
       status
       is_in_scheduler_pool
+      is_cluster_proxy
     }
 }`;
 

@@ -87,4 +87,5 @@ export interface IWorker {
     task_load: number;
     status: number;
     is_in_scheduler_pool: boolean;
+    is_cluster_proxy: boolean;
 }
