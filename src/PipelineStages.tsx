@@ -45,14 +45,12 @@ class PipelineStages extends React.Component<any, any> {
     render() {
         const loading = !this.props.data || this.props.data.loading;
 
-        const projects = !loading ? this.props.data.projects : [];
-
         const pipelineStages = !loading ? this.props.data.pipelineStages : [];
 
         return (
             <div>
                 {this.props.loading ? <Loading/> :
-                    <TablePanel projects={projects} pipelineStages={pipelineStages}
+                    <TablePanel pipelineStages={pipelineStages}
                                 pipelinesForProjectId={this.state.pipelinesForProjectId}
                                 refetch={this.props.data.refetch}
                                 updateStatusCallback={this.onSetProjectStatus}
@@ -72,8 +70,7 @@ class TablePanel extends React.Component<any, any> {
                                         updateStatusCallback={this.props.updateStatusCallback}
                                         deleteCallback={this.props.deleteCallback}/>
                 </Panel>
-                <PipelineStageCreateWithQuery projects={this.props.projects}
-                                              pipelinesForProjectId={this.props.pipelinesForProjectId}
+                <PipelineStageCreateWithQuery pipelinesForProjectId={this.props.pipelinesForProjectId}
                                               refetch={this.props.refetch}
                                               onPipelinesForProjectIdChanged={this.props.onPipelinesForProjectIdChanged}/>
             </div>
@@ -81,28 +78,24 @@ class TablePanel extends React.Component<any, any> {
     }
 }
 const PipelineQuery = gql`query { 
-    projects {
-      id
-      name
-      description
-      root_path
-      sample_number
-      stages {
-        id
-        name
-      }
-    }
     pipelineStages {
       id
       name
       description
-      project_id
       previous_stage_id
       dst_path
       depth
       is_processing
       function_type
+      project {
+        id
+        name
+      }
       task {
+        id
+        name
+      }
+      previous_stage {
         id
         name
       }

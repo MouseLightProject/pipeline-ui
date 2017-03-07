@@ -45,10 +45,11 @@ export interface IPipelineStage {
     id: string;
     name: string;
     description: string;
-    project_id: string;
+    project: IProject
     task: ITaskDefinition;
     performance: IPipelinePerformance;
-    previous_stage_id: string;
+    previous_stage_id?: string;
+    previous_stage?: IPipelineStage;
     dst_path: string;
     depth: number;
     is_processing: boolean;

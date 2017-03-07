@@ -223,20 +223,27 @@ class MapPanel extends React.Component<any, any> {
     componentDidMount() {
         const projects = (this.props.data && !this.props.data.loading) ? this.props.data.projects : [];
 
-        if (this.state.projectId === "" && projects.length > 1) {
-            this.onProjectChanged(projects[0].id);
+        const processing = projects.filter(project => project.is_processing);
+
+        if (this.state.projectId === "" && processing.length > 0) {
+            this.onProjectChanged(processing[0].id);
         }
     };
 
     componentDidUpdate() {
         const projects = (this.props.data && !this.props.data.loading) ? this.props.data.projects : [];
 
-        if (this.state.projectId === "" && projects && projects.length > 1) {
+        const processing = projects.filter(project => project.is_processing);
+
+        if (this.state.projectId === "" && processing.length > 0) {
+            this.onProjectChanged(processing[0].id);
+        } else if (this.state.projectId === "" && projects.length > 0) {
             this.onProjectChanged(projects[0].id);
         }
     };
 
     onProjectChanged = (eventKey) => {
+        console.log(eventKey);
         let projects = (this.props.data && !this.props.data.loading) ? this.props.data.projects : [];
 
         projects = projects.filter(x => x.id === eventKey);
@@ -317,7 +324,7 @@ class MapPanel extends React.Component<any, any> {
         const projects = !loading ? this.props.data.projects : [];
 
         return (
-            <Panel collapsible defaultExpanded header="Pipeline Tile Map" bsStyle="info">
+            <div>
                 <Navbar inverse fluid>
                     <Navbar.Header>
                         <Navbar.Brand>
@@ -343,7 +350,7 @@ class MapPanel extends React.Component<any, any> {
                     </Nav>
                 </Navbar>
                 {this.choosePanel(projects)}
-            </Panel>
+            </div>
         );
     }
 }

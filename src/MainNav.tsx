@@ -27,8 +27,8 @@ export class MainNav extends React.Component<any, any> {
                 padding: "16px"
             },
             content: {
-                padding: "20px",
-                paddingTop: "80px",
+                padding: "0px",
+                paddingTop: "60px",
                 backgroundColor: "#F7F7F7EE",
                 color: "#5A738E",
                 // transition: "left .3s ease-out, right .3s ease-out",

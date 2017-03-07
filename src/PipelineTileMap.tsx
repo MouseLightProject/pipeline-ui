@@ -155,7 +155,7 @@ class MapPanel extends React.Component<any, any> {
 
     render() {
         return (
-            <Panel collapsible defaultExpanded header="Pipeline Tile Map" bsStyle="info">
+            <div>
                 <Navbar inverse fluid>
                     <Navbar.Header>
                         <Navbar.Brand>
@@ -178,7 +178,7 @@ class MapPanel extends React.Component<any, any> {
                 </Navbar>
                 <PlotWithQuery project_id={this.state.projectId} plane={this.state.plane} projects={this.props.projects}
                                pipelineStages={this.props.pipelineStages} tasks={this.props.tasks}/>
-            </Panel>
+            </div>
         );
     }
 }

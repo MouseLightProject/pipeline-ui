@@ -44,10 +44,10 @@ class PipelineStageRow extends React.Component<IPipelineStageRowProps, any> {
                             onClick={this.onActiveClick}><Glyphicon
                     glyph={this.getActivateGlyph(pipelineStage.is_processing)}/> {this.getActivateText(pipelineStage.is_processing)}
                 </Button></td>
-                <td>{pipelineStage.id.slice(0, 8)}</td>
-                <td>{pipelineStage.project_id.slice(0, 8)}</td>
-                <td>{pipelineStage.task.id.slice(0, 8)}</td>
-                <td>{pipelineStage.previous_stage_id ? pipelineStage.previous_stage_id.slice(0, 8) : previousStageIsAcquisitionRoot}</td>
+                <td>{pipelineStage.name}</td>
+                <td>{pipelineStage.project.name}</td>
+                <td>{pipelineStage.task.name}</td>
+                <td>{pipelineStage.previous_stage ? pipelineStage.previous_stage.name : previousStageIsAcquisitionRoot}</td>
                 <td>{pipelineStage.dst_path}</td>
                 <td>{this.formatPerformance(pipelineStage.performance)}</td>
                 <td><Button bsSize="xs" bsStyle="warning" onClick={this.onDelete}><Glyphicon glyph="trash"/>
@@ -79,7 +79,7 @@ export class PipelineStageTable extends React.Component<IPipelineStageTable, any
                 <thead>
                 <tr>
                     <th>Active</th>
-                    <th>ID</th>
+                    <th>Name</th>
                     <th>Project</th>
                     <th>Task</th>
                     <th>Previous Stage</th>

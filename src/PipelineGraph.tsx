@@ -290,6 +290,8 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
 
             node.data("isPie", node.data("isPie") === 1 ? 0 : 1);
         });
+
+        setTimeout(() => this.onResetView(), 250);
     };
 
     componentWillUnmount = () => {
@@ -299,8 +301,15 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
 
     render() {
         const divStyle = {
-            minWidth: "200px",
-            minHeight: "600px"
+            height: "100%"
+        };
+
+        const navBarStyle = {
+            marginBottom: "0px"
+        };
+
+        const test = {
+            height: "100%"
         };
 
         const loading = !this.props.data || this.props.data.loading;
@@ -310,8 +319,8 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
         this.update(projects);
 
         return (
-            <Panel collapsible defaultExpanded header="Pipeline Graph" bsStyle="info">
-                <Navbar inverse fluid>
+            <div style={test}>
+                <Navbar inverse fluid style={navBarStyle}>
                     <Navbar.Header>
                         <Navbar.Brand>
                             Project
@@ -330,8 +339,8 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
                         <NavItem onClick={this.onResetView}>Reset view</NavItem>
                     </Nav>
                 </Navbar>
-                <div id="cy" width="600" height="600" style={divStyle}/>
-            </Panel>
+                <div id="cy" style={divStyle}/>
+            </div>
         );
     }
 }
