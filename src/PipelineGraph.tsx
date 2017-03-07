@@ -1,10 +1,11 @@
 import * as React from "react";
-import {Panel, NavItem, Nav, Navbar} from "react-bootstrap"
+import {NavItem, Nav, Navbar} from "react-bootstrap"
 import {ProjectMenu, ProjectMenuStyle, AllProjectsId} from "./helpers/ProjectMenu";
 import gql from "graphql-tag/index";
 import graphql from "react-apollo/graphql";
 import {pollingIntervalSeconds} from "./GraphQLComponents";
 import {IProject, IPipelineStage} from "./QueryInterfaces";
+import {ProjectMenuNavbar} from "./helpers/ProjectMenuNavbar";
 let cytoscape = require("cytoscape");
 
 function SetDifference<T>(setA: Set<T>, setB: Set<T>): Set<T> {
@@ -38,8 +39,15 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
     };
 
     private onResetView = () => {
-        this.cy.fit([], 30);
-        this.cy.center();
+        if (this.props.data.refetch) {
+            this.props.data.refetch().then(() => {
+                this.cy.fit([], 30);
+                this.cy.center();
+            });
+        } else {
+            this.cy.fit([], 30);
+            this.cy.center();
+        }
     };
 
     private calculateWaiting(project: IProject): number {
@@ -304,10 +312,6 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
             height: "100%"
         };
 
-        const navBarStyle = {
-            marginBottom: "0px"
-        };
-
         const test = {
             height: "100%"
         };
@@ -320,25 +324,11 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
 
         return (
             <div style={test}>
-                <Navbar inverse fluid style={navBarStyle}>
-                    <Navbar.Header>
-                        <Navbar.Brand>
-                            Project
-                        </Navbar.Brand>
-                        <Navbar.Toggle />
-                    </Navbar.Header>
-                    <Nav>
-                        <ProjectMenu keyPrefix="pipelineStageCreateProjects"
-                                     menuStyle={ProjectMenuStyle.NavDropDown}
-                                     onProjectSelectionChange={this.onProjectSelectionChange}
-                                     projects={projects}
-                                     selectedProjectId={this.state.projectId}
-                                     includeAllProjects={true}/>
-                    </Nav>
-                    <Nav pullRight>
-                        <NavItem onClick={this.onResetView}>Reset view</NavItem>
-                    </Nav>
-                </Navbar>
+                <ProjectMenuNavbar keyPrefix="pipelineGraph" projects={projects}
+                                   selectedProjectId={this.state.projectId}
+                                   onProjectSelectionChange={this.onProjectSelectionChange} includeAllProjects={true}>
+                    <NavItem onClick={this.onResetView}>Reset view</NavItem>
+                </ProjectMenuNavbar>
                 <div id="cy" style={divStyle}/>
             </div>
         );

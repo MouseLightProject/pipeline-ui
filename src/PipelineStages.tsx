@@ -6,9 +6,11 @@ import {Loading} from "./Loading";
 import {PipelineStageCreateWithQuery} from "./PipelineStageCreateComponent";
 import gql from "graphql-tag/index";
 import graphql from "react-apollo/graphql";
+import {ProjectMenuNavbar} from "./helpers/ProjectMenuNavbar";
+import {AllProjectsId} from "./helpers/ProjectMenu";
 
 export class PipelineStagesContainer extends React.Component<any, any> {
-    render() {
+    public render() {
         return (
             <PipelineStagesQuery/>
         );
@@ -20,11 +22,11 @@ class PipelineStages extends React.Component<any, any> {
         this.state = {pipelinesForProjectId: ""};
     }
 
-    onPipelinesForProjectIdChanged = (id: string) => {
+    private onPipelinesForProjectIdChanged = (id: string) => {
         this.setState({pipelinesForProjectId: id}, null);
     };
 
-    onSetProjectStatus = (id: string, shouldBeActive: boolean) => {
+    private onSetProjectStatus = (id: string, shouldBeActive: boolean) => {
         this.props.setStatusMutation(id, shouldBeActive)
         .then(async() => {
             await this.props.data.refetch();
@@ -33,7 +35,7 @@ class PipelineStages extends React.Component<any, any> {
         });
     };
 
-    onDeleteProject = (id: string) => {
+    private onDeleteProject = (id: string) => {
         this.props.deleteMutation(id)
         .then(async() => {
             await this.props.data.refetch();
@@ -42,7 +44,7 @@ class PipelineStages extends React.Component<any, any> {
         });
     };
 
-    render() {
+    public render() {
         const loading = !this.props.data || this.props.data.loading;
 
         const pipelineStages = !loading ? this.props.data.pipelineStages : [];
@@ -50,26 +52,42 @@ class PipelineStages extends React.Component<any, any> {
         return (
             <div>
                 {this.props.loading ? <Loading/> :
-                    <TablePanel pipelineStages={pipelineStages}
-                                pipelinesForProjectId={this.state.pipelinesForProjectId}
-                                refetch={this.props.data.refetch}
-                                updateStatusCallback={this.onSetProjectStatus}
-                                deleteCallback={this.onDeleteProject}
-                                onPipelinesForProjectIdChanged={this.onPipelinesForProjectIdChanged}/>}
+                    <TablePanelQuery pipelineStages={pipelineStages}
+                                     pipelinesForProjectId={this.state.pipelinesForProjectId}
+                                     refetch={this.props.data.refetch}
+                                     updateStatusCallback={this.onSetProjectStatus}
+                                     deleteCallback={this.onDeleteProject}
+                                     onPipelinesForProjectIdChanged={this.onPipelinesForProjectIdChanged}/>}
             </div>
         );
     }
 }
 
 class TablePanel extends React.Component<any, any> {
-    render() {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            projectId: AllProjectsId
+        };
+    }
+
+    private onProjectSelectionChange(eventKey) {
+        this.setState({projectId: eventKey}, null);
+    }
+
+    public render() {
         return (
             <div>
-                <Panel collapsible defaultExpanded header="Pipeline Stages" bsStyle="primary">
-                    <PipelineStageTable pipelineStages={this.props.pipelineStages}
-                                        updateStatusCallback={this.props.updateStatusCallback}
-                                        deleteCallback={this.props.deleteCallback}/>
-                </Panel>
+                <ProjectMenuNavbar keyPrefix="tileMap" projects={this.props.data.projects}
+                                   selectedProjectId={this.state.projectId}
+                                   onProjectSelectionChange={(eventKey) => this.onProjectSelectionChange(eventKey)}
+                                   includeAllProjects={true}>
+                </ProjectMenuNavbar>
+                <PipelineStageTable selectedProjectId={this.state.projectId}
+                                    pipelineStages={this.props.pipelineStages}
+                                    updateStatusCallback={this.props.updateStatusCallback}
+                                    deleteCallback={this.props.deleteCallback}/>
                 <PipelineStageCreateWithQuery pipelinesForProjectId={this.props.pipelinesForProjectId}
                                               refetch={this.props.refetch}
                                               onPipelinesForProjectIdChanged={this.props.onPipelinesForProjectIdChanged}/>
@@ -77,6 +95,19 @@ class TablePanel extends React.Component<any, any> {
         );
     }
 }
+
+const ProjectsQuery = gql`query { 
+  projects {
+    id
+    name
+    description
+    root_path
+    sample_number
+    is_processing
+  }
+}`;
+
+
 const PipelineQuery = gql`query { 
     pipelineStages {
       id
@@ -90,6 +121,7 @@ const PipelineQuery = gql`query {
       project {
         id
         name
+        is_processing
       }
       task {
         id
@@ -135,6 +167,12 @@ const DeletePipelineStageMutation = gql`
   }
 `;
 
+
+const TablePanelQuery = graphql(ProjectsQuery, {
+    options: {
+        pollInterval: 5 * 1000
+    }
+})(TablePanel);
 
 export const PipelineStagesQuery = graphql(PipelineQuery, {
     options: {

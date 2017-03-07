@@ -22,19 +22,22 @@ export interface IProjectMenuProps {
     onProjectSelectionChange(projectId: string);
 }
 
-export class ProjectMenu extends React.Component<IProjectMenuProps, any> {
-    handleChange = (eventKey) => {
+export interface IProjectMenuState {
+}
+
+export class ProjectMenu extends React.Component<IProjectMenuProps, IProjectMenuState> {
+    private handleChange(eventKey) {
         this.props.onProjectSelectionChange(eventKey);
     };
 
-    shouldComponentUpdate() {
+    public shouldComponentUpdate() {
         return true;
     }
 
-    render() {
-        let title = "";
-        let includeAllProjects = this.props.includeAllProjects || false;
+    public render() {
+        const includeAllProjects = this.props.includeAllProjects || false;
 
+        let title = "";
         let rows = [];
 
         if (this.props.projects) {
@@ -62,14 +65,14 @@ export class ProjectMenu extends React.Component<IProjectMenuProps, any> {
         if (this.props.menuStyle === ProjectMenuStyle.NavDropDown) {
             return (
                 <NavDropdown id={this.props.keyPrefix + "project-nav-drop-down"} title={title}
-                             onSelect={this.handleChange}>
+                             onSelect={(eventKey) => this.handleChange(eventKey)}>
                     {rows}
                 </NavDropdown>
             )
         } else {
             return (
                 <DropdownButton id={this.props.keyPrefix + "project-drop-down"} title={title} bsSize="small"
-                                onSelect={this.handleChange}>
+                                onSelect={(eventKey) => this.handleChange(eventKey)}>
                     {rows}
                 </DropdownButton>
             )

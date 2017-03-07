@@ -11,8 +11,6 @@ export class DevView extends React.Component<any, any> {
     render() {
         return (
             <div>
-                <PipelineGraphWithQuery/>
-                <PipelineTileMapHighCharts/>
                 <ProjectsContainer/>
                 <PipelineStagesContainer/>
                 <Workers/>

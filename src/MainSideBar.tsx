@@ -32,13 +32,6 @@ export class MainSideBar extends React.Component<any, any> {
                         <SidebarMenuItem><Link to="/tasks">Tasks</Link></SidebarMenuItem>
                     </ListGroup>
                 </div>
-                <div>
-                    <h4>Developer</h4>
-                    <ListGroup>
-                        <SidebarMenuItem><Link
-                            to="/dev">Detailed View</Link></SidebarMenuItem>
-                    </ListGroup>
-                </div>
             </div>
         )
     }

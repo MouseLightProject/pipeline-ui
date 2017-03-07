@@ -2,6 +2,7 @@ import * as React from "react";
 import {Table, Button, Glyphicon} from "react-bootstrap"
 
 import {IPipelineStage} from "./QueryInterfaces";
+import {AllProjectsId} from "./helpers/ProjectMenu";
 
 const previousStageIsAcquisitionRoot = "(acquisition root)";
 
@@ -42,7 +43,7 @@ class PipelineStageRow extends React.Component<IPipelineStageRowProps, any> {
             <tr>
                 <td><Button bsSize="xs" bsStyle={this.getActivateStyle(pipelineStage.is_processing)}
                             onClick={this.onActiveClick}><Glyphicon
-                    glyph={this.getActivateGlyph(pipelineStage.is_processing)}/> {this.getActivateText(pipelineStage.is_processing)}
+                    glyph={this.getActivateGlyph(pipelineStage.is_processing)}/>&nbsp;{this.getActivateText(pipelineStage.is_processing)}
                 </Button></td>
                 <td>{pipelineStage.name}</td>
                 <td>{pipelineStage.project.name}</td>
@@ -51,13 +52,14 @@ class PipelineStageRow extends React.Component<IPipelineStageRowProps, any> {
                 <td>{pipelineStage.dst_path}</td>
                 <td>{this.formatPerformance(pipelineStage.performance)}</td>
                 <td><Button bsSize="xs" bsStyle="warning" onClick={this.onDelete}><Glyphicon glyph="trash"/>
-                    Remove</Button></td>
+                    &nbsp;Remove</Button></td>
             </tr>);
     }
 }
 
 interface IPipelineStageTable {
     pipelineStages: IPipelineStage[];
+    selectedProjectId: string;
 
     updateStatusCallback(id: string, shouldBeActive: boolean): void;
     deleteCallback(id: string): void;
@@ -65,14 +67,16 @@ interface IPipelineStageTable {
 
 export class PipelineStageTable extends React.Component<IPipelineStageTable, any> {
     render() {
-        let rows = [];
+        let stages = this.props.pipelineStages;
 
-        if (this.props.pipelineStages) {
-            rows = this.props.pipelineStages.map(pipelineStage => (
-                <PipelineStageRow key={"tr_pipeline" + pipelineStage.id} pipelineStage={pipelineStage}
-                                  updateStatusCallback={this.props.updateStatusCallback}
-                                  deleteCallback={this.props.deleteCallback}/>));
+        if (this.props.selectedProjectId !== AllProjectsId) {
+            stages = stages.filter((stage) => stage.project.id === this.props.selectedProjectId);
         }
+
+        let rows = stages.map(pipelineStage => (
+            <PipelineStageRow key={"tr_pipeline" + pipelineStage.id} pipelineStage={pipelineStage}
+                              updateStatusCallback={this.props.updateStatusCallback}
+                              deleteCallback={this.props.deleteCallback}/>));
 
         return (
             <Table condensed>

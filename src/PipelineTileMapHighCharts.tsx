@@ -10,6 +10,7 @@ require("highcharts/modules/map")(HighCharts);
 import graphql from "react-apollo/graphql";
 import {TilePipelineStatus, IProject} from "./QueryInterfaces";
 import {ProjectMenuStyle, ProjectMenu} from "./helpers/ProjectMenu";
+import {ProjectMenuNavbar} from "./helpers/ProjectMenuNavbar";
 
 interface IStageStatus {
     stage_id: string;
@@ -226,7 +227,7 @@ class MapPanel extends React.Component<any, any> {
         const processing = projects.filter(project => project.is_processing);
 
         if (this.state.projectId === "" && processing.length > 0) {
-            this.onProjectChanged(processing[0].id);
+            this.onProjectSelectionChange(processing[0].id);
         }
     };
 
@@ -236,14 +237,13 @@ class MapPanel extends React.Component<any, any> {
         const processing = projects.filter(project => project.is_processing);
 
         if (this.state.projectId === "" && processing.length > 0) {
-            this.onProjectChanged(processing[0].id);
+            this.onProjectSelectionChange(processing[0].id);
         } else if (this.state.projectId === "" && projects.length > 0) {
-            this.onProjectChanged(projects[0].id);
+            this.onProjectSelectionChange(projects[0].id);
         }
     };
 
-    onProjectChanged = (eventKey) => {
-        console.log(eventKey);
+    onProjectSelectionChange = (eventKey) => {
         let projects = (this.props.data && !this.props.data.loading) ? this.props.data.projects : [];
 
         projects = projects.filter(x => x.id === eventKey);
@@ -325,30 +325,16 @@ class MapPanel extends React.Component<any, any> {
 
         return (
             <div>
-                <Navbar inverse fluid>
-                    <Navbar.Header>
-                        <Navbar.Brand>
-                            Project
-                        </Navbar.Brand>
-                        <Navbar.Toggle />
-                    </Navbar.Header>
-                    <Nav>
-                        <ProjectMenu keyPrefix="pipelineStageCreateProjects"
-                                     menuStyle={ProjectMenuStyle.NavDropDown}
-                                     onProjectSelectionChange={this.onProjectChanged}
-                                     projects={projects}
-                                     selectedProjectId={this.state.projectId}
-                                     includeAllProjects={false}/>
-                    </Nav>
-                    <Nav pullRight>
-                        <NavItem>Current Z Index</NavItem>
-                        <NavItem>{this.state.plane}</NavItem>
-                        <NavItem onClick={this.onLeftClickDouble}>{"<<"}</NavItem>
-                        <NavItem onClick={this.onLeftClick}>{"<"}</NavItem>
-                        <NavItem onClick={this.onRightClick}>{">"}</NavItem>
-                        <NavItem onClick={this.onRightClickDouble}>{">>"}</NavItem>
-                    </Nav>
-                </Navbar>
+                <ProjectMenuNavbar keyPrefix="tileMap" projects={projects}
+                                   selectedProjectId={this.state.projectId}
+                                   onProjectSelectionChange={this.onProjectSelectionChange} includeAllProjects={true}>
+                    <NavItem>Current Z Index</NavItem>
+                    <NavItem>{this.state.plane}</NavItem>
+                    <NavItem onClick={this.onLeftClickDouble}>{"<<"}</NavItem>
+                    <NavItem onClick={this.onLeftClick}>{"<"}</NavItem>
+                    <NavItem onClick={this.onRightClick}>{">"}</NavItem>
+                    <NavItem onClick={this.onRightClickDouble}>{">>"}</NavItem>
+                </ProjectMenuNavbar>
                 {this.choosePanel(projects)}
             </div>
         );
