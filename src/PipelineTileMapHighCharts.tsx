@@ -243,6 +243,45 @@ class MapPanel extends React.Component<any, any> {
         }
     };
 
+    componentWillUpdate(nextProps) {
+        if (this.state.projectId.length > 0) {
+            const allProjects = (nextProps.data && !nextProps.loading) ? nextProps.data.projects : [];
+
+            const projects = allProjects.filter(project => project.id === this.state.projectId);
+
+            if (projects.length > 0) {
+                const project = projects[0];
+                let minZ = 0;
+                let maxZ = 1e6;
+                let plane = this.state.plane;
+
+                if (project.region_z_min > -1) {
+                    minZ = project.region_z_min;
+                }
+                else if (project.sample_z_min > -1) {
+                    minZ = project.sample_z_min;
+                }
+
+                if (project.region_z_max > -1) {
+                    maxZ = project.region_z_max;
+                }
+                else if (project.sample_z_max > -1) {
+                    maxZ = project.sample_z_max;
+                }
+
+                if (plane < minZ) {
+                    plane = minZ;
+                } else if (plane > maxZ) {
+                    plane = maxZ;
+                }
+
+                if (minZ != this.state.minZ || maxZ != this.state.maxZ || plane != this.state.plane) {
+                    this.setState({minZ: minZ, maxZ: maxZ, plane: plane}, null);
+                }
+            }
+        }
+    }
+
     onProjectSelectionChange = (eventKey) => {
         let projects = (this.props.data && !this.props.data.loading) ? this.props.data.projects : [];
 
