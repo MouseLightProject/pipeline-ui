@@ -183,15 +183,23 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
 
         let depthCount = [breadthOffset - 1, breadthOffset - 1];
 
-        console.log(breadth);
-        console.log(breadthOffset);
+        const stages = project.stages.sort((a, b) => {
+           return a.depth - b.depth;
+        });
 
-        return project.stages.map(stage => {
-            depthCount[stage.depth] = !isNullOrUndefined(depthCount[stage.depth]) ?  depthCount[stage.depth] + 1 : breadthOffset;
-            console.log(stage.depth);
-            console.log(depthCount[stage.depth]);
-            console.log("----");
-            return this.assembleStage(stage, project, depthCount[stage.depth], nodes, edges, waiting);
+        const parentCount = new Map<string, number>();
+
+        return stages.map(stage => {
+            // depthCount[stage.depth] = !isNullOrUndefined(depthCount[stage.depth]) ?  depthCount[stage.depth] + 1 : breadthOffset;
+            const key = stage.previous_stage_id || project.id;
+
+            if (!parentCount.has(key)) {
+                parentCount.set(key, breadthOffset);
+            } else {
+                parentCount.set(key, parentCount.get(key) + 1);
+            }
+
+            return this.assembleStage(stage, project,  parentCount.get(key), nodes, edges, waiting);
         });
     }
 
