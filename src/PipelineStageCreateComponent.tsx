@@ -257,13 +257,13 @@ class PipelineStageCreateComponent extends React.Component<any, IPipelineStageCo
             <Panel collapsible defaultExpanded header="Add Stage" bsStyle="info">
                 <Grid fluid>
                     <Row>
-                        <Col lg={3}>
+                        <Col lg={2}>
                             <FormGroup controlId="nameText" bsSize="small" validationState={this.state.nameValidation}>
                                 <ControlLabel>Name</ControlLabel>
                                 <FormControl type="text" onChange={this.onNameChange} value={this.state.name}/>
                             </FormGroup>
                         </Col>
-                        <Col lg={2}>
+                        <Col lg={3}>
                             <FormGroup bsSize="small">
                                 <ControlLabel>Add to Acquisition Pipeline</ControlLabel>
                                 <ProjectMenu keyPrefix="pipelineStageCreateProjects"
