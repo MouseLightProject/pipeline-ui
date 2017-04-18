@@ -87,7 +87,7 @@ class PreviousStageMenu extends React.Component<any, any> {
                 title = `${stage.id}`;
             }
 
-            return (<MenuItem key={"pipeline-previous-" + stage.id} eventKey={stage.id}>{`${stage.id}`}</MenuItem>)
+            return (<MenuItem key={"pipeline-previous-" + stage.id} eventKey={stage.id}>{`${stage.name}`}</MenuItem>)
         });
 
         return (
