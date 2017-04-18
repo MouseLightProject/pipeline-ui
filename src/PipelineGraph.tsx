@@ -1,11 +1,13 @@
 import * as React from "react";
-import {NavItem, Nav, Navbar} from "react-bootstrap"
-import {ProjectMenu, ProjectMenuStyle, AllProjectsId} from "./helpers/ProjectMenu";
+import {NavItem} from "react-bootstrap"
+import {AllProjectsId} from "./helpers/ProjectMenu";
 import gql from "graphql-tag/index";
 import graphql from "react-apollo/graphql";
 import {pollingIntervalSeconds} from "./GraphQLComponents";
 import {IProject, IPipelineStage} from "./QueryInterfaces";
 import {ProjectMenuNavbar} from "./helpers/ProjectMenuNavbar";
+import {calculateProjectBreadth} from "./helpers/modelUtils";
+import {isNullOrUndefined} from "util";
 let cytoscape = require("cytoscape");
 
 function SetDifference<T>(setA: Set<T>, setB: Set<T>): Set<T> {
@@ -115,6 +117,7 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
         } else {
             ele.data("name", name);
             ele.data("shortName", simpleName);
+            ele.data("breadth", breadth);
             ele.data("numInProcess", stage.performance.num_in_process / totalProcessed);
             ele.data("numReadyToProcess", stage.performance.num_ready_to_process / totalProcessed);
             ele.data("numComplete", stage.performance.num_complete / totalProcessed);
@@ -142,7 +145,7 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
         return stage.id;
     }
 
-    private assembleProject(project: IProject, breadth: number, nodes, edges) {
+    private assembleProject(project: IProject, breadthOffset: number, maxBreadth: number, nodes, edges) {
         if (this.state.projectId !== AllProjectsId && this.state.projectId !== project.id) {
             return [];
         }
@@ -154,6 +157,8 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
         if (collection.length > 0) {
             ele = collection[0];
         }
+
+        const breadth = breadthOffset + Math.ceil(maxBreadth / 2) - 1;
 
         if (ele === null) {
             nodes.push({
@@ -171,12 +176,22 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
         } else {
             ele.data("name", project.name);
             ele.data("bgColor", project.is_processing ? "#86B342" : "#FF0000");
+            ele.data("breadth", breadth);
         }
 
         const waiting = this.calculateWaiting(project);
 
+        let depthCount = [breadthOffset - 1, breadthOffset - 1];
+
+        console.log(breadth);
+        console.log(breadthOffset);
+
         return project.stages.map(stage => {
-            return this.assembleStage(stage, project, breadth, nodes, edges, waiting);
+            depthCount[stage.depth] = !isNullOrUndefined(depthCount[stage.depth]) ?  depthCount[stage.depth] + 1 : breadthOffset;
+            console.log(stage.depth);
+            console.log(depthCount[stage.depth]);
+            console.log("----");
+            return this.assembleStage(stage, project, depthCount[stage.depth], nodes, edges, waiting);
         });
     }
 
@@ -185,8 +200,9 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
             return;
         }
 
+        let totalBreadth =  0;
+
         // List of elements all elements that should be in the graph.
-        let currentRootIds = new Set<string>();
         let currentNodeIds = new Set<string>();
 
         // List of elements not already in the graph.
@@ -194,9 +210,18 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
         let edges = [];
 
         projects.forEach((project, index) => {
-            const stage_ids = this.assembleProject(project, index, nodes, edges);
+            if (this.state.projectId !== AllProjectsId && this.state.projectId !== project.id) {
+                return;
+            }
 
-            currentRootIds.add(project.id);
+            const breadth = calculateProjectBreadth(project);
+
+            const maxBreadth = Math.max(...breadth);
+
+            const stage_ids = this.assembleProject(project, totalBreadth, maxBreadth, nodes, edges);
+
+            totalBreadth += maxBreadth;
+
             currentNodeIds.add(project.id);
 
             stage_ids.forEach(id => currentNodeIds.add(id));
@@ -235,7 +260,7 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
 
         this.cy.layout({
             name: "grid",
-            rows: currentRootIds.size,
+            rows: totalBreadth,
             position: (node) => {
                 let data = node.json().data;
                 return {
@@ -289,6 +314,7 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
                     name: "breadthfirst",
                     directed: false,
                     padding: 10,
+                    spacingFactor: 1,
                     roots: []
                 }
             });
