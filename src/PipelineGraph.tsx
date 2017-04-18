@@ -181,8 +181,6 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
 
         const waiting = this.calculateWaiting(project);
 
-        let depthCount = [breadthOffset - 1, breadthOffset - 1];
-
         const stages = project.stages.sort((a, b) => {
            return a.depth - b.depth;
         });
@@ -190,7 +188,6 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
         const parentCount = new Map<string, number>();
 
         return stages.map(stage => {
-            // depthCount[stage.depth] = !isNullOrUndefined(depthCount[stage.depth]) ?  depthCount[stage.depth] + 1 : breadthOffset;
             const key = stage.previous_stage_id || project.id;
 
             if (!parentCount.has(key)) {
@@ -199,7 +196,9 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
                 parentCount.set(key, parentCount.get(key) + 1);
             }
 
-            return this.assembleStage(stage, project,  parentCount.get(key), nodes, edges, waiting);
+            parentCount.set(stage.id, parentCount.get(key) - 1);
+
+            return this.assembleStage(stage, project, parentCount.get(key), nodes, edges, waiting);
         });
     }
 
