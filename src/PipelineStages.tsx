@@ -28,7 +28,7 @@ class PipelineStages extends React.Component<any, any> {
 
     private onSetProjectStatus = (id: string, shouldBeActive: boolean) => {
         this.props.setStatusMutation(id, shouldBeActive)
-        .then(async() => {
+        .then(async () => {
             await this.props.data.refetch();
         }).catch((err) => {
             console.log(err);
@@ -37,7 +37,7 @@ class PipelineStages extends React.Component<any, any> {
 
     private onDeleteProject = (id: string) => {
         this.props.deleteMutation(id)
-        .then(async() => {
+        .then(async () => {
             await this.props.data.refetch();
         }).catch((err) => {
             console.log(err);
@@ -79,7 +79,7 @@ class TablePanel extends React.Component<any, any> {
     public render() {
         return (
             <div>
-                <ProjectMenuNavbar keyPrefix="tileMap" projects={this.props.data.projects}
+                <ProjectMenuNavbar keyPrefix="createStageSelectProjectTopLevel" projects={this.props.data.projects}
                                    selectedProjectId={this.state.projectId}
                                    onProjectSelectionChange={(eventKey) => this.onProjectSelectionChange(eventKey)}
                                    includeAllProjects={true}>
@@ -88,7 +88,8 @@ class TablePanel extends React.Component<any, any> {
                                     pipelineStages={this.props.pipelineStages}
                                     updateStatusCallback={this.props.updateStatusCallback}
                                     deleteCallback={this.props.deleteCallback}/>
-                <PipelineStageCreateWithQuery pipelinesForProjectId={this.props.pipelinesForProjectId}
+                <PipelineStageCreateWithQuery projects={this.props.data.projects}
+                                              pipelinesForProjectId={this.props.pipelinesForProjectId}
                                               refetch={this.props.refetch}
                                               onPipelinesForProjectIdChanged={this.props.onPipelinesForProjectIdChanged}/>
             </div>

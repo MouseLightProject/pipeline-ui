@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const configurations = {
     development: {
         port: 4000,
@@ -25,6 +26,5 @@ function default_1() {
     let env = process.env.NODE_ENV || "development";
     return configurations[env];
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = default_1;
 //# sourceMappingURL=system.config.js.map
