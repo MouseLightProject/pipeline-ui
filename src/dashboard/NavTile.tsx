@@ -1,9 +1,6 @@
 import * as React from "react";
-import * as Radium from "radium";
-
 import {ICountTileProps, CountUnit} from "./CountTile";
 
-@Radium
 export class NavTile extends React.Component<ICountTileProps, any> {
     constructor(props) {
         super(props);
@@ -29,12 +26,18 @@ export class NavTile extends React.Component<ICountTileProps, any> {
     }
 }
 
+const overflow: "hidden" | "auto" = "hidden";
+
+const position: "initial" | "relative" = "relative";
+
+const fontWeight: "inherit" | 500 = 500;
+
 const statsContainerStyle = {
     borderBottom: 0,
     padding: "4px",
-    position: "relative",
+    position,
     whiteSpace: "nowrap",
-    overflow: "hidden",
+    overflow,
     margin: 0,
     minWidth: "100px"
 };
@@ -45,5 +48,5 @@ const statsCountSpanStyle = {
 
 const statsCountStyle = {
     fontSize: "18px",
-    fontWeight: 500
+    fontWeight
 };

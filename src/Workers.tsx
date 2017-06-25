@@ -1,10 +1,10 @@
 import * as React from "react";
 import {Panel} from "react-bootstrap"
 
-import {WorkerTableWithMutation} from "./WorkerTable";
+import {WorkerTable} from "./WorkerTable";
 import {Loading} from "./Loading";
-import gql from "graphql-tag/index";
-import graphql from "react-apollo/graphql";
+import gql from "graphql-tag";
+import {graphql} from "react-apollo";
 
 export class Workers extends React.Component<any, any> {
     render() {
@@ -22,7 +22,7 @@ class WorkersPanel extends React.Component<any, any> {
 
         return (
             <Panel collapsible defaultExpanded header="Workers" bsStyle="primary">
-                {loading ? <Loading/> : <WorkerTableWithMutation workers={workers}/>}
+                {loading ? <Loading/> : <WorkerTable workers={workers}/>}
             </Panel>
         );
     }

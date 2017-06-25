@@ -1,11 +1,12 @@
 import * as React from "react";
 import {Panel} from "react-bootstrap"
 
-import {ProjectTableWithQuery} from "./ProjectTable";
+import {ProjectTable} from "./ProjectTable";
 import {Loading} from "./Loading";
 import {ProjectCreateComponent} from "./ProjectCreateComponent";
-import gql from "graphql-tag/index";
-import graphql from "react-apollo/graphql";
+import gql from "graphql-tag";
+import {graphql} from "react-apollo";
+import {IProject} from "./QueryInterfaces";
 
 export class ProjectsContainer extends React.Component<any, any> {
     render() {
@@ -18,7 +19,7 @@ export class ProjectsContainer extends React.Component<any, any> {
 class Projects extends React.Component<any, any> {
     onCreateProject = (project) => {
         this.props.createProjectMutation(project)
-        .then(async() => {
+        .then(async () => {
             await this.props.data.refetch();
         }).catch((err) => {
             console.log(err);
@@ -27,7 +28,7 @@ class Projects extends React.Component<any, any> {
 
     onSetProjectStatus = (id: string, shouldBeActive: boolean) => {
         this.props.setProjectStatusMutation(id, shouldBeActive)
-        .then(async() => {
+        .then(async () => {
             await this.props.data.refetch();
         }).catch((err) => {
             console.log(err);
@@ -36,14 +37,14 @@ class Projects extends React.Component<any, any> {
 
     onDeleteProject = (id: string) => {
         this.props.deleteProjectMutation(id)
-        .then(async() => {
+        .then(async () => {
             await this.props.data.refetch();
         }).catch((err) => {
             console.log(err);
         });
     };
 
-    render() {
+    public render() {
         const loading = !this.props.data || this.props.data.loading;
 
         const projects = !loading ? this.props.data.projects : [];
@@ -59,14 +60,22 @@ class Projects extends React.Component<any, any> {
     }
 }
 
-class ProjectsPanel extends React.Component<any, any> {
-    render() {
+interface IProjectsPanelProps {
+    projects: IProject[];
+
+    createCallback(project: IProject);
+    updateStatusCallback(id: string, shouldBeActive: boolean): void;
+    deleteCallback(id: string): void;
+}
+
+class ProjectsPanel extends React.Component<IProjectsPanelProps, any> {
+    public render() {
         return (
             <div>
                 <Panel collapsible defaultExpanded header="Acquisition Pipelines" bsStyle="primary">
-                    <ProjectTableWithQuery projects={this.props.projects}
-                                           updateStatusCallback={this.props.updateStatusCallback}
-                                           deleteCallback={this.props.deleteCallback}/>
+                    <ProjectTable projects={this.props.projects}
+                                  updateStatusCallback={this.props.updateStatusCallback}
+                                  deleteCallback={this.props.deleteCallback}/>
                 </Panel>
                 <ProjectCreateComponent createCallback={this.props.createCallback}/>
             </div>

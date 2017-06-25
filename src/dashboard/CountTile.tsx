@@ -1,5 +1,5 @@
 import * as React from "react";
-import * as Radium from "radium";
+import * as MediaQuery from "react-responsive";
 
 export enum CountUnit {
     None,
@@ -14,13 +14,22 @@ export interface ICountTileProps {
     message?: string;
 }
 
-@Radium
 export class CountTile extends React.Component<ICountTileProps, any> {
-    constructor(props) {
+    public constructor(props) {
         super(props);
     }
 
-    render() {
+    public renderTile(message: string, style: any) {
+        return (
+            <div className="tile_stats_count" style={style}>
+                <span style={noteStyle}>{this.props.title}</span>
+                <div style={messageStyle}>{message}</div>
+                <span style={noteStyle}>{this.props.message || ""}</span>
+            </div>
+        );
+    }
+
+    public render() {
         const units = this.props.units === CountUnit.Percent ? "%" : "";
 
         let countMessage = "";
@@ -32,55 +41,49 @@ export class CountTile extends React.Component<ICountTileProps, any> {
         }
 
         return (
-            <div className="tile_stats_count" style={statsContainerStyle}>
-                <span style={statsCountSpanStyle}>{this.props.title}</span>
-                <div style={statsCountStyle}>{countMessage}</div>
-                <span style={statsCountSpanStyle}>{this.props.message || ""}</span>
+            <div>
+                <MediaQuery minWidth={1200}>
+                    {this.renderTile(countMessage, statsContainerStyleWide)}
+                </MediaQuery>
+                <MediaQuery maxWidth={1199}>
+                    {this.renderTile(countMessage, statsContainerStyleNarrow)}
+                </MediaQuery>
             </div>
         );
     }
 }
 
-const statsContainerStyle = {
+const overflow: "hidden" | "auto" = "hidden";
+
+const position: "initial" | "relative" = "relative";
+
+const fontWeight: 500 | 600 = 600;
+
+const statsContainerStyleNarrow = {
     borderBottom: "1px solid #D9DEE4",
-    padding: " 10px 20px 10px 20px",
-    position: "relative",
+    padding: "10px 20px 10px 20px",
+    position,
     whiteSpace: "nowrap",
-    overflow: "hidden",
-
-    "@media (min-width:1200px)": {
-        marginBottom: "10px",
-        borderBottom: 0,
-        paddingBottom: "10px"
-    }
+    overflow,
+    minHeight: "110px",
 };
 
-const statsCountSpanStyle = {
-    fontSize: "10px",
-
-    "@media (min-width:992px)": {
-        fontSize: "11px"
-    },
-
-    "@media (min-width:1200px)": {
-        fontSize: "11px"
-    }
+const statsContainerStyleWide = {
+    borderBottom: "none",
+    padding: " 10px 20px 00px 20px",
+    position,
+    whiteSpace: "nowrap",
+    overflow,
+    minHeight: "110px",
+    marginBottom: "10px"
 };
 
-const statsCountStyle = {
+const messageStyle = {
     fontSize: "30px",
     lineHeight: "47px",
-    fontWeight: 600,
+    fontWeight
+};
 
-    "@media (min-width:768px)": {
-        fontSize: "30px"
-    },
-
-    "@media (min-width:992px) and (max-width:1200px)": {
-        fontSize: "40px"
-    },
-
-    "@media (min-width:1200px)": {
-        fontSize: "30px"
-    },
+const noteStyle = {
+    fontSize: "11px"
 };

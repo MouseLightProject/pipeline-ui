@@ -2,8 +2,8 @@ import * as React from "react";
 import {Table, Glyphicon, Button} from "react-bootstrap";
 
 import {IProject} from "./QueryInterfaces";
-import graphql from "react-apollo/graphql";
-import gql from "graphql-tag/index";
+import gql from "graphql-tag";
+import {graphql} from "react-apollo";
 import {
     DynamicEditField, nonNegativeIntegerFilterFunction,
     clickToEditFormatFunction, nonNegativeIntegerFormatFunction
@@ -88,11 +88,11 @@ class ProjectRow extends React.Component<IProjectRowProps, any> {
         return `[${this.getRegionText(project.region_x_max, false)}, ${this.getRegionText(project.region_y_max, false)}, ${this.getRegionText(project.region_z_max, false)}]`;
     };
 
-    componentWillReceiveProps(nextProps) {
+    public componentWillReceiveProps(nextProps) {
         this.setState({project: nextProps.project}, null);
     }
 
-    render() {
+    public render() {
         let project = this.state.project;
 
         const columnLimitStyle = {
@@ -135,14 +135,38 @@ class ProjectRow extends React.Component<IProjectRowProps, any> {
     }
 }
 
-interface IProjectTable {
+const UpdateProjectMutation = gql`
+  mutation UpdateProjectMutation($project: ProjectInput) {
+    updateProject(project:$project) {
+      id
+      name
+      description
+      root_path
+      sample_number
+      is_processing
+    }
+  }
+`;
+
+interface IProjectTableProps {
     projects: IProject[];
-    updateProjectMutation(project: any);
+
+    updateProjectMutation?(project: any);
+
     updateStatusCallback(id: string, shouldBeActive: boolean): void;
     deleteCallback(id: string): void;
 }
 
-class ProjectTable extends React.Component<IProjectTable, any> {
+@graphql(UpdateProjectMutation, {
+    props: ({mutate}) => ({
+        updateProjectMutation: (project: any) => mutate({
+            variables: {
+                project: project
+            }
+        })
+    })
+})
+export class ProjectTable extends React.Component<IProjectTableProps, any> {
     onUpdateProject = (project) => {
         this.props.updateProjectMutation(project)
         .then(() => {
@@ -183,26 +207,3 @@ class ProjectTable extends React.Component<IProjectTable, any> {
 
     }
 }
-
-const UpdateProjectMutation = gql`
-  mutation UpdateProjectMutation($project: ProjectInput) {
-    updateProject(project:$project) {
-      id
-      name
-      description
-      root_path
-      sample_number
-      is_processing
-    }
-  }
-`;
-
-export const ProjectTableWithQuery = graphql(UpdateProjectMutation, {
-    props: ({mutate}) => ({
-        updateProjectMutation: (project: any) => mutate({
-            variables: {
-                project: project
-            }
-        })
-    })
-})(ProjectTable);

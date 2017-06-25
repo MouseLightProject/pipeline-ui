@@ -1,13 +1,12 @@
 import * as React from "react";
 import {NavItem} from "react-bootstrap"
 import {AllProjectsId} from "./helpers/ProjectMenu";
-import gql from "graphql-tag/index";
-import graphql from "react-apollo/graphql";
 import {pollingIntervalSeconds} from "./GraphQLComponents";
 import {IProject, IPipelineStage} from "./QueryInterfaces";
 import {ProjectMenuNavbar} from "./helpers/ProjectMenuNavbar";
 import {calculateProjectBreadth} from "./helpers/modelUtils";
-import {isNullOrUndefined} from "util";
+import gql from "graphql-tag";
+import {graphql} from "react-apollo";
 let cytoscape = require("cytoscape");
 
 function SetDifference<T>(setA: Set<T>, setB: Set<T>): Set<T> {
@@ -22,7 +21,64 @@ interface IPipelineGraphState {
     projectId?: string;
 }
 
-class PipelineGraph extends React.Component<any, IPipelineGraphState> {
+const pipelineGraphQuery = gql`query {
+  projects {
+    id
+    name
+    description
+    root_path
+    sample_number
+    sample_x_min
+    sample_x_max
+    sample_y_min
+    sample_y_max
+    sample_z_min
+    sample_z_max
+    region_x_min
+    region_x_max
+    region_y_min
+    region_y_max
+    region_z_min
+    region_z_max
+    is_processing
+    stages {
+      id
+      name
+      depth
+      previous_stage_id
+      task_id
+      task {
+        id
+        name
+      }
+      performance {
+        id
+        num_in_process
+        num_ready_to_process
+        num_execute
+        num_complete
+        num_error
+        num_cancel
+        cpu_average
+        cpu_high
+        cpu_low
+        memory_average
+        memory_high
+        memory_low
+        duration_average
+        duration_high
+        duration_low
+      }
+    }
+  }
+}`;
+
+@graphql(pipelineGraphQuery, {
+    options: {
+        pollInterval: pollingIntervalSeconds * 1000
+    }
+})
+export class PipelineGraph extends React.Component<any, IPipelineGraphState> {
 
     protected cy = null;
 
@@ -181,8 +237,10 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
 
         const waiting = this.calculateWaiting(project);
 
-        const stages = project.stages.sort((a, b) => {
-           return a.depth - b.depth;
+        const stages = project.stages.slice();
+
+        stages.sort((a, b) => {
+            return a.depth - b.depth;
         });
 
         const parentCount = new Map<string, number>();
@@ -207,7 +265,7 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
             return;
         }
 
-        let totalBreadth =  0;
+        let totalBreadth = 0;
 
         // List of elements all elements that should be in the graph.
         let currentNodeIds = new Set<string>();
@@ -284,7 +342,7 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
         }
     };
 
-    componentDidMount = () => {
+    public componentDidMount() {
         this.cy = cytoscape(
             {
                 container: document.getElementById("cy"),
@@ -335,12 +393,12 @@ class PipelineGraph extends React.Component<any, IPipelineGraphState> {
         setTimeout(() => this.onResetView(), 250);
     };
 
-    componentWillUnmount = () => {
+    public componentWillUnmount() {
         this.cy.destroy();
         this.cy = null;
     };
 
-    render() {
+    public render() {
         const divStyle = {
             height: "100%"
         };
@@ -410,60 +468,3 @@ const squareNodeLabelStyle = {
     "padding": 20
 };
 
-const pipelineGraphQuery = gql`query {
-  projects {
-    id
-    name
-    description
-    root_path
-    sample_number
-    sample_x_min
-    sample_x_max
-    sample_y_min
-    sample_y_max
-    sample_z_min
-    sample_z_max
-    region_x_min
-    region_x_max
-    region_y_min
-    region_y_max
-    region_z_min
-    region_z_max
-    is_processing
-    stages {
-      id
-      name
-      depth
-      previous_stage_id
-      task_id
-      task {
-        id
-        name
-      }
-      performance {
-        id
-        num_in_process
-        num_ready_to_process
-        num_execute
-        num_complete
-        num_error
-        num_cancel
-        cpu_average
-        cpu_high
-        cpu_low
-        memory_average
-        memory_high
-        memory_low
-        duration_average
-        duration_high
-        duration_low
-      }
-    }
-  }
-}`;
-
-export const PipelineGraphWithQuery = graphql(pipelineGraphQuery, {
-    options: {
-        pollInterval: pollingIntervalSeconds * 1000
-    }
-})(PipelineGraph);

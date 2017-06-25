@@ -17,10 +17,49 @@ import {
     DropdownButton,
     HelpBlock
 } from "react-bootstrap";
-import {IPipelineStage} from "./QueryInterfaces";
+
 import {ProjectMenu, ProjectMenuStyle} from "./helpers/ProjectMenu";
+import {IPipelineStage, IProject, ITaskDefinition} from "./QueryInterfaces";
+import {InjectedGraphQLProps} from "react-apollo/lib/graphql";
 
 const useAcquisitionRoot = "none (use acquisition root)";
+
+const PipelineStagesForProjectQuery = gql`query($pipelinesForProjectId: String!) {
+  pipelineStagesForProject(id: $pipelinesForProjectId) {
+    id
+    name
+    description
+    project_id
+    task_id
+    previous_stage_id
+    dst_path
+    is_processing
+    function_type
+  }
+  taskDefinitions {
+    id
+    name
+    description
+    script
+    interpreter
+  }
+}`;
+
+const CreatePipelineStageMutation = gql`
+  mutation CreatePipelineStageMutation($name: String, $description: String, $project_id: String, $task_id: String, $previous_stage_id: String, $dst_path: String, $function_type: Int) {
+    createPipelineStage(name:$name, description:$description, project_id:$project_id, task_id:$task_id, previous_stage_id:$previous_stage_id, dst_path:$dst_path, function_type:$function_type) {
+      id
+      name
+      description
+      project_id
+      task_id
+      previous_stage_id
+      dst_path
+      is_processing
+      function_type
+    }
+  }
+`;
 
 class CreatePipelineStageFailedAlert extends React.Component<any, any> {
     render() {
@@ -140,6 +179,23 @@ class FunctionTypeMenu extends React.Component<any, any> {
     }
 }
 
+interface MyQueryProps {
+    pipelineStagesForProject: IPipelineStage[];
+    taskDefinitions: ITaskDefinition[];
+
+}
+
+interface IPipelineStageCreateProps extends InjectedGraphQLProps<MyQueryProps> {
+    pipelinesForProjectId: string;
+    projects: IProject[];
+
+    createMutation?(name: string, description: string, project_id: string, task_id: string, previous_stage_id: string, dst_path: string, function_type: number);
+
+    onPipelinesForProjectIdChanged(id: string);
+
+    refetch?(variables?: any): any;
+}
+
 interface IPipelineStageComponentState {
     name?: string;
     description?: string;
@@ -151,10 +207,30 @@ interface IPipelineStageComponentState {
     nameValidation?: any;
     dstPathValidation?: any;
     alertVisible?: boolean;
-    pipelinesForProject?: IPipelineStage[];
 }
 
-class PipelineStageCreateComponent extends React.Component<any, IPipelineStageComponentState> {
+@graphql(PipelineStagesForProjectQuery, {
+    options: ({pipelinesForProjectId}) => ({
+        pollInterval: 5000,
+        variables: {pipelinesForProjectId}
+    })
+})
+@graphql(CreatePipelineStageMutation, {
+    props: ({mutate}) => ({
+        createMutation: (name: string, description: string, project_id: string, task_id: string, previous_stage_id: string, dst_path: string, function_type: number) => mutate({
+            variables: {
+                name: name,
+                description: description,
+                project_id: project_id,
+                task_id: task_id,
+                previous_stage_id: previous_stage_id,
+                dst_path: dst_path,
+                function_type: function_type
+            }
+        })
+    })
+})
+export class PipelineStageCreate extends React.Component<IPipelineStageCreateProps, IPipelineStageComponentState> {
     constructor(props) {
         super(props);
 
@@ -243,10 +319,10 @@ class PipelineStageCreateComponent extends React.Component<any, IPipelineStageCo
     };
 
     render() {
-        this.state.pipelinesForProject = [];
+        let pipelinesForProject = [];
 
         if (this.props.data && this.props.data.pipelineStagesForProject) {
-            this.state.pipelinesForProject = this.props.data.pipelineStagesForProject;
+            pipelinesForProject = this.props.data.pipelineStagesForProject;
         }
 
         const loading = !this.props.data || this.props.data.loading;
@@ -277,7 +353,7 @@ class PipelineStageCreateComponent extends React.Component<any, IPipelineStageCo
                             <FormGroup bsSize="small">
                                 <ControlLabel>Previous Stage</ControlLabel>
                                 <PreviousStageMenu onPreviousStageSelectionChange={this.onPreviousStageSelectionChange}
-                                                   pipelinesForProject={this.state.pipelinesForProject}
+                                                   pipelinesForProject={pipelinesForProject}
                                                    selectedPreviousId={this.state.previous_stage_id}/>
                             </FormGroup>
                         </Col>
@@ -335,61 +411,3 @@ class PipelineStageCreateComponent extends React.Component<any, IPipelineStageCo
             </Panel>)
     }
 }
-
-const PipelineStagesForProjectQuery = gql`query($pipelinesForProjectId: String!) {
-  pipelineStagesForProject(id: $pipelinesForProjectId) {
-    id
-    name
-    description
-    project_id
-    task_id
-    previous_stage_id
-    dst_path
-    is_processing
-    function_type
-  }
-  taskDefinitions {
-    id
-    name
-    description
-    script
-    interpreter
-  }
-}`;
-
-const CreatePipelineStageMutation = gql`
-  mutation CreatePipelineStageMutation($name: String, $description: String, $project_id: String, $task_id: String, $previous_stage_id: String, $dst_path: String, $function_type: Int) {
-    createPipelineStage(name:$name, description:$description, project_id:$project_id, task_id:$task_id, previous_stage_id:$previous_stage_id, dst_path:$dst_path, function_type:$function_type) {
-      id
-      name
-      description
-      project_id
-      task_id
-      previous_stage_id
-      dst_path
-      is_processing
-      function_type
-    }
-  }
-`;
-
-export const PipelineStageCreateWithQuery = graphql(PipelineStagesForProjectQuery, {
-    options: ({pipelinesForProjectId}) => ({
-        pollInterval: 5000,
-        variables: {pipelinesForProjectId}
-    })
-})(graphql(CreatePipelineStageMutation, {
-    props: ({mutate}) => ({
-        createMutation: (name: string, description: string, project_id: string, task_id: string, previous_stage_id: string, dst_path: string, function_type: number) => mutate({
-            variables: {
-                name: name,
-                description: description,
-                project_id: project_id,
-                task_id: task_id,
-                previous_stage_id: previous_stage_id,
-                dst_path: dst_path,
-                function_type: function_type
-            }
-        })
-    })
-})(PipelineStageCreateComponent));

@@ -3,8 +3,8 @@ import {Table, Glyphicon, Button} from "react-bootstrap"
 import * as moment from "moment";
 
 import {IWorker} from "./QueryInterfaces";
-import gql from "graphql-tag/index";
-import graphql from "react-apollo/graphql";
+import gql from "graphql-tag";
+import {graphql} from "react-apollo";
 
 enum PipelineWorkerStatus {
     Unavailable = 0,
@@ -32,7 +32,7 @@ class WorkerRow extends React.Component<IWorkerRowProps, any> {
     public render() {
         let worker = this.props.worker;
 
-        worker.last_seen = moment(new Date(parseInt(worker.last_seen))).fromNow();
+        const last_seen_moment = moment(new Date(parseInt(worker.last_seen))).fromNow();
 
         let status = PipelineWorkerStatus[worker.status];
 
@@ -51,20 +51,39 @@ class WorkerRow extends React.Component<IWorkerRowProps, any> {
                     </Button></td>
                 <td>{worker.name}</td>
                 <td>{worker.machine_id.slice(0, 8)}</td>
-                <td>{worker.last_seen}</td>
+                <td>{last_seen_moment}</td>
                 <td>{status}</td>
                 <td>{worker.is_cluster_proxy ? "Yes" : "No"}</td>
             </tr>);
     }
 }
 
+const SetWorkerInPoolMutation = gql`
+  mutation SetPipelineStageStatusMutation($id: String!, $shouldBeInSchedulerPool: Boolean!) {
+    setWorkerAvailability(id:$id, shouldBeInSchedulerPool:$shouldBeInSchedulerPool) {
+      id
+      is_in_scheduler_pool
+    }
+  }
+`;
+
 interface IWorkerTableProps {
     workers: IWorker[];
 
-    setWorkerAvailability(id: string, shouldBeInSchedulerPool: boolean);
+    setWorkerAvailability?(id: string, shouldBeInSchedulerPool: boolean);
 }
 
-class WorkerTable extends React.Component<IWorkerTableProps, any> {
+@graphql(SetWorkerInPoolMutation, {
+    props: ({mutate}) => ({
+        setWorkerAvailability: (id: string, shouldBeInSchedulerPool: boolean) => mutate({
+            variables: {
+                id: id,
+                shouldBeInSchedulerPool: shouldBeInSchedulerPool
+            }
+        })
+    })
+})
+export class WorkerTable extends React.Component<IWorkerTableProps, any> {
     public setWorkerAvailability(id: string, shouldBeInSchedulerPool: boolean) {
         this.props.setWorkerAvailability(id, shouldBeInSchedulerPool).then(() => {
         }).catch(err => {
@@ -99,23 +118,3 @@ class WorkerTable extends React.Component<IWorkerTableProps, any> {
         );
     }
 }
-
-const SetWorkerInPoolMutation = gql`
-  mutation SetPipelineStageStatusMutation($id: String!, $shouldBeInSchedulerPool: Boolean!) {
-    setWorkerAvailability(id:$id, shouldBeInSchedulerPool:$shouldBeInSchedulerPool) {
-      id
-      is_in_scheduler_pool
-    }
-  }
-`;
-
-export const WorkerTableWithMutation = graphql(SetWorkerInPoolMutation, {
-    props: ({mutate}) => ({
-        setWorkerAvailability: (id: string, shouldBeInSchedulerPool: boolean) => mutate({
-            variables: {
-                id: id,
-                shouldBeInSchedulerPool: shouldBeInSchedulerPool
-            }
-        })
-    })
-})(WorkerTable);

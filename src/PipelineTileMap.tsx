@@ -1,12 +1,12 @@
 import * as React from "react";
-import gql from "graphql-tag/index";
+import gql from "graphql-tag";
+import {graphql} from "react-apollo";
 
-import {Panel, NavItem, Nav, MenuItem, NavDropdown, Navbar} from "react-bootstrap"
+import {NavItem, Nav, MenuItem, NavDropdown, Navbar} from "react-bootstrap"
 let Plotly = require("plotly.js");
 let numeric = require("numeric");
 
 import {Loading} from "./Loading";
-import graphql from "react-apollo/graphql";
 import {TilePipelineStatus, IProject} from "./QueryInterfaces";
 
 enum TileStatusSortIndex {
@@ -183,7 +183,8 @@ class MapPanel extends React.Component<any, any> {
     }
 }
 
-class Plot extends React.Component<any, any> {
+
+export class Plot extends React.Component<any, any> {
     constructor(props) {
         super(props);
         this.state = {

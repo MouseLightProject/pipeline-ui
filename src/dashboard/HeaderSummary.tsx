@@ -1,9 +1,9 @@
 import * as React from "react";
-import gql from "graphql-tag/index";
-import graphql from "react-apollo/graphql";
+import gql from "graphql-tag";
+import {graphql} from "react-apollo";
 import {Grid, Row, Col, Clearfix} from "react-bootstrap";
 import * as moment from "moment";
-import * as Radium from "radium";
+import * as MediaQuery from "react-responsive";
 
 import {IColumnLayout} from "../helpers/BootstrapUtils";
 import {calculateDurationFromNow} from "../helpers/DateUtils";
@@ -13,57 +13,66 @@ import {ICountTileProps, CountTile, CountUnit} from "./CountTile";
 import {NavTile} from "./NavTile";
 import isValidElement = React.isValidElement;
 
-// const HighCharts = require("highcharts");
-
-const fullTextVisibilityStyle = {
-    display: "none",
-
-    "@media (min-width:992px)": {
-        display: "block",
+const HeaderSummaryQuery = gql`query {
+  projects {
+    id
+    name
+    description
+    root_path
+    sample_number
+    sample_x_min
+    sample_x_max
+    sample_y_min
+    sample_y_max
+    sample_z_min
+    sample_z_max
+    region_x_min
+    region_x_max
+    region_y_min
+    region_y_max
+    region_z_min
+    region_z_max
+    is_processing
+    stages {
+      id
+      name
+      depth
+      previous_stage_id
+      task_id
+      task {
+        id
+        name
+      }
+      performance {
+        id
+        num_in_process
+        num_ready_to_process
+        num_execute
+        num_complete
+        num_error
+        num_cancel
+        cpu_average
+        cpu_high
+        cpu_low
+        memory_average
+        memory_high
+        memory_low
+        duration_average
+        duration_high
+        duration_low
+      }
     }
-};
-
-const abbrevTextVisibilityStyle = {
-    display: "none",
-
-    "@media (min-width:767px) and (max-width:991px)": {
-        display: "block",
-    }
-};
-
-@Radium
-class HeaderSummary extends React.Component<any, any> {
-    private getAbbreviatedComponent(isNavTile: boolean) {
-        if (isNavTile) {
-            return ( <div style={isNavTile ? abbrevTextVisibilityStyle : {}}>
-                <AbbreviatedTextSummary data={this.props.data} isNavTile={isNavTile}/>
-            </div>);
-        } else {
-            return null;
-        }
-    }
-
-    public render() {
-        const isLoading = !this.props.data || this.props.data.loading;
-
-        const isNavTile = this.props.isNavTile || false;
-
-        if (isLoading) {
-            return (<Loading/>);
-        } else {
-            return (
-                <div>
-                    {this.getAbbreviatedComponent(isNavTile)}
-                    <div style={isNavTile ? fullTextVisibilityStyle : {}}>
-                        <Grid fluid>
-                            <FullTextSummary data={this.props.data} isNavTile={isNavTile}/>
-                        </Grid>
-                    </div>
-                </div>
-            );
-        }
-    }
-}
+  }
+  pipelineWorkers {
+    id
+    name
+    machine_id
+    work_unit_capacity
+    last_seen
+    task_load
+    status
+  }
+}`;
 
 const tileCountStyle = {
     marginBottom: "0px",
@@ -241,6 +250,10 @@ class FullTextSummary extends AbstractSummary<any, ITextSummaryState> {
         }
     }
 
+    public componentDidMount() {
+        this.setState({columnLayout: this.props.isNavTile ? NavTileColumnLayout : DefaultTileColumnLayout}, null);
+    }
+
     public render() {
 
         let Component = this.props.isNavTile ? NavTile : CountTile;
@@ -273,197 +286,48 @@ class FullTextSummary extends AbstractSummary<any, ITextSummaryState> {
             </Row>
         );
     }
-
-    public componentDidMount() {
-        this.setState({columnLayout: this.props.isNavTile ? NavTileColumnLayout : DefaultTileColumnLayout}, null);
-    }
 }
 
-const HeaderSummaryQuery = gql`query {
-  projects {
-    id
-    name
-    description
-    root_path
-    sample_number
-    sample_x_min
-    sample_x_max
-    sample_y_min
-    sample_y_max
-    sample_z_min
-    sample_z_max
-    region_x_min
-    region_x_max
-    region_y_min
-    region_y_max
-    region_z_min
-    region_z_max
-    is_processing
-    stages {
-      id
-      name
-      depth
-      previous_stage_id
-      task_id
-      task {
-        id
-        name
-      }
-      performance {
-        id
-        num_in_process
-        num_ready_to_process
-        num_execute
-        num_complete
-        num_error
-        num_cancel
-        cpu_average
-        cpu_high
-        cpu_low
-        memory_average
-        memory_high
-        memory_low
-        duration_average
-        duration_high
-        duration_low
-      }
-    }
-  }
-  pipelineWorkers {
-    id
-    name
-    machine_id
-    work_unit_capacity
-    last_seen
-    task_load
-    status
-  }
-}`;
-
-export const HeaderSummaryWithQuery = graphql(HeaderSummaryQuery, {
+@graphql(HeaderSummaryQuery, {
     options: {
         pollInterval: 5 * 1000
     }
-})(HeaderSummary);
+})
+export class HeaderSummary extends React.Component<any, any> {
+    private getAbbreviatedComponent(isNavTile: boolean) {
+        return (
+            <div>
+                <AbbreviatedTextSummary data={this.props.data} isNavTile={isNavTile}/>
+            </div>
+        );
+    }
 
+    public render() {
+        const isLoading = !this.props.data || this.props.data.loading;
 
-/*
- class DonutSummary extends React.Component<any, any> {
- render() {
- const hStyle = {display: "inline", fontWeight: 800};
+        const isNavTile = this.props.isNavTile || false;
 
- const gridStyle = {textAlign: "center", maxWidth: "250px"};
-
- return (
- <Row>
- <Col lg={3} md={6} sm={12}>
- <Panel style={gridStyle}>
- <div className="count">3</div>
- <span> of 4 workers available (75%)</span>
- <WorkerSummaryWithQuery plotId="pies_status_1"/>
- <span>Last lost worker 20 minutes ago</span>
- </Panel>
- </Col>
- <Col lg={3} md={6} sm={12}>
- <Panel style={gridStyle}>
- <h1 style={hStyle}>1</h1><span> of 3 pipelines processing (33%)</span>
- <WorkerSummaryWithQuery plotId="pies_status_2"/>
- <span>Last lost worker 20 minutes ago</span>
- </Panel>
- </Col>
- <Col lg={3} md={6} sm={12}>
- <Panel style={gridStyle}>
- <h1 style={hStyle}>20</h1><span> of 30 tiles blocked (66%)</span>
- <WorkerSummaryWithQuery plotId="pies_status_3"/>
- <span>in 5 active stages</span>
- </Panel>
- </Col>
- <Col lg={3} md={6} sm={12}>
- <Panel style={gridStyle}>
- <h1 style={hStyle}>3</h1><span> of 4 workers available (100%)</span>
- <WorkerSummaryWithQuery plotId="pies_status_4"/>
- <span>Last lost worker 20 minutes ago</span>
- </Panel>
- </Col>
- </Row>
- );
- }
- }
-
-
- class WorkerSummary extends React.Component<any, any> {
- private chartContainer = null;
-
- constructor(props) {
- super(props);
-
- this.state = {};
- }
-
- componentDidMount() {
- this.chartContainer = HighCharts.chart(this.props.plotId, createConfig(this));
- };
-
- render() {
- return (
- <div id={this.props.plotId}></div>
- );
- }
-
- componentWillUpdate(nextProps) {
- // Update charts
- }
-
- componentDidUpdate() {
- this.chartContainer.redraw();
- }
- }
-
- HighCharts.getOptions().colors = HighCharts.map(HighCharts.getOptions().colors, function (color) {
- return {
- radialGradient: {
- cx: 0.5,
- cy: 0.3,
- r: 0.7
- },
- stops: [
- [0, color],
- [1, HighCharts.Color(color).brighten(-0.3).get('rgb')] // darken
- ]
- };
- });
-
- function createConfig(owner) {
- return {
-
- chart: {
- animation: true,
- type: "pie",
- height: 100
- },
-
- legend: {},
-
- plotOptions: {
- pie: {
- dataLabels: {
- enabled: false
- ,
- },
- startAngle: -160,
- endAngle: 160
- }
- },
-
- title: {
- text: null
- },
-
- series: [{
- name: "Workers",
- innerSize: "50%",
- data: [["Available", 2], ["Unavailable", 1]]
- }]
- };
- }
- */
+        if (isLoading) {
+            return (<Loading/>);
+        } else if (isNavTile) {
+            return (
+                <div>
+                    <MediaQuery minWidth={767} maxWidth={991}>
+                        {this.getAbbreviatedComponent(isNavTile)}
+                    </MediaQuery>
+                    <MediaQuery minWidth={992}>
+                        <Grid fluid>
+                            <FullTextSummary data={this.props.data} isNavTile={true}/>
+                        </Grid>
+                    </MediaQuery>
+                </div>
+            );
+        } else {
+            return (
+                <Grid fluid>
+                    <FullTextSummary data={this.props.data} isNavTile={false}/>
+                </Grid>
+            );
+        }
+    }
+}

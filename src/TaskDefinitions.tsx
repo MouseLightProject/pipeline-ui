@@ -3,8 +3,8 @@ import {Panel} from "react-bootstrap"
 
 import {TaskDefinitionsTable} from "./TaskDefinitionTable";
 import {Loading} from "./Loading";
-import gql from "graphql-tag/index";
-import graphql from "react-apollo/graphql";
+import gql from "graphql-tag";
+import {graphql} from "react-apollo";
 
 export class TaskDefinitions extends React.Component<any, any> {
     render() {

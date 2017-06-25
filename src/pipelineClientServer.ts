@@ -3,27 +3,29 @@ import * as WebpackDevServer from "webpack-dev-server";
 
 const config = require("./../webpack.config.js");
 
-import systemConfig from "../system.config";
+import {Configuration} from "./configuration";
 
-const systemConfiguration = systemConfig();
-
-const PORT = process.env.API_CLIENT_PORT || systemConfiguration.port;
-
-let proxy = {};
-
-proxy[`${systemConfiguration.graphQlEndpoint}`] = `http://localhost:${systemConfiguration.apiPort}`;
+const PORT = process.env.API_CLIENT_PORT || Configuration.port;
 
 new WebpackDevServer(webpack(config), {
+    stats: {
+        colors: true
+    },
+    proxy: {
+        "/graphql": {
+            target: `http://${Configuration.graphQLHostname}:${Configuration.graphQLPort}`
+        }
+    },
+    disableHostCheck: true,
     publicPath: config.output.publicPath,
     hot: true,
-    proxy: proxy,
     historyApiFallback: true,
-    noInfo: false,
-    quiet: false
+    noInfo: false, quiet: false
+
 }).listen(PORT, "0.0.0.0", (err) => {
     if (err) {
         return console.log(err);
     }
 
-    console.log(`Listening at http://localhost:${PORT}/`);
+    console.log(`Listening at http://${Configuration.host}:${PORT}/`);
 });

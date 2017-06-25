@@ -1,15 +1,14 @@
 import * as React from "react";
-import gql from "graphql-tag/index";
-import {Panel, NavItem, Nav, Navbar} from "react-bootstrap"
+import gql from "graphql-tag";
+import {graphql} from "react-apollo";
+import {NavItem} from "react-bootstrap"
 let numeric = require("numeric");
 
 const HighCharts = require("highcharts");
 require("highcharts/modules/heatmap")(HighCharts);
 require("highcharts/modules/map")(HighCharts);
 
-import graphql from "react-apollo/graphql";
 import {TilePipelineStatus, IProject} from "./QueryInterfaces";
-import {ProjectMenuStyle, ProjectMenu} from "./helpers/ProjectMenu";
 import {ProjectMenuNavbar} from "./helpers/ProjectMenuNavbar";
 
 interface IStageStatus {
