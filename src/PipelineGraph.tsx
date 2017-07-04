@@ -1,10 +1,10 @@
 import * as React from "react";
 import {NavItem} from "react-bootstrap"
-import {AllProjectsId} from "./helpers/ProjectMenu";
+import {AllProjectsId} from "./components/helpers/ProjectMenu";
 import {pollingIntervalSeconds} from "./GraphQLComponents";
-import {IProject, IPipelineStage} from "./QueryInterfaces";
-import {ProjectMenuNavbar} from "./helpers/ProjectMenuNavbar";
-import {calculateProjectBreadth} from "./helpers/modelUtils";
+import {IProject, IPipelineStage} from "./models/QueryInterfaces";
+import {ProjectMenuNavbar} from "./components/helpers/ProjectMenuNavbar";
+import {calculateProjectBreadth} from "./models/modelUtils";
 import gql from "graphql-tag";
 import {graphql} from "react-apollo";
 let cytoscape = require("cytoscape");

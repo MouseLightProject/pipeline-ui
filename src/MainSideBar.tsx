@@ -2,7 +2,7 @@ import * as React from "react";
 import {Link} from "react-router";
 
 import {ListGroup} from "react-bootstrap";
-import {SidebarMenuItem} from "./helpers/SidebarMenuItem";
+import {SidebarMenuItem} from "./components/helpers/SidebarMenuItem";
 
 export class MainSideBar extends React.Component<any, any> {
     constructor(props) {

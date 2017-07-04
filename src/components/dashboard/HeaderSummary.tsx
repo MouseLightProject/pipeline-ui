@@ -5,10 +5,10 @@ import {Grid, Row, Col, Clearfix} from "react-bootstrap";
 import * as moment from "moment";
 import * as MediaQuery from "react-responsive";
 
-import {IColumnLayout} from "../helpers/BootstrapUtils";
-import {calculateDurationFromNow} from "../helpers/DateUtils";
-import {Loading} from "../Loading";
-import {IWorker, IProject, PipelineWorkerStatus} from "../QueryInterfaces";
+import {IColumnLayout} from "../../util/bootstrapUtils";
+import {calculateDurationFromNow} from "../../util/dateUtils";
+import {Loading} from "../../Loading";
+import {IWorker, IProject, PipelineWorkerStatus} from "../../models/QueryInterfaces";
 import {ICountTileProps, CountTile, CountUnit} from "./CountTile";
 import {NavTile} from "./NavTile";
 import isValidElement = React.isValidElement;

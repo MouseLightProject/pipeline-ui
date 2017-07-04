@@ -7,10 +7,12 @@ import {DevView} from "./DevView";
 import {PipelineTileMapHighCharts} from "./PipelineTileMapHighCharts";
 import {PipelineGraph} from "./PipelineGraph";
 import {Workers} from "./Workers";
-import {TaskDefinitions} from "./TaskDefinitions";
+import {TasksPanel} from "./components/tasks/Tasks";
 import {PipelineStagesContainer} from "./PipelineStages";
 import {ProjectsContainer} from "./Projects";
 import {Dashboard} from "./Dashboard";
+
+import "react-toastify/dist/ReactToastify.min.css";
 
 const rootEl = document.getElementById("root");
 
@@ -23,7 +25,7 @@ ReactDOM.render(
             <Route path="tilemap" component={PipelineTileMapHighCharts}/>
             <Route path="projects" component={ProjectsContainer}/>
             <Route path="stages" component={PipelineStagesContainer}/>
-            <Route path="tasks" component={TaskDefinitions}/>
+            <Route path="tasks" component={TasksPanel}/>
             <Route path="workers" component={Workers}/>
             <Route path="dev" component={DevView}/>
         </Route>

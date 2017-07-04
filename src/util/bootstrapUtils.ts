@@ -4,3 +4,5 @@ export interface IColumnLayout {
     sm: number;
     xs: number;
 }
+
+export type FormControlValidationState = null | "success" | "warning" | "error";

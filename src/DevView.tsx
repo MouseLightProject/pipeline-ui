@@ -2,7 +2,7 @@ import * as React from "react";
 
 import {Workers} from "./Workers";
 import {ProjectsContainer} from "./Projects";
-import {TaskDefinitions} from "./TaskDefinitions";
+import {TasksPanel} from "./components/tasks/Tasks";
 import {PipelineStagesContainer} from "./PipelineStages";
 
 export class DevView extends React.Component<any, any> {
@@ -12,7 +12,7 @@ export class DevView extends React.Component<any, any> {
                 <ProjectsContainer/>
                 <PipelineStagesContainer/>
                 <Workers/>
-                <TaskDefinitions/>
+                <TasksPanel/>
             </div>
         )
     }

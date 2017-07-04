@@ -17,8 +17,16 @@ th {
     font-weight: 500;
 }
 
+table {
+    font-size: 13px;
+}
+
 .panel-body {
     padding: 0;
+}
+
+.panel-title {
+    font-weight: normal;
 }
 
 .dropdown-toggle {

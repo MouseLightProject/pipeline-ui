@@ -2,7 +2,7 @@ import * as React from "react";
 import {Table, Glyphicon, Button} from "react-bootstrap"
 import * as moment from "moment";
 
-import {IWorker} from "./QueryInterfaces";
+import {IWorker} from "./models/QueryInterfaces";
 import gql from "graphql-tag";
 import {graphql} from "react-apollo";
 

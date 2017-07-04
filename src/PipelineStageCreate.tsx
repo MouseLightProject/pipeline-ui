@@ -18,8 +18,8 @@ import {
     HelpBlock
 } from "react-bootstrap";
 
-import {ProjectMenu, ProjectMenuStyle} from "./helpers/ProjectMenu";
-import {IPipelineStage, IProject, ITaskDefinition} from "./QueryInterfaces";
+import {ProjectMenu, ProjectMenuStyle} from "./components/helpers/ProjectMenu";
+import {IPipelineStage, IProject, ITaskDefinition} from "./models/QueryInterfaces";
 import {InjectedGraphQLProps} from "react-apollo/lib/graphql";
 
 const useAcquisitionRoot = "none (use acquisition root)";

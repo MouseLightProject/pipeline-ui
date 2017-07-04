@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import {HeaderSummary} from "./dashboard/HeaderSummary";
+import {HeaderSummary} from "./components/dashboard/HeaderSummary";
 
 export class Dashboard extends React.Component<any, any> {
     render() {

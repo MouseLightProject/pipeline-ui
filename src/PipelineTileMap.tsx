@@ -7,7 +7,7 @@ let Plotly = require("plotly.js");
 let numeric = require("numeric");
 
 import {Loading} from "./Loading";
-import {TilePipelineStatus, IProject} from "./QueryInterfaces";
+import {TilePipelineStatus, IProject} from "./models/QueryInterfaces";
 
 enum TileStatusSortIndex {
     Incomplete = 0,

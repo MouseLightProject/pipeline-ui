@@ -6,7 +6,7 @@ import {Loading} from "./Loading";
 import {ProjectCreateComponent} from "./ProjectCreateComponent";
 import gql from "graphql-tag";
 import {graphql} from "react-apollo";
-import {IProject} from "./QueryInterfaces";
+import {IProject} from "./models/QueryInterfaces";
 
 export class ProjectsContainer extends React.Component<any, any> {
     render() {

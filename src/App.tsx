@@ -20,7 +20,7 @@ const client = new ApolloClient({
         return null;
     },
     initialState: window.__APOLLO_STATE__,
-    connectToDevTools: true
+    connectToDevTools: false
 });
 
 

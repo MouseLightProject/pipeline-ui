@@ -1,13 +1,13 @@
 import * as React from "react";
 import {Table, Glyphicon, Button} from "react-bootstrap";
 
-import {IProject} from "./QueryInterfaces";
+import {IProject} from "./models/QueryInterfaces";
 import gql from "graphql-tag";
 import {graphql} from "react-apollo";
 import {
     DynamicEditField, nonNegativeIntegerFilterFunction,
     clickToEditFormatFunction, nonNegativeIntegerFormatFunction
-} from "./helpers/DynamicEditField";
+} from "./components/helpers/DynamicEditField";
 
 interface IProjectRowProps {
     project?: IProject;

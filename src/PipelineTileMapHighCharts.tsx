@@ -8,8 +8,8 @@ const HighCharts = require("highcharts");
 require("highcharts/modules/heatmap")(HighCharts);
 require("highcharts/modules/map")(HighCharts);
 
-import {TilePipelineStatus, IProject} from "./QueryInterfaces";
-import {ProjectMenuNavbar} from "./helpers/ProjectMenuNavbar";
+import {TilePipelineStatus, IProject} from "./models/QueryInterfaces";
+import {ProjectMenuNavbar} from "./components/helpers/ProjectMenuNavbar";
 
 interface IStageStatus {
     stage_id: string;

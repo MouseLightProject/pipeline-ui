@@ -1,8 +1,8 @@
 import * as React from "react";
 import {Table, Button, Glyphicon} from "react-bootstrap"
 
-import {IPipelineStage} from "./QueryInterfaces";
-import {AllProjectsId} from "./helpers/ProjectMenu";
+import {IPipelineStage} from "./models/QueryInterfaces";
+import {AllProjectsId} from "./components/helpers/ProjectMenu";
 
 const previousStageIsAcquisitionRoot = "(acquisition root)";
 

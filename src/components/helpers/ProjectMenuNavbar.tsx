@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Nav, Navbar, NavItem} from "react-bootstrap"
-import {IProject} from "../QueryInterfaces";
+import {IProject} from "../../models/QueryInterfaces";
 import {ProjectMenu, ProjectMenuStyle} from "./ProjectMenu";
 
 export interface IProjectMenuProps {

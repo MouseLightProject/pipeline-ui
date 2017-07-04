@@ -13,6 +13,7 @@ export enum TilePipelineStatus {
     Complete = 4,
     Failed = 5
 }
+
 export interface ITaskDefinition {
     id: string;
     name: string;

@@ -1,12 +1,18 @@
 import * as React from "react";
-
 import {Navbar, Nav} from "react-bootstrap";
 import Sidebar from "react-sidebar";
+import {ToastContainer} from "react-toastify";
+
 import {MainSideBar} from "./MainSideBar";
-import {HeaderSummary} from "./dashboard/HeaderSummary";
+import {HeaderSummary} from "./components/dashboard/HeaderSummary";
+
+const toastStyleOverride = {
+    minWidth: "600px",
+    marginBottom: "40px"
+}
 
 export class MainNav extends React.Component<any, any> {
-    render() {
+    public render() {
         const navBarStyle = {
             height: "60px",
             color: "#23527C",
@@ -39,6 +45,7 @@ export class MainNav extends React.Component<any, any> {
 
         return (
             <div>
+                <ToastContainer autoClose={6000} position="bottom-center" style={toastStyleOverride}/>
                 <Navbar fixedTop fluid={true} style={navBarStyle}>
                     <Navbar.Header>
                         <Navbar.Brand  style={navBarStyle}>

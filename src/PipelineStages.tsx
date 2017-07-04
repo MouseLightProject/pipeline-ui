@@ -5,9 +5,9 @@ import gql from "graphql-tag";
 import {PipelineStageTable} from "./PipelineStageTable";
 import {Loading} from "./Loading";
 import {PipelineStageCreate} from "./PipelineStageCreate";
-import {ProjectMenuNavbar} from "./helpers/ProjectMenuNavbar";
-import {AllProjectsId} from "./helpers/ProjectMenu";
-import {IPipelineStage, IProject} from "./QueryInterfaces";
+import {ProjectMenuNavbar} from "./components/helpers/ProjectMenuNavbar";
+import {AllProjectsId} from "./components/helpers/ProjectMenu";
+import {IPipelineStage, IProject} from "./models/QueryInterfaces";
 import {InjectedGraphQLProps} from "react-apollo/lib/graphql";
 
 const ProjectsQuery = gql`query { 
