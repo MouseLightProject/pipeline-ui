@@ -8,6 +8,31 @@ import gql from "graphql-tag";
 import {graphql} from "react-apollo";
 import {IProject} from "./models/QueryInterfaces";
 
+const styles = {
+    content: {
+        padding: "10px"
+    },
+    flexContainer: {
+        display: "flex"
+    },
+    flexItem: {
+        display: "inline",
+        marginRight: "auto",
+        marginTop: "auto",
+        marginBottom: "auto",
+        fontSize: "17px"
+    },
+    flexItemRight: {
+        alignSelf: "flex-end" as "flex-end",
+        marginTop: "auto",
+        marginBottom: "auto",
+        background: "transparent",
+        color: "white",
+        border: "none",
+        height: "26px"
+    }
+};
+
 export class ProjectsContainer extends React.Component<any, any> {
     render() {
         return (
@@ -50,7 +75,7 @@ class Projects extends React.Component<any, any> {
         const projects = !loading ? this.props.data.projects : [];
 
         return (
-            <div>
+            <div style={styles.content}>
                 {this.props.loading ? <Loading/> :
                     <ProjectsPanel projects={projects} createCallback={this.onCreateProject}
                                    updateStatusCallback={this.onSetProjectStatus}
@@ -69,10 +94,16 @@ interface IProjectsPanelProps {
 }
 
 class ProjectsPanel extends React.Component<IProjectsPanelProps, any> {
+    private renderHeader() {
+        return (<div style={styles.flexContainer}><h4 style={styles.flexItem}>Acquisition Pipelines</h4>
+            <div style={styles.flexItemRight}/>
+        </div>);
+    }
+
     public render() {
         return (
             <div>
-                <Panel collapsible defaultExpanded header="Acquisition Pipelines" bsStyle="primary">
+                <Panel header={this.renderHeader()} bsStyle="primary">
                     <ProjectTable projects={this.props.projects}
                                   updateStatusCallback={this.props.updateStatusCallback}
                                   deleteCallback={this.props.deleteCallback}/>

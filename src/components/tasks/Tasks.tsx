@@ -1,14 +1,19 @@
 import * as React from "react";
-import {Panel} from "react-bootstrap"
 import gql from "graphql-tag";
 import {graphql, InjectedGraphQLProps} from "react-apollo";
 
 import {ITaskDefinition} from "../../models/QueryInterfaces";
 import {Loading} from "../../Loading";
-import {TaskDefinitionsTable} from "./TaskDefinitionTable";
-import {TaskDefinitionHelp} from "./TasksHelp";
 import {TaskRepositoryPanel} from "./TaskRepositoryPanel";
 import {ITaskRepository} from "../../models/taskRepository";
+import {TaskDefinitionsPanel} from "./TaskDefinitionsPanel";
+import {TasksHelpPanel} from "./TasksHelpPanel";
+
+const styles = {
+    content: {
+        padding: "10px"
+    }
+};
 
 const TaskQuery = gql`query {
   taskRepositories {
@@ -52,7 +57,7 @@ interface ITaskDefinitionPanelState {
     }
 })
 export class TasksPanel extends React.Component<ITaskDefinitionPanelProps, ITaskDefinitionPanelState> {
-    render() {
+    public render() {
         const loading = !this.props.data || this.props.data.loading;
 
         if (loading) {
@@ -66,19 +71,9 @@ export class TasksPanel extends React.Component<ITaskDefinitionPanelProps, ITask
         return (
             <div style={styles.content}>
                 <TaskRepositoryPanel taskRepositories={this.props.data.taskRepositories}/>
-                <Panel collapsible defaultExpanded header="Task Definitions" bsStyle="primary">
-                    <TaskDefinitionsTable taskDefinitions={this.props.data.taskDefinitions }/>
-                </Panel>
-                <Panel collapsible defaultExpanded={false} header="Help" bsStyle="info">
-                    <TaskDefinitionHelp/>
-                </Panel>
+                <TaskDefinitionsPanel taskDefinitions={this.props.data.taskDefinitions}/>
+                <TasksHelpPanel/>
             </div>
         );
     }
 }
-
-const styles = {
-    content: {
-        padding: "10px"
-    }
-};

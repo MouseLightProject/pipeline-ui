@@ -42,7 +42,7 @@ class PipelineStageRow extends React.Component<IPipelineStageRowProps, any> {
         return (
             <tr>
                 <td><Button bsSize="xs" bsStyle={this.getActivateStyle(pipelineStage.is_processing)}
-                            onClick={this.onActiveClick}><Glyphicon
+                            onClick={this.onActiveClick} style={{marginLeft: "10px"}}><Glyphicon
                     glyph={this.getActivateGlyph(pipelineStage.is_processing)}/>&nbsp;{this.getActivateText(pipelineStage.is_processing)}
                 </Button></td>
                 <td>{pipelineStage.name}</td>

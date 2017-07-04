@@ -24,6 +24,28 @@ import {InjectedGraphQLProps} from "react-apollo/lib/graphql";
 
 const useAcquisitionRoot = "none (use acquisition root)";
 
+const styles = {
+    flexContainer: {
+        display: "flex"
+    },
+    flexItem: {
+        display: "inline",
+        marginRight: "auto",
+        marginTop: "auto",
+        marginBottom: "auto",
+        fontSize: "17px"
+    },
+    flexItemRight: {
+        alignSelf: "flex-end" as "flex-end",
+        marginTop: "auto",
+        marginBottom: "auto",
+        background: "transparent",
+        color: "white",
+        border: "none",
+        height: "26px"
+    }
+};
+
 const PipelineStagesForProjectQuery = gql`query($pipelinesForProjectId: String!) {
   pipelineStagesForProject(id: $pipelinesForProjectId) {
     id
@@ -318,7 +340,13 @@ export class PipelineStageCreate extends React.Component<IPipelineStageCreatePro
         this.onFunctionSelectionChange(2);
     };
 
-    render() {
+    private renderHeader() {
+        return (<div style={styles.flexContainer}><h4 style={styles.flexItem}>Add Stage</h4>
+            <div style={styles.flexItemRight}/>
+        </div>);
+    }
+
+    public render() {
         let pipelinesForProject = [];
 
         if (this.props.data && this.props.data.pipelineStagesForProject) {
@@ -330,7 +358,7 @@ export class PipelineStageCreate extends React.Component<IPipelineStageCreatePro
         const tasks = !loading ? this.props.data.taskDefinitions : [];
 
         return (
-            <Panel collapsible defaultExpanded header="Add Stage" bsStyle="info">
+            <Panel header={this.renderHeader()} bsStyle="info">
                 <Grid fluid>
                     <Row>
                         <Col lg={2}>

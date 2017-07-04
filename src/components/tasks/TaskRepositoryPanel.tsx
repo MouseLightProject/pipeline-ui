@@ -9,6 +9,27 @@ import {CreateTaskRepositoryMutation} from "../../graphql/taskRepository";
 import {ITaskRepository} from "../../models/taskRepository";
 import {toastCreateError, toastCreateSuccess} from "ndb-react-components";
 
+const styles = {
+    flexContainer: {
+        display: "flex"
+    },
+    flexItem: {
+        display: "inline",
+        marginRight: "auto",
+        marginTop: "auto",
+        marginBottom: "auto",
+        fontSize: "17px"
+    },
+    flexItemRight: {
+        alignSelf: "flex-end" as "flex-end",
+        marginTop: "auto",
+        marginBottom: "auto",
+        background: "transparent",
+        color: "white",
+        border: "none"
+    }
+};
+
 interface ITaskRepositoryPanelProps {
     taskRepositories: ITaskRepository[];
 
@@ -89,24 +110,3 @@ export class TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelPro
         );
     }
 }
-
-const styles = {
-    flexContainer: {
-        display: "flex"
-    },
-    flexItem: {
-        display: "inline",
-        marginRight: "auto",
-        marginTop: "auto",
-        marginBottom: "auto",
-        fontSize: "17px"
-    },
-    flexItemRight: {
-        alignSelf: "flex-end" as "flex-end",
-        marginTop: "auto",
-        marginBottom: "auto",
-        background: "transparent",
-        color: "white",
-        border: "none"
-    }
-};

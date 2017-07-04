@@ -102,7 +102,7 @@ class ProjectRow extends React.Component<IProjectRowProps, any> {
         return (
             <tr>
                 <td><Button bsSize="xsmall" bsStyle={this.getActivateStyle(project.is_processing)}
-                            onClick={this.onActiveClick}><Glyphicon
+                            onClick={this.onActiveClick} style={{marginLeft: "10px"}}><Glyphicon
                     glyph={this.getActivateGlyph(project.is_processing)}/> {this.getActivateText(project.is_processing)}
                 </Button></td>
                 <td>

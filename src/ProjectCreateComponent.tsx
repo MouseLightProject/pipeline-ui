@@ -14,6 +14,28 @@ import {
     HelpBlock
 } from "react-bootstrap";
 
+const styles = {
+    flexContainer: {
+        display: "flex"
+    },
+    flexItem: {
+        display: "inline",
+        marginRight: "auto",
+        marginTop: "auto",
+        marginBottom: "auto",
+        fontSize: "17px"
+    },
+    flexItemRight: {
+        alignSelf: "flex-end" as "flex-end",
+        marginTop: "auto",
+        marginBottom: "auto",
+        background: "transparent",
+        color: "white",
+        border: "none",
+        height: "26px"
+    }
+};
+
 class CreateProjectFailedAlert extends React.Component<any, any> {
     render() {
         if (this.props.alertVisible) {
@@ -47,7 +69,7 @@ class CreateProjectButton extends React.Component<any, any> {
         this.props.createCallback(project);
     };
 
-    render() {
+    public render() {
         return (
             <Button bsStyle="success" bsSize="small" disabled={!this.props.canCreate} onClick={this.onClick}><Glyphicon
                 glyph="plus"/> Create</Button>)
@@ -206,12 +228,19 @@ export class ProjectCreateComponent extends React.Component<any, IStartTaskCompo
 
     formatRegionValue = value => value < 0 ? "" : value.toString();
 
-    render() {
+    private renderHeader() {
+        return (<div style={styles.flexContainer}><h4 style={styles.flexItem}>Create Pipeline</h4>
+            <div style={styles.flexItemRight}/>
+        </div>);
+    }
+
+
+    public render() {
         let nameHelp = this.state.name.length === 0 ? "Name can not be empty" : "";
 
         return (
-            <Panel collapsible defaultExpanded header="Create Pipeline" bsStyle="info">
-                <Grid fluid>
+            <Panel header={this.renderHeader()} bsStyle="info">
+                <Grid fluid style={{padding: "10px"}}>
                     <Row>
                         <Col lg={2}>
                             <FormGroup bsSize="small" validationState={this.state.nameValidation}>
