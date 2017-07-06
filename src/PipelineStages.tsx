@@ -10,12 +10,9 @@ import {ProjectMenuNavbar} from "./components/helpers/ProjectMenuNavbar";
 import {AllProjectsId} from "./components/helpers/ProjectMenu";
 import {IPipelineStage, IProject} from "./models/QueryInterfaces";
 import {InjectedGraphQLProps} from "react-apollo/lib/graphql";
+import {contentStyles} from "./util/styleDefinitions";
 
-const styles = {
-    content: {
-        padding: "10px"
-    }
-};
+const styles = contentStyles;
 
 const ProjectsQuery = gql`query { 
   projects {
@@ -155,7 +152,7 @@ class PipelineStages extends React.Component<any, any> {
         const pipelineStages = !loading ? this.props.data.pipelineStages : [];
 
         return (
-            <div style={styles.content}>
+            <div style={styles.body}>
                 {this.props.loading ? <Loading/> :
                     <TablePanel pipelineStages={pipelineStages}
                                 pipelinesForProjectId={this.state.pipelinesForProjectId}

@@ -7,31 +7,9 @@ import {ProjectCreateComponent} from "./ProjectCreateComponent";
 import gql from "graphql-tag";
 import {graphql} from "react-apollo";
 import {IProject} from "./models/QueryInterfaces";
+import {contentStyles, panelHeaderStyles} from "./util/styleDefinitions";
 
-const styles = {
-    content: {
-        padding: "10px"
-    },
-    flexContainer: {
-        display: "flex"
-    },
-    flexItem: {
-        display: "inline",
-        marginRight: "auto",
-        marginTop: "auto",
-        marginBottom: "auto",
-        fontSize: "17px"
-    },
-    flexItemRight: {
-        alignSelf: "flex-end" as "flex-end",
-        marginTop: "auto",
-        marginBottom: "auto",
-        background: "transparent",
-        color: "white",
-        border: "none",
-        height: "26px"
-    }
-};
+const styles = panelHeaderStyles;
 
 export class ProjectsContainer extends React.Component<any, any> {
     render() {
@@ -75,7 +53,7 @@ class Projects extends React.Component<any, any> {
         const projects = !loading ? this.props.data.projects : [];
 
         return (
-            <div style={styles.content}>
+            <div style={contentStyles.body}>
                 {this.props.loading ? <Loading/> :
                     <ProjectsPanel projects={projects} createCallback={this.onCreateProject}
                                    updateStatusCallback={this.onSetProjectStatus}
@@ -95,8 +73,8 @@ interface IProjectsPanelProps {
 
 class ProjectsPanel extends React.Component<IProjectsPanelProps, any> {
     private renderHeader() {
-        return (<div style={styles.flexContainer}><h4 style={styles.flexItem}>Acquisition Pipelines</h4>
-            <div style={styles.flexItemRight}/>
+        return (<div style={styles.flexContainer}><h4 style={styles.titleItem}>Acquisition Pipelines</h4>
+            <div style={styles.buttonRight}/>
         </div>);
     }
 

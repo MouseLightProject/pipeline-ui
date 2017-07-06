@@ -1,16 +1,17 @@
 import * as React from "react";
-import {Table} from "react-bootstrap"
+import {Button, Badge} from "react-bootstrap";
 import FontAwesome = require("react-fontawesome");
 import {graphql} from 'react-apollo';
 import {toast} from "react-toastify";
 
-import {DeleteTaskRepositoryMutation, UpdateTaskRepositoryMutation} from "../../graphql/taskRepository";
+import {DeleteTaskRepositoryMutation, UpdateTaskRepositoryMutation} from "../../../graphql/taskRepository";
 import {EditRepositoryDialog, RepositoryDialogMode} from "./EditRepositoryDialog";
-import {ITaskRepository} from "../../models/taskRepository";
+import {ITaskRepository} from "../../../models/taskRepository";
 import {
     ModalAlert, toastDeleteError, toastDeleteSuccess, toastUpdateError,
     toastUpdateSuccess
 } from "ndb-react-components";
+import {tableButtonStyles, tableCellStyles} from "../../../util/styleDefinitions";
 
 interface ITaskRepositoryRowProps {
     taskRepository: ITaskRepository;
@@ -40,7 +41,7 @@ interface ITaskRepositoryRowState {
         })
     })
 })
-class TaskRepositoryRow extends React.Component<ITaskRepositoryRowProps, ITaskRepositoryRowState> {
+export class TaskRepositoryRow extends React.Component<ITaskRepositoryRowProps, ITaskRepositoryRowState> {
     public constructor(props: ITaskRepositoryRowProps) {
         super(props);
 
@@ -101,7 +102,7 @@ class TaskRepositoryRow extends React.Component<ITaskRepositoryRowProps, ITaskRe
         this.setState({isDeleteDialogShown: false});
     }
 
-   private renderDeleteRepositoryConfirmation() {
+    private renderDeleteRepositoryConfirmation() {
         if (!this.state.isDeleteDialogShown) {
             return null;
         }
@@ -139,58 +140,27 @@ class TaskRepositoryRow extends React.Component<ITaskRepositoryRowProps, ITaskRe
             <tr>
                 {this.renderUpdateRepositoryDialog()}
                 {this.renderDeleteRepositoryConfirmation()}
-                <td style={{paddingLeft: "10px"}}><a onClick={(evt) => this.onClickUpdateRepository(evt)}><FontAwesome
-                    name="pencil"/>&nbsp;</a></td>
-                <td>{taskRepository.name}</td>
-                <td>{taskRepository.location}</td>
-                <td>{taskRepository.description}</td>
-                <td style={{textAlign: "right", paddingRight: "10px"}}>
-                    {taskRepository.taskDefinitions.length === 0 ?
-                        <a onClick={(evt) => this.onClickDeleteRepository(evt)}>
+                <td style={{paddingLeft: "10px"}}>
+                    <Button bsSize="sm" bsStyle="info" style={tableButtonStyles.edit} onClick={(evt) => this.onClickUpdateRepository(evt)}>
+                        <span>
+                        <FontAwesome name="pencil"/>
+                        </span>
+                    </Button>
+                </td>
+                <td style={tableCellStyles.middle}>{taskRepository.name}</td>
+                <td style={tableCellStyles.middle}>{taskRepository.location}</td>
+                <td style={tableCellStyles.middle}>{taskRepository.description}</td>
+                <td style={{textAlign: "center", paddingRight: "10px", width: "20px"}}>
+                    {taskRepository.task_definitions.length === 0 ?
+                        <Button bsSize="sm" bsStyle="danger" style={tableButtonStyles.remove} onClick={(evt) => this.onClickDeleteRepository(evt)}>
                         <span>
                             <FontAwesome name="times-circle"/>
                         </span>
-                        </a>
-                        : null}
+                        </Button>
+                        : <Badge>{taskRepository.task_definitions.length}</Badge>}
                 </td>
             </tr>
         );
     }
 }
 
-interface ITaskRepositoryTableProps {
-    taskRepositories: ITaskRepository[];
-}
-
-interface ITaskRepositoryTableState {
-}
-
-export class TaskRepositoryTable extends React.Component<ITaskRepositoryTableProps, ITaskRepositoryTableState> {
-    public render() {
-        let rows = [];
-
-        if (this.props.taskRepositories) {
-            const sorted = this.props.taskRepositories.slice().sort((a, b) => a.name.localeCompare(b.name));
-
-            rows = sorted.map(taskRepository => (
-                <TaskRepositoryRow key={"tr_task" + taskRepository.id} taskRepository={taskRepository}/>));
-        }
-
-        return (
-            <Table condensed>
-                <thead>
-                <tr>
-                    <th style={{width: "30px"}}/>
-                    <th>Name</th>
-                    <th>Location</th>
-                    <th>Description</th>
-                    <th/>
-                </tr>
-                </thead>
-                <tbody>
-                {rows}
-                </tbody>
-            </Table>
-        );
-    }
-}

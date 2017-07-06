@@ -36,7 +36,7 @@ class PipelineStageRow extends React.Component<IPipelineStageRowProps, any> {
 
     getActivateStyle = isActive => isActive ? "info" : "success";
 
-    render() {
+    public render() {
         let pipelineStage = this.props.pipelineStage;
 
         return (

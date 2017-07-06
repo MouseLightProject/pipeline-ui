@@ -5,31 +5,9 @@ import {WorkerTable} from "./WorkerTable";
 import {Loading} from "./Loading";
 import gql from "graphql-tag";
 import {graphql} from "react-apollo";
+import {contentStyles, panelHeaderStyles} from "./util/styleDefinitions";
 
-const styles = {
-    content: {
-        padding: "10px"
-    },
-    flexContainer: {
-        display: "flex"
-    },
-    flexItem: {
-        display: "inline",
-        marginRight: "auto",
-        marginTop: "auto",
-        marginBottom: "auto",
-        fontSize: "17px"
-    },
-    flexItemRight: {
-        alignSelf: "flex-end" as "flex-end",
-        marginTop: "auto",
-        marginBottom: "auto",
-        background: "transparent",
-        color: "white",
-        border: "none",
-        height: "26px"
-    }
-};
+const styles = panelHeaderStyles;
 
 export class Workers extends React.Component<any, any> {
     render() {
@@ -43,8 +21,8 @@ class WorkersPanel extends React.Component<any, any> {
     private renderHeader() {
         return (
             <div style={styles.flexContainer}>
-                <h4 style={styles.flexItem}>Workers</h4>
-                <div style={styles.flexItemRight}/>
+                <h4 style={styles.titleItem}>Workers</h4>
+                <div style={styles.buttonRight}/>
             </div>);
     }
 
@@ -54,7 +32,7 @@ class WorkersPanel extends React.Component<any, any> {
         const workers = !loading ? this.props.data.pipelineWorkers : [];
 
         return (
-            <div style={styles.content}>
+            <div style={contentStyles.body}>
                 <Panel header={this.renderHeader()} bsStyle="primary">
                     {loading ? <Loading/> : <WorkerTable workers={workers}/>}
                 </Panel>

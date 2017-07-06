@@ -19,32 +19,14 @@ import {
 } from "react-bootstrap";
 
 import {ProjectMenu, ProjectMenuStyle} from "./components/helpers/ProjectMenu";
-import {IPipelineStage, IProject, ITaskDefinition} from "./models/QueryInterfaces";
+import {IPipelineStage, IProject} from "./models/QueryInterfaces";
 import {InjectedGraphQLProps} from "react-apollo/lib/graphql";
+import {ITaskDefinition} from "./models/taskDefinition";
+import {panelHeaderStyles} from "./util/styleDefinitions";
 
 const useAcquisitionRoot = "none (use acquisition root)";
 
-const styles = {
-    flexContainer: {
-        display: "flex"
-    },
-    flexItem: {
-        display: "inline",
-        marginRight: "auto",
-        marginTop: "auto",
-        marginBottom: "auto",
-        fontSize: "17px"
-    },
-    flexItemRight: {
-        alignSelf: "flex-end" as "flex-end",
-        marginTop: "auto",
-        marginBottom: "auto",
-        background: "transparent",
-        color: "white",
-        border: "none",
-        height: "26px"
-    }
-};
+const styles = panelHeaderStyles;
 
 const PipelineStagesForProjectQuery = gql`query($pipelinesForProjectId: String!) {
   pipelineStagesForProject(id: $pipelinesForProjectId) {
@@ -341,8 +323,8 @@ export class PipelineStageCreate extends React.Component<IPipelineStageCreatePro
     };
 
     private renderHeader() {
-        return (<div style={styles.flexContainer}><h4 style={styles.flexItem}>Add Stage</h4>
-            <div style={styles.flexItemRight}/>
+        return (<div style={styles.flexContainer}><h4 style={styles.titleItem}>Add Stage</h4>
+            <div style={styles.buttonRight}/>
         </div>);
     }
 
@@ -358,7 +340,7 @@ export class PipelineStageCreate extends React.Component<IPipelineStageCreatePro
         const tasks = !loading ? this.props.data.taskDefinitions : [];
 
         return (
-            <Panel header={this.renderHeader()} bsStyle="info">
+            <Panel header={this.renderHeader()} bsStyle="info" style={{padding: "10px"}}>
                 <Grid fluid>
                     <Row>
                         <Col lg={2}>

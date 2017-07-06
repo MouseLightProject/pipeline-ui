@@ -1,9 +1,9 @@
 import * as React from "react";
 import {Modal, Button, FormGroup, FormControl, ControlLabel, HelpBlock} from "react-bootstrap";
-import {FormControlValidationState} from "../../util/bootstrapUtils";
+import {FormControlValidationState} from "../../../util/bootstrapUtils";
 import {ChangeEvent} from "react";
 import * as pathIsAbsolute from "path-is-absolute";
-import {ITaskRepository} from "../../models/taskRepository";
+import {ITaskRepository} from "../../../models/taskRepository";
 
 export enum RepositoryDialogMode {
     Create,
@@ -105,7 +105,7 @@ export class EditRepositoryDialog extends React.Component<IEditRepositoryProps, 
         const title = this.props.mode === RepositoryDialogMode.Create ? "Add New Repository" : "Update Repository";
 
         return (
-            <Modal show={this.props.show} onHide={this.props.onCancel}
+            <Modal show={this.props.show} onHide={this.props.onCancel} bsSize={null}
                    aria-labelledby="create-repository-dialog">
                 <Modal.Header style={{backgroundColor: "#5bc0de", color: "white"}} closeButton>
                     <Modal.Title id="create-repository-dialog">{title}</Modal.Title>
@@ -123,6 +123,9 @@ export class EditRepositoryDialog extends React.Component<IEditRepositoryProps, 
                         You can also change the repository to point to a different location that contains scripts with
                         the same names and any stages that reference those tasks will use the scripts in the new
                         location.
+                    </p>
+                    <p style={{fontStyle: "italic"}}>
+                        Note that you can not delete a repository that has tasks assigned to it.
                     </p>
                     <FormGroup bsSize="sm" controlId="name" validationState={this.nameValidationState}>
                         <ControlLabel>Name</ControlLabel>
@@ -146,11 +149,10 @@ export class EditRepositoryDialog extends React.Component<IEditRepositoryProps, 
                     {this.props.sourceRepository ? <div style={{width: "100%", textAlign: "right"}}>{`(id: ${this.props.sourceRepository.id})`}</div> : null}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button bsStyle="default" bsSize="sm" onClick={() => this.props.onCancel()}>Cancel</Button>
+                    <Button bsStyle="default" onClick={() => this.props.onCancel()}>Cancel</Button>
                     {(this.props.mode === RepositoryDialogMode.Update && this.props.sourceRepository) ?
-                        <Button bsStyle="default" bsSize="sm"
-                                onClick={() => this.applySourceRepository()}>Revert</Button> : null}
-                    <Button bsStyle="success" bsSize="sm" onClick={() => this.props.onAccept(this.state.repository)}
+                        <Button bsStyle="default" onClick={() => this.applySourceRepository()}>Revert</Button> : null}
+                    <Button bsStyle="success" onClick={() => this.props.onAccept(this.state.repository)}
                             disabled={!this.isNameValid || !this.isLocationValid} style={{marginLeft: "30px"}}>
                         {this.props.mode === RepositoryDialogMode.Update ? "Update" : "Create"}
                     </Button>

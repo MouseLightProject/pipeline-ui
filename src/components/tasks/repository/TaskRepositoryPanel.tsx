@@ -1,34 +1,18 @@
 import * as React from "react";
-import {Panel, Button, Glyphicon} from "react-bootstrap"
+import {Panel, Button} from "react-bootstrap"
 import {graphql} from 'react-apollo';
 import {toast} from "react-toastify";
 
 import {TaskRepositoryTable} from "./TaskRepositoryTable";
 import {EditRepositoryDialog, RepositoryDialogMode} from "./EditRepositoryDialog";
-import {CreateTaskRepositoryMutation} from "../../graphql/taskRepository";
-import {ITaskRepository} from "../../models/taskRepository";
-import {toastCreateError, toastCreateSuccess} from "ndb-react-components";
+import {CreateTaskRepositoryMutation} from "../../../graphql/taskRepository";
+import {ITaskRepository} from "../../../models/taskRepository";
+import {ModalAlert, toastCreateError, toastCreateSuccess} from "ndb-react-components";
+import FontAwesome = require("react-fontawesome");
+import {panelHeaderStyles} from "../../../util/styleDefinitions";
+import {TaskRepositoryHelpPanel} from "./TaskRepositoryHelp";
 
-const styles = {
-    flexContainer: {
-        display: "flex"
-    },
-    flexItem: {
-        display: "inline",
-        marginRight: "auto",
-        marginTop: "auto",
-        marginBottom: "auto",
-        fontSize: "17px"
-    },
-    flexItemRight: {
-        alignSelf: "flex-end" as "flex-end",
-        marginTop: "auto",
-        marginBottom: "auto",
-        background: "transparent",
-        color: "white",
-        border: "none"
-    }
-};
+const styles = panelHeaderStyles;
 
 interface ITaskRepositoryPanelProps {
     taskRepositories: ITaskRepository[];
@@ -38,6 +22,7 @@ interface ITaskRepositoryPanelProps {
 
 interface ITaskRepositoryPanelState {
     isAddDialogShown?: boolean;
+    isHelpDialogShown?: boolean;
 }
 
 @graphql(CreateTaskRepositoryMutation, {
@@ -52,8 +37,15 @@ export class TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelPro
         super(props);
 
         this.state = {
-            isAddDialogShown: false
+            isAddDialogShown: false,
+            isHelpDialogShown: false
         }
+    }
+
+    private onClickShowHelp(evt: any) {
+        evt.stopPropagation();
+
+        this.setState({isHelpDialogShown: true});
     }
 
     private onClickAddRepository(evt: any) {
@@ -91,12 +83,34 @@ export class TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelPro
         }
     }
 
+    private renderHelpDialog() {
+        return this.state.isHelpDialogShown ? (
+            <ModalAlert modalId="task-repository-help"
+                        show={this.state.isHelpDialogShown}
+                        style="success"
+                        header="Task Repositories"
+                        canCancel={false}
+                        acknowledgeContent={"OK"}
+                        onCancel={() => this.setState({isHelpDialogShown: false})}
+                        onAcknowledge={() => this.setState({isHelpDialogShown: false})}>
+                <TaskRepositoryHelpPanel/>
+            </ModalAlert>) : null;
+    }
+
     private renderHeader() {
         return (
             <div style={styles.flexContainer}>
-                <h4 style={styles.flexItem}>Task Repositories</h4>
-                <Button bsSize="sm" onClick={(evt: any) => this.onClickAddRepository(evt)} style={styles.flexItemRight}>
-                    <Glyphicon glyph="plus" style={{paddingRight: "10px"}}/>Add Repository</Button>
+                <h4 style={styles.titleItem}>Task Repositories</h4>
+                <Button bsSize="sm" onClick={(evt: any) => this.onClickAddRepository(evt)}
+                        style={styles.outlineButtonRight}>
+                    <FontAwesome name="plus"/>
+                    <span style={{paddingLeft: "10px"}}>
+                        Add Repository
+                    </span>
+                </Button>
+                <Button bsSize="sm" onClick={(evt: any) => this.onClickShowHelp(evt)} style={styles.buttonRight}>
+                    <FontAwesome name="question" size="2x"/>
+                </Button>
             </div>
         );
     }
@@ -104,8 +118,9 @@ export class TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelPro
     public render() {
         return (
             <Panel header={this.renderHeader()} bsStyle="primary">
-                <TaskRepositoryTable taskRepositories={this.props.taskRepositories}/>
+                {this.renderHelpDialog()}
                 {this.renderAddRepositoryDialog()}
+                <TaskRepositoryTable taskRepositories={this.props.taskRepositories}/>
             </Panel>
         );
     }

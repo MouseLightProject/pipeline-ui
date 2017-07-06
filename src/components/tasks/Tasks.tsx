@@ -2,18 +2,14 @@ import * as React from "react";
 import gql from "graphql-tag";
 import {graphql, InjectedGraphQLProps} from "react-apollo";
 
-import {ITaskDefinition} from "../../models/QueryInterfaces";
 import {Loading} from "../../Loading";
-import {TaskRepositoryPanel} from "./TaskRepositoryPanel";
+import {TaskRepositoryPanel} from "./repository/TaskRepositoryPanel";
 import {ITaskRepository} from "../../models/taskRepository";
-import {TaskDefinitionsPanel} from "./TaskDefinitionsPanel";
-import {TasksHelpPanel} from "./TasksHelpPanel";
+import {TaskDefinitionsPanel} from "./definitions/TaskDefinitionsPanel";
+import {ITaskDefinition} from "../../models/taskDefinition";
+import {contentStyles} from "../../util/styleDefinitions";
 
-const styles = {
-    content: {
-        padding: "10px"
-    }
-};
+const styles = contentStyles;
 
 const TaskQuery = gql`query {
   taskRepositories {
@@ -21,10 +17,14 @@ const TaskQuery = gql`query {
     name
     description
     location
-    taskDefinitions {
+    task_definitions {
       id
       name
       description
+      pipeline_stages {
+        id
+        name
+      }
     }
   }
   taskDefinitions {
@@ -33,7 +33,16 @@ const TaskQuery = gql`query {
     description
     script
     interpreter
-    taskRepository {
+    work_units
+    args
+    script_status
+    task_repository {
+      id
+      name
+      description
+      location
+    }
+    pipeline_stages {
       id
       name
     }
@@ -69,10 +78,10 @@ export class TasksPanel extends React.Component<ITaskDefinitionPanelProps, ITask
         }
 
         return (
-            <div style={styles.content}>
+            <div style={styles.body}>
                 <TaskRepositoryPanel taskRepositories={this.props.data.taskRepositories}/>
-                <TaskDefinitionsPanel taskDefinitions={this.props.data.taskDefinitions}/>
-                <TasksHelpPanel/>
+                <TaskDefinitionsPanel taskDefinitions={this.props.data.taskDefinitions}
+                                      taskRepositories={this.props.data.taskRepositories}/>
             </div>
         );
     }

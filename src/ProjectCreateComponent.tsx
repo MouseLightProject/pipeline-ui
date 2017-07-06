@@ -1,5 +1,4 @@
 import * as React from "react";
-
 import {
     Grid,
     Row,
@@ -14,27 +13,9 @@ import {
     HelpBlock
 } from "react-bootstrap";
 
-const styles = {
-    flexContainer: {
-        display: "flex"
-    },
-    flexItem: {
-        display: "inline",
-        marginRight: "auto",
-        marginTop: "auto",
-        marginBottom: "auto",
-        fontSize: "17px"
-    },
-    flexItemRight: {
-        alignSelf: "flex-end" as "flex-end",
-        marginTop: "auto",
-        marginBottom: "auto",
-        background: "transparent",
-        color: "white",
-        border: "none",
-        height: "26px"
-    }
-};
+import {panelHeaderStyles} from "./util/styleDefinitions";
+
+const styles = panelHeaderStyles;
 
 class CreateProjectFailedAlert extends React.Component<any, any> {
     render() {
@@ -229,8 +210,8 @@ export class ProjectCreateComponent extends React.Component<any, IStartTaskCompo
     formatRegionValue = value => value < 0 ? "" : value.toString();
 
     private renderHeader() {
-        return (<div style={styles.flexContainer}><h4 style={styles.flexItem}>Create Pipeline</h4>
-            <div style={styles.flexItemRight}/>
+        return (<div style={styles.flexContainer}><h4 style={styles.titleItem}>Create Pipeline</h4>
+            <div style={styles.buttonRight}/>
         </div>);
     }
 

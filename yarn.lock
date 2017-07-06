@@ -107,9 +107,21 @@
     "@types/history" "^3"
     "@types/react" "*"
 
+"@types/react-select@^1.0.48":
+  version "1.0.48"
+  resolved "https://registry.yarnpkg.com/@types/react-select/-/react-select-1.0.48.tgz#5016665a6b1394c2f7ad8dde0bb528b27c891db2"
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-sidebar@^2.2.0-next.0":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@types/react-sidebar/-/react-sidebar-2.2.1.tgz#bd9c4b6cd28354b40b4c89bba47a23f20627d1ef"
+  dependencies:
+    "@types/react" "*"
+
+"@types/react-syntax-highlighter@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@types/react-syntax-highlighter/-/react-syntax-highlighter-0.0.3.tgz#c15aeac29eb193d11ac3a70e3d489f8539e6ee1a"
   dependencies:
     "@types/react" "*"
 
@@ -461,7 +473,7 @@ babel-code-frame@^6.11.0:
     esutils "^2.0.2"
     js-tokens "^3.0.0"
 
-babel-runtime@6.x, babel-runtime@^6.11.6, babel-runtime@^6.23.0:
+babel-runtime@6.x, babel-runtime@^6.11.6, babel-runtime@^6.18.0, babel-runtime@^6.23.0:
   version "6.23.0"
   resolved "https://registry.yarnpkg.com/babel-runtime/-/babel-runtime-6.23.0.tgz#0a9489f144de70efb3ce4300accdb329e2fc543b"
   dependencies:
@@ -2699,6 +2711,14 @@ highcharts@^5.0.0, highcharts@^5.0.7:
   version v5.0.12
   resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-5.0.12.tgz#f73b970fe5c7f04100220b64aa7bd7fb019d11e2"
 
+highlight.js@~9.12.0:
+  version "9.12.0"
+  resolved "https://registry.yarnpkg.com/highlight.js/-/highlight.js-9.12.0.tgz#e6d9dbe57cbefe60751f02af336195870c90c01e"
+
+highlight.js@~9.8.0:
+  version "9.8.0"
+  resolved "https://registry.yarnpkg.com/highlight.js/-/highlight.js-9.8.0.tgz#38eeef40cd45eaddbec8c9e5238fb7a783a3b685"
+
 history@^3.0.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/history/-/history-3.3.0.tgz#fcedcce8f12975371545d735461033579a6dae9c"
@@ -3314,6 +3334,12 @@ loud-rejection@^1.0.0:
     currently-unhandled "^0.4.1"
     signal-exit "^3.0.0"
 
+lowlight@^1.5.0:
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/lowlight/-/lowlight-1.9.0.tgz#6eccfb20f9125a56a82032083967998b5ba19905"
+  dependencies:
+    highlight.js "~9.12.0"
+
 macaddress@^0.2.8:
   version "0.2.8"
   resolved "https://registry.yarnpkg.com/macaddress/-/macaddress-0.2.8.tgz#5904dc537c39ec6dbefeae902327135fa8511f12"
@@ -3686,9 +3712,9 @@ ndarray@^1.0.11, ndarray@^1.0.13, ndarray@^1.0.14, ndarray@^1.0.15, ndarray@^1.0
     iota-array "^1.0.0"
     is-buffer "^1.0.2"
 
-ndb-react-components@^0.1.23:
-  version "0.1.23"
-  resolved "https://registry.yarnpkg.com/ndb-react-components/-/ndb-react-components-0.1.23.tgz#fde55faba7b6e392dd771e4f7a4a11fd07715148"
+ndb-react-components@^0.1.27:
+  version "0.1.27"
+  resolved "https://registry.yarnpkg.com/ndb-react-components/-/ndb-react-components-0.1.27.tgz#193222478a87ba82e46b15af8f64e41656498df8"
 
 negotiator@0.6.1:
   version "0.6.1"
@@ -4779,6 +4805,14 @@ react-select@^1.0.0-rc.2, react-select@^1.0.0-rc.5:
 react-sidebar@^2.2.1:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/react-sidebar/-/react-sidebar-2.3.2.tgz#ec140bea8a6f5fa3d8ea7a56479665b44cf4f9cf"
+
+react-syntax-highlighter@^5.6.2:
+  version "5.6.2"
+  resolved "https://registry.yarnpkg.com/react-syntax-highlighter/-/react-syntax-highlighter-5.6.2.tgz#01f5ad3cc44c40c26b6fb4e00a4bed90f66304c5"
+  dependencies:
+    babel-runtime "^6.18.0"
+    highlight.js "~9.8.0"
+    lowlight "^1.5.0"
 
 react-tap-event-plugin@^1.0.0:
   version "1.0.0"

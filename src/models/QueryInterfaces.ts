@@ -1,3 +1,4 @@
+import {ITaskDefinition} from "./taskDefinition";
 export enum PipelineWorkerStatus {
     Unavailable = 0,
     Connected,
@@ -12,14 +13,6 @@ export enum TilePipelineStatus {
     Processing = 3,
     Complete = 4,
     Failed = 5
-}
-
-export interface ITaskDefinition {
-    id: string;
-    name: string;
-    script: string;
-    interpreter: string;
-    description: string;
 }
 
 export interface IPipelinePerformance {
