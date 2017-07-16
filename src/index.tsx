@@ -12,6 +12,8 @@ import {PipelineStagesContainer} from "./PipelineStages";
 import {ProjectsContainer} from "./Projects";
 import {Dashboard} from "./Dashboard";
 
+import "react-table/react-table.css"
+
 import "./util/overrides.css";
 
 const rootEl = document.getElementById("root");

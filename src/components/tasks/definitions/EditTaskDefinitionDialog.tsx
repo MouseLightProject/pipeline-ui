@@ -154,7 +154,7 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
 
     private onCreateOrUpdate() {
         const taskDefinition = Object.assign((({id, name, description, script, interpreter, args, work_units, task_repository}) => ({
-            id,
+            id: this.props.mode == TaskDefinitionDialogMode.Create ? undefined : id,
             name,
             description,
             script,

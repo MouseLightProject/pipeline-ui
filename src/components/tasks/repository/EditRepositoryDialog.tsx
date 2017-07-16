@@ -93,6 +93,17 @@ export class EditRepositoryDialog extends React.Component<IEditRepositoryProps, 
         });
     }
 
+    private onCreateOrUpdate() {
+        const taskRepository = Object.assign((({id, name, description, location}) => ({
+            id: this.props.mode == RepositoryDialogMode.Create ? undefined : id,
+            name,
+            description,
+            location
+        }))(this.state.repository));
+
+        this.props.onAccept(taskRepository)
+    }
+
     private renderFeedback() {
         if (this.state.repository.location && this.state.repository.location.length > 1 && !pathIsAbsolute.posix(this.state.repository.location)) {
             return (<HelpBlock>Location must be an absolute path</HelpBlock>);
@@ -152,7 +163,7 @@ export class EditRepositoryDialog extends React.Component<IEditRepositoryProps, 
                     <Button bsStyle="default" onClick={() => this.props.onCancel()}>Cancel</Button>
                     {(this.props.mode === RepositoryDialogMode.Update && this.props.sourceRepository) ?
                         <Button bsStyle="default" onClick={() => this.applySourceRepository()}>Revert</Button> : null}
-                    <Button bsStyle="success" onClick={() => this.props.onAccept(this.state.repository)}
+                    <Button bsStyle="success" onClick={() => this.onCreateOrUpdate()}
                             disabled={!this.isNameValid || !this.isLocationValid} style={{marginLeft: "30px"}}>
                         {this.props.mode === RepositoryDialogMode.Update ? "Update" : "Create"}
                     </Button>

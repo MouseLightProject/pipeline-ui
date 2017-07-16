@@ -73,15 +73,20 @@ const PipelineQuery = gql`query {
 const SetPipelineStageStatusMutation = gql`
   mutation SetPipelineStageStatusMutation($id: String, $shouldBeActive: Boolean) {
     setPipelineStageStatus(id:$id, shouldBeActive:$shouldBeActive) {
-      id
-      is_processing
+        pipelineStage {
+            id
+            is_processing
+        }
     }
   }
 `;
 
 const DeletePipelineStageMutation = gql`
   mutation DeletePipelineStageMutation($id: String!) {
-    deletePipelineStage(id:$id)
+    deletePipelineStage(id:$id) {
+        id
+        error
+    }
   }
 `;
 

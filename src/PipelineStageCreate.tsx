@@ -52,15 +52,18 @@ const PipelineStagesForProjectQuery = gql`query($pipelinesForProjectId: String!)
 const CreatePipelineStageMutation = gql`
   mutation CreatePipelineStageMutation($name: String, $description: String, $project_id: String, $task_id: String, $previous_stage_id: String, $dst_path: String, $function_type: Int) {
     createPipelineStage(name:$name, description:$description, project_id:$project_id, task_id:$task_id, previous_stage_id:$previous_stage_id, dst_path:$dst_path, function_type:$function_type) {
-      id
-      name
-      description
-      project_id
-      task_id
-      previous_stage_id
-      dst_path
-      is_processing
-      function_type
+        pipelineStage {
+          id
+          name
+          description
+          project_id
+          task_id
+          previous_stage_id
+          dst_path
+          is_processing
+          function_type
+      }
+      error
     }
   }
 `;

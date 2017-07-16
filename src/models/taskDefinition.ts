@@ -2,7 +2,7 @@ import {ITaskRepository} from "./taskRepository";
 import {IPipelineStage} from "./QueryInterfaces";
 
 export interface ITaskDefinition {
-    id: string;
+    id?: string;
     name?: string;
     script?: string;
     interpreter?: string;
