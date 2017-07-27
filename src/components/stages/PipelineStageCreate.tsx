@@ -18,12 +18,12 @@ import {
     HelpBlock
 } from "react-bootstrap";
 
-import {ProjectMenu, ProjectMenuStyle} from "./components/helpers/ProjectMenu";
-import {IPipelineStage} from "./models/QueryInterfaces";
+import {ProjectMenu, ProjectMenuStyle} from "../helpers/ProjectMenu";
+import {IPipelineStage} from "../../models/QueryInterfaces";
 import {InjectedGraphQLProps} from "react-apollo/lib/graphql";
-import {ITaskDefinition} from "./models/taskDefinition";
-import {panelHeaderStyles} from "./util/styleDefinitions";
-import {IProject} from "./models/project";
+import {ITaskDefinition} from "../../models/taskDefinition";
+import {panelHeaderStyles} from "../../util/styleDefinitions";
+import {IProject} from "../../models/project";
 
 const useAcquisitionRoot = "none (use acquisition root)";
 

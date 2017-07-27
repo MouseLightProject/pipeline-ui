@@ -4,14 +4,14 @@ import {graphql} from "react-apollo";
 import gql from "graphql-tag";
 
 import {PipelineStageTable} from "./PipelineStageTable";
-import {Loading} from "./Loading";
+import {Loading} from "../../Loading";
 import {PipelineStageCreate} from "./PipelineStageCreate";
-import {ProjectMenuNavbar} from "./components/helpers/ProjectMenuNavbar";
-import {AllProjectsId} from "./components/helpers/ProjectMenu";
-import {IPipelineStage} from "./models/QueryInterfaces";
+import {ProjectMenuNavbar} from "../helpers/ProjectMenuNavbar";
+import {AllProjectsId} from "../helpers/ProjectMenu";
+import {IPipelineStage} from "../../models/QueryInterfaces";
 import {InjectedGraphQLProps} from "react-apollo/lib/graphql";
-import {contentStyles} from "./util/styleDefinitions";
-import {IProject} from "./models/project";
+import {contentStyles} from "../../util/styleDefinitions";
+import {IProject} from "../../models/project";
 
 const styles = contentStyles;
 

@@ -7,7 +7,7 @@ import {PipelineTileMapHighCharts} from "./PipelineTileMapHighCharts";
 import {PipelineGraph} from "./PipelineGraph";
 import {Workers} from "./Workers";
 import {TasksPanel} from "./components/tasks/Tasks";
-import {PipelineStagesContainer} from "./PipelineStages";
+import {PipelineStagesContainer} from "./components/stages/PipelineStages";
 import {Projects} from "./components/projects/Projects";
 import {Dashboard} from "./Dashboard";
 
