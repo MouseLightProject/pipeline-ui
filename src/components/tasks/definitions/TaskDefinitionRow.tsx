@@ -3,6 +3,7 @@ import {Button, Badge} from "react-bootstrap";
 import FontAwesome = require("react-fontawesome");
 import {graphql} from 'react-apollo';
 import {toast} from "react-toastify";
+import pluralize = require("pluralize");
 
 import {ITaskDefinition, taskDisplayRepository} from "../../../models/taskDefinition";
 import {DeleteTaskDefinitionMutation, UpdateTaskDefinitionMutation} from "../../../graphql/taskDefinition";
@@ -230,10 +231,10 @@ export class TaskDefinitionRow extends React.Component<ITaskDefinitionRowProps, 
                         <Button bsSize="sm" bsStyle="danger" style={tableButtonStyles.remove}
                                 onClick={(evt) => this.onClickDeleteTaskDefinition(evt)}>
                         <span>
-                            <FontAwesome name="times-circle"/>
+                            <FontAwesome name="trash"/>
                         </span>
                         </Button>
-                        : <Badge>{taskDefinition.pipeline_stages.length}</Badge>}
+                        : <Badge>{taskDefinition.pipeline_stages.length} {pluralize("stage", taskDefinition.pipeline_stages.length)}</Badge>}
                 </td>
             </tr>
         );

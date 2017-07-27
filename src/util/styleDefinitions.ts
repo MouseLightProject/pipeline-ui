@@ -46,7 +46,7 @@ export const tableButtonStyles = {
         marginTop: "auto",
         marginBottom: "auto",
         background: "transparent",
-        color: "#f04124",
+        color: "#008cba",
         border: "none",
         fontSize: "20px"
     },

@@ -1,7 +1,6 @@
 import * as React from "react";
 import {MenuItem, NavDropdown, DropdownButton} from "react-bootstrap"
-
-import {IProject} from "../../models/QueryInterfaces";
+import {IProject} from "../../models/project";
 
 export const AllProjectsId = "AllProjectsId";
 

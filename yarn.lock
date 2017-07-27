@@ -76,6 +76,10 @@
   version "0.0.5"
   resolved "https://registry.yarnpkg.com/@types/plotly.js/-/plotly.js-0.0.5.tgz#e313d3c08ed39924d848ff500369727eb0ae9560"
 
+"@types/pluralize@^0.0.27":
+  version "0.0.27"
+  resolved "https://registry.yarnpkg.com/@types/pluralize/-/pluralize-0.0.27.tgz#087354a791ce027db1101ff399db6111fc9275f7"
+
 "@types/react-bootstrap@0.0.51":
   version "0.0.51"
   resolved "https://registry.yarnpkg.com/@types/react-bootstrap/-/react-bootstrap-0.0.51.tgz#71a21490c566a1cced91967ffec1c8e57d1263c2"
@@ -4172,6 +4176,10 @@ plotly.js@^1.21.3:
     topojson-client "^2.1.0"
     webgl-context "^2.2.0"
     world-calendars "^1.0.3"
+
+pluralize@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/pluralize/-/pluralize-6.0.0.tgz#d9b51afad97d3d51075cc1ddba9b132cacccb7ba"
 
 pngjs@^2.2.0:
   version "2.3.1"

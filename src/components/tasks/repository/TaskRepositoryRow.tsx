@@ -3,6 +3,7 @@ import {Button, Badge} from "react-bootstrap";
 import FontAwesome = require("react-fontawesome");
 import {graphql} from 'react-apollo';
 import {toast} from "react-toastify";
+import pluralize = require("pluralize");
 
 import {DeleteTaskRepositoryMutation, UpdateTaskRepositoryMutation} from "../../../graphql/taskRepository";
 import {EditRepositoryDialog, RepositoryDialogMode} from "./EditRepositoryDialog";
@@ -154,10 +155,10 @@ export class TaskRepositoryRow extends React.Component<ITaskRepositoryRowProps, 
                     {taskRepository.task_definitions.length === 0 ?
                         <Button bsSize="sm" bsStyle="danger" style={tableButtonStyles.remove} onClick={(evt) => this.onClickDeleteRepository(evt)}>
                         <span>
-                            <FontAwesome name="times-circle"/>
+                            <FontAwesome name="trash"/>
                         </span>
                         </Button>
-                        : <Badge>{taskRepository.task_definitions.length}</Badge>}
+                        : <Badge>{taskRepository.task_definitions.length} {pluralize("task", taskRepository.task_definitions.length)}</Badge>}
                 </td>
             </tr>
         );

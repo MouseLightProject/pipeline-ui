@@ -1,4 +1,4 @@
-import {IProject} from "./QueryInterfaces";
+import {IProject} from "./project";
 
 export function calculateProjectBreadth(project: IProject): number[] {
     return project.stages.reduce((breadths, stage) => {

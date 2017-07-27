@@ -3,13 +3,12 @@ import * as ReactDOM from "react-dom";
 import {Router, Route, IndexRedirect, browserHistory} from "react-router";
 
 import {App} from "./App";
-import {DevView} from "./DevView";
 import {PipelineTileMapHighCharts} from "./PipelineTileMapHighCharts";
 import {PipelineGraph} from "./PipelineGraph";
 import {Workers} from "./Workers";
 import {TasksPanel} from "./components/tasks/Tasks";
 import {PipelineStagesContainer} from "./PipelineStages";
-import {ProjectsContainer} from "./Projects";
+import {Projects} from "./components/projects/Projects";
 import {Dashboard} from "./Dashboard";
 
 import "react-table/react-table.css"
@@ -25,11 +24,10 @@ ReactDOM.render(
             <Route path="dashboard" component={Dashboard}/>
             <Route path="graph" component={PipelineGraph}/>
             <Route path="tilemap" component={PipelineTileMapHighCharts}/>
-            <Route path="projects" component={ProjectsContainer}/>
+            <Route path="projects" component={Projects}/>
             <Route path="stages" component={PipelineStagesContainer}/>
             <Route path="tasks" component={TasksPanel}/>
             <Route path="workers" component={Workers}/>
-            <Route path="dev" component={DevView}/>
         </Route>
     </Router>, rootEl
 );

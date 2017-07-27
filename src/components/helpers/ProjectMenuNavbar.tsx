@@ -1,7 +1,7 @@
 import * as React from "react";
-import {Nav, Navbar, NavItem} from "react-bootstrap"
-import {IProject} from "../../models/QueryInterfaces";
+import {Nav, Navbar} from "react-bootstrap"
 import {ProjectMenu, ProjectMenuStyle} from "./ProjectMenu";
+import {IProject} from "../../models/project";
 
 export interface IProjectMenuProps {
     keyPrefix: string;
