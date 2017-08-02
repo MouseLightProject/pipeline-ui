@@ -8,10 +8,10 @@ import * as MediaQuery from "react-responsive";
 import {IColumnLayout} from "../../util/bootstrapUtils";
 import {calculateDurationFromNow} from "../../util/dateUtils";
 import {Loading} from "../../Loading";
-import {IWorker, PipelineWorkerStatus} from "../../models/QueryInterfaces";
 import {ICountTileProps, CountTile, CountUnit} from "./CountTile";
 import {NavTile} from "./NavTile";
 import {IProject} from "../../models/project";
+import {IWorker, PipelineWorkerStatus} from "../../models/worker";
 
 const HeaderSummaryQuery = gql`query {
   projects {

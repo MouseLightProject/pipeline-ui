@@ -7,7 +7,7 @@ import {PipelineTileMapHighCharts} from "./PipelineTileMapHighCharts";
 import {PipelineGraph} from "./PipelineGraph";
 import {Workers} from "./Workers";
 import {TasksPanel} from "./components/tasks/Tasks";
-import {PipelineStagesContainer} from "./components/stages/PipelineStages";
+import {PipelineStages} from "./components/stages/PipelineStages";
 import {Projects} from "./components/projects/Projects";
 import {Dashboard} from "./Dashboard";
 
@@ -25,7 +25,7 @@ ReactDOM.render(
             <Route path="graph" component={PipelineGraph}/>
             <Route path="tilemap" component={PipelineTileMapHighCharts}/>
             <Route path="projects" component={Projects}/>
-            <Route path="stages" component={PipelineStagesContainer}/>
+            <Route path="stages" component={PipelineStages}/>
             <Route path="tasks" component={TasksPanel}/>
             <Route path="workers" component={Workers}/>
         </Route>

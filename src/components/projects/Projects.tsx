@@ -3,11 +3,11 @@ import * as React from "react";
 import {Loading} from "../../Loading";
 import {graphql} from "react-apollo";
 import {contentStyles} from "../../util/styleDefinitions";
-import {ProjectQuery} from "../../graphql/project";
+import {ProjectsQuery} from "../../graphql/project";
 import {ProjectsPanel} from "./ProjectsPanel";
 
 
-@graphql(ProjectQuery, {
+@graphql(ProjectsQuery, {
     options: {
         pollInterval: 5 * 1000
     }

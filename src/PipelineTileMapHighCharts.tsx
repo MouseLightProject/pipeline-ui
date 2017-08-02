@@ -8,7 +8,7 @@ const HighCharts = require("highcharts");
 require("highcharts/modules/heatmap")(HighCharts);
 require("highcharts/modules/map")(HighCharts);
 
-import {TilePipelineStatus} from "./models/QueryInterfaces";
+import {TilePipelineStatus} from "./models/pipelineStage";
 import {ProjectMenuNavbar} from "./components/helpers/ProjectMenuNavbar";
 import {IProject} from "./models/project";
 
@@ -365,6 +365,7 @@ class MapPanel extends React.Component<any, any> {
         return (
             <div>
                 <ProjectMenuNavbar keyPrefix="tileMap" projects={projects}
+                                   includeHeader={true}
                                    selectedProjectId={this.state.projectId}
                                    onProjectSelectionChange={this.onProjectSelectionChange} includeAllProjects={true}>
                     <NavItem>Current Z Index</NavItem>

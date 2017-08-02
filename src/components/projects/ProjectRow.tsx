@@ -8,14 +8,13 @@ import {graphql} from "react-apollo";
 import {tableButtonStyles, tableCellStyles} from "../../util/styleDefinitions";
 import {EditProjectDialog, ProjectDialogMode} from "./EditProjectDialog";
 import {ModalAlert, toastDeleteError, toastDeleteSuccess, toastUpdateError, toastUpdateSuccess} from "ndb-react-components";
-import {DeleteProjectMutation, SetProjectStatusMutation, UpdateProjectMutation} from "../../graphql/project";
+import {DeleteProjectMutation, UpdateProjectMutation} from "../../graphql/project";
 import {IProject, IProjectInput} from "../../models/project";
 
 interface IProjectRowProps {
     project?: IProject;
 
     updateProject?(project: IProject): any;
-
     deleteProject?(project: IProject): any;
 }
 
@@ -31,16 +30,6 @@ const spanStyle = {
     width: "100%"
 };
 
-@graphql(SetProjectStatusMutation, {
-    props: ({mutate}) => ({
-        setProjectStatusMutation: (id: string, shouldBeActive: boolean) => mutate({
-            variables: {
-                id: id,
-                shouldBeActive: shouldBeActive
-            }
-        })
-    })
-})
 @graphql(UpdateProjectMutation, {
     props: ({mutate}) => ({
         updateProject: (project: IProjectInput) => mutate({
@@ -191,7 +180,7 @@ export class ProjectRow extends React.Component<IProjectRowProps, IProjectRowSta
                     glyph={this.getActivateGlyph(project.is_processing)}/> {this.getActivateText(project.is_processing)}
                 </Button></td>
                 <td style={{paddingLeft: "10px"}}>
-                    <Button bsSize="sm" bsStyle="info" style={tableButtonStyles.edit} onClick={(evt) => this.onClickUpdateProject(evt)}>
+                    <Button bsSize="sm" bsStyle="info" style={tableButtonStyles.edit} onClick={(evt) => this.onClickUpdateProject(evt)} disabled={project.is_processing}>
                         <span>
                         <FontAwesome name="pencil"/>
                         </span>
@@ -212,7 +201,7 @@ export class ProjectRow extends React.Component<IProjectRowProps, IProjectRowSta
                 <td style={{textAlign: "center", paddingRight: "10px", width: "20px", verticalAlign: "middle"}}>
                     {project.stages.length === 0 ?
                         <Button bsSize="sm" bsStyle="danger" style={tableButtonStyles.remove}
-                                onClick={(evt) => this.onClickDeleteProject(evt)}>
+                                onClick={(evt) => this.onClickDeleteProject(evt)} disabled={project.is_processing}>
                         <span>
                             <FontAwesome name="trash"/>
                         </span>

@@ -8,6 +8,7 @@ export interface IProjectMenuProps {
     projects: IProject[];
     selectedProjectId: string;
     includeAllProjects?: boolean;
+    includeHeader?: boolean;
 
     onProjectSelectionChange(projectId: string);
 }
@@ -23,25 +24,26 @@ export class ProjectMenuNavbar extends React.Component<IProjectMenuProps, IProje
 
     public render() {
         return (
-        <Navbar inverse fluid style={navBarStyle}>
-            <Navbar.Header>
-                <Navbar.Brand>
-                    Project
-                </Navbar.Brand>
-                <Navbar.Toggle />
-            </Navbar.Header>
-            <Nav>
-                <ProjectMenu keyPrefix={this.props.keyPrefix}
-                             menuStyle={ProjectMenuStyle.NavDropDown}
-                             onProjectSelectionChange={this.props.onProjectSelectionChange}
-                             projects={this.props.projects}
-                             selectedProjectId={this.props.selectedProjectId}
-                             includeAllProjects={true}/>
-            </Nav>
-            <Nav pullRight>
-                {this.props.children}
-            </Nav>
-        </Navbar>
+            <Navbar inverse={this.props.includeHeader} fluid style={navBarStyle}>
+                {this.props.includeHeader ?
+                    <Navbar.Header>
+                        <Navbar.Brand>
+                            Project
+                        </Navbar.Brand>
+                        <Navbar.Toggle/>
+                    </Navbar.Header> : null}
+                <Nav>
+                    <ProjectMenu keyPrefix={this.props.keyPrefix}
+                                 menuStyle={ProjectMenuStyle.NavDropDown}
+                                 onProjectSelectionChange={this.props.onProjectSelectionChange}
+                                 projects={this.props.projects}
+                                 selectedProjectId={this.props.selectedProjectId}
+                                 includeAllProjects={true}/>
+                </Nav>
+                <Nav pullRight>
+                    {this.props.children}
+                </Nav>
+            </Navbar>
         );
     }
 }

@@ -1,11 +1,5 @@
 import {ITaskDefinition} from "./taskDefinition";
 import {IProject} from "./project";
-export enum PipelineWorkerStatus {
-    Unavailable = 0,
-    Connected,
-    Idle,
-    Processing
-}
 
 export enum TilePipelineStatus {
     DoesNotExist = 0,
@@ -38,28 +32,18 @@ export interface IPipelinePerformance {
 
 export interface IPipelineStage {
     id: string;
-    name: string;
-    description: string;
-    project: IProject
-    task: ITaskDefinition;
-    performance: IPipelinePerformance;
+    name?: string;
+    description?: string;
+    project_id?: string;
+    project?: IProject
+    task_id?: string;
+    task?: ITaskDefinition;
+    performance?: IPipelinePerformance;
     previous_stage_id?: string;
     previous_stage?: IPipelineStage;
-    dst_path: string;
-    depth: number;
-    is_processing: boolean;
-    function_type: number;
-}
-
-export interface IWorker {
-    id: string;
-    name: string;
-    description: string;
-    machine_id: string;
-    work_unit_capacity: number;
-    last_seen: string;
-    task_load: number;
-    status: number;
-    is_in_scheduler_pool: boolean;
-    is_cluster_proxy: boolean;
+    child_stages?: IPipelineStage[];
+    dst_path?: string;
+    depth?: number;
+    is_processing?: boolean;
+    function_type?: number;
 }

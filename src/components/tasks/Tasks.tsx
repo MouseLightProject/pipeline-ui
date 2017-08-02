@@ -1,5 +1,4 @@
 import * as React from "react";
-import gql from "graphql-tag";
 import {graphql, InjectedGraphQLProps} from "react-apollo";
 
 import {Loading} from "../../Loading";
@@ -8,46 +7,9 @@ import {ITaskRepository} from "../../models/taskRepository";
 import {TaskDefinitionsPanel} from "./definitions/TaskDefinitionsPanel";
 import {ITaskDefinition} from "../../models/taskDefinition";
 import {contentStyles} from "../../util/styleDefinitions";
+import {TaskQuery} from "../../graphql/taskDefinition";
 
 const styles = contentStyles;
-
-const TaskQuery = gql`query {
-  taskRepositories {
-    id
-    name
-    description
-    location
-    task_definitions {
-      id
-      name
-      description
-      pipeline_stages {
-        id
-        name
-      }
-    }
-  }
-  taskDefinitions {
-    id
-    name
-    description
-    script
-    interpreter
-    work_units
-    args
-    script_status
-    task_repository {
-      id
-      name
-      description
-      location
-    }
-    pipeline_stages {
-      id
-      name
-    }
-  }
-}`;
 
 interface ITaskQueryProps {
     taskDefinitions: ITaskDefinition[];

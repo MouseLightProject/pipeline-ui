@@ -2,7 +2,7 @@ import * as React from "react";
 import {NavItem} from "react-bootstrap"
 import {AllProjectsId} from "./components/helpers/ProjectMenu";
 import {pollingIntervalSeconds} from "./GraphQLComponents";
-import {IPipelineStage} from "./models/QueryInterfaces";
+import {IPipelineStage} from "./models/pipelineStage";
 import {ProjectMenuNavbar} from "./components/helpers/ProjectMenuNavbar";
 import {calculateProjectBreadth} from "./models/modelUtils";
 import gql from "graphql-tag";
@@ -418,6 +418,7 @@ export class PipelineGraph extends React.Component<any, IPipelineGraphState> {
             <div style={test}>
                 <ProjectMenuNavbar keyPrefix="pipelineGraph" projects={projects}
                                    selectedProjectId={this.state.projectId}
+                                   includeHeader={true}
                                    onProjectSelectionChange={this.onProjectSelectionChange} includeAllProjects={true}>
                     <NavItem onClick={this.onResetView}>Reset view</NavItem>
                 </ProjectMenuNavbar>

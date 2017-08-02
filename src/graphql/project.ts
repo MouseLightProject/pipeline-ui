@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 
-export const ProjectQuery = gql`query { 
+export const ProjectsQuery = gql`query { 
     projects {
       id
       name
@@ -24,8 +24,29 @@ export const ProjectQuery = gql`query {
       stages {
           id
           name
-          depth
+          description
           previous_stage_id
+          dst_path
+          depth
+          is_processing
+          function_type
+          project {
+            id
+            name
+            is_processing
+          }
+          task {
+            id
+            name
+          }
+          previous_stage {
+            id
+            name
+          }
+          child_stages {
+            id
+            name
+          }
       }
     }
 }`;
@@ -111,17 +132,6 @@ export const UpdateProjectMutation = gql`
         is_processing
       }
       error
-    }
-  }
-`;
-
-export const SetProjectStatusMutation = gql`
-  mutation SetProjectStatusMutation($id: String, $shouldBeActive: Boolean) {
-    setProjectStatus(id:$id, shouldBeActive:$shouldBeActive) {
-        project {
-            id
-            is_processing
-        }
     }
   }
 `;

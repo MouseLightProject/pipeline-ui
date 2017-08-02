@@ -1,5 +1,5 @@
 import {ITaskRepository} from "./taskRepository";
-import {IPipelineStage} from "./QueryInterfaces";
+import {IPipelineStage} from "./pipelineStage";
 
 export interface ITaskDefinition {
     id?: string;

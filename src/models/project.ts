@@ -1,4 +1,4 @@
-import {IPipelineStage} from "./QueryInterfaces";
+import {IPipelineStage} from "./pipelineStage";
 
 export interface IProject {
     id?: string;

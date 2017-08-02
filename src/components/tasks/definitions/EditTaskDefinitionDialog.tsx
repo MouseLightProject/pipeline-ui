@@ -185,7 +185,7 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                                      placeholder="name is required"
                                      onChange={(evt: any) => this.onNameChanged(evt)}/>
                     </FormGroup>
-                    <FormGroup bsSize="sm" controlId="brain-area-group">
+                    <FormGroup bsSize="sm" controlId="task-repository">
                         <ControlLabel>Repository</ControlLabel>
                         <TaskRepositorySelect idName="task-repository"
                                               options={this.props.taskRepositories}

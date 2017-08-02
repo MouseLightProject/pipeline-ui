@@ -1,5 +1,43 @@
 import gql from "graphql-tag";
 
+export const TaskQuery = gql`query {
+  taskRepositories {
+    id
+    name
+    description
+    location
+    task_definitions {
+      id
+      name
+      description
+      pipeline_stages {
+        id
+        name
+      }
+    }
+  }
+  taskDefinitions {
+    id
+    name
+    description
+    script
+    interpreter
+    work_units
+    args
+    script_status
+    task_repository {
+      id
+      name
+      description
+      location
+    }
+    pipeline_stages {
+      id
+      name
+    }
+  }
+}`;
+
 export const CreateTaskDefinitionMutation = gql`mutation CreateTaskDefinition($taskDefinition: TaskDefinitionInput) {
     createTaskDefinition(taskDefinition: $taskDefinition) {
         taskDefinition {
