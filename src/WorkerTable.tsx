@@ -26,7 +26,7 @@ class WorkerRow extends React.Component<IWorkerRowProps, any> {
     public render() {
         let worker = this.props.worker;
 
-        const last_seen_moment = moment(new Date(parseInt(worker.last_seen))).fromNow();
+        const last_seen_moment = moment(new Date(worker.last_seen)).fromNow();
 
         let status = PipelineWorkerStatus[worker.status];
 
