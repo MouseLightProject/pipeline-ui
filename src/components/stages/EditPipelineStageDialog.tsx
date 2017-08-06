@@ -10,11 +10,7 @@ import {ProjectSelect} from "../helpers/ProjectSelect";
 import {PipelineStageSelect} from "../helpers/PipelineStageSelect";
 import {ITaskDefinition} from "../../models/taskDefinition";
 import {TaskSelect} from "../helpers/TaskSelect";
-
-export enum PipelineStageDialogMode {
-    Create,
-    Update
-}
+import {DialogMode} from "../helpers/DialogUtils";
 
 function assignStage(stage: IPipelineStage) {
     return stage ? (({id, name, description, project, task, previous_stage, dst_path, function_type}) => ({
@@ -39,7 +35,7 @@ function assignStage(stage: IPipelineStage) {
 }
 
 interface IEditStageProps {
-    mode: PipelineStageDialogMode;
+    mode: DialogMode;
     show: boolean;
     projects: IProject[];
     tasks: ITaskDefinition[];
@@ -135,7 +131,7 @@ export class EditPipelineStageDialog extends React.Component<IEditStageProps, IE
 
     private onCreateOrUpdate() {
         const stageInput: IPipelineStage = Object.assign((({id, name, description, project, task, previous_stage, dst_path, function_type}) => ({
-            id: this.props.mode == PipelineStageDialogMode.Create ? undefined : id,
+            id: this.props.mode == DialogMode.Create ? undefined : id,
             name,
             description,
             project_id: project ? project.id : null,
@@ -149,7 +145,7 @@ export class EditPipelineStageDialog extends React.Component<IEditStageProps, IE
     }
 
     public render() {
-        const title = this.props.mode === PipelineStageDialogMode.Create ? "Add New Stage" : "Update Stage";
+        const title = this.props.mode === DialogMode.Create ? "Add New Stage" : "Update Stage";
 
         const stages = (this.state.stage.project && this.state.stage.project.stages) ? this.state.stage.project.stages.filter(s => s.id !== this.state.stage.id) : [];
 
@@ -212,13 +208,13 @@ export class EditPipelineStageDialog extends React.Component<IEditStageProps, IE
                 </Modal.Body>
                 <Modal.Footer>
                     <Button bsStyle="default" onClick={() => this.props.onCancel()}>Cancel</Button>
-                    {(this.props.mode === PipelineStageDialogMode.Update && this.props.sourceStage) ?
+                    {(this.props.mode === DialogMode.Update && this.props.sourceStage) ?
                         <Button bsStyle="default" onClick={() => this.setState({stage: assignStage(this.props.sourceStage)})}>
                             Revert
                         </Button> : null}
                     <Button bsStyle="success" onClick={() => this.onCreateOrUpdate()}
                             disabled={!this.canCreateOrUpdate()} style={{marginLeft: "30px"}}>
-                        {this.props.mode === PipelineStageDialogMode.Update ? "Update" : "Create"}
+                        {this.props.mode === DialogMode.Update ? "Update" : "Create"}
                     </Button>
                 </Modal.Footer>
             </Modal>

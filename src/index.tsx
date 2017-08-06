@@ -5,7 +5,7 @@ import {Router, Route, IndexRedirect, browserHistory} from "react-router";
 import {App} from "./App";
 import {PipelineTileMapHighCharts} from "./PipelineTileMapHighCharts";
 import {PipelineGraph} from "./PipelineGraph";
-import {Workers} from "./Workers";
+import {Workers} from "./components/workers/Workers";
 import {TasksPanel} from "./components/tasks/Tasks";
 import {PipelineStages} from "./components/stages/PipelineStages";
 import {Projects} from "./components/projects/Projects";

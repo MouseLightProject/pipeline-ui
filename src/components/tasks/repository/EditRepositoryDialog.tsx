@@ -4,14 +4,10 @@ import {FormControlValidationState} from "../../../util/bootstrapUtils";
 import {ChangeEvent} from "react";
 import * as pathIsAbsolute from "path-is-absolute";
 import {ITaskRepository} from "../../../models/taskRepository";
-
-export enum RepositoryDialogMode {
-    Create,
-    Update
-}
+import {DialogMode} from "../../helpers/DialogUtils";
 
 interface IEditRepositoryProps {
-    mode: RepositoryDialogMode;
+    mode: DialogMode;
     show: boolean;
     sourceRepository?: ITaskRepository;
 
@@ -95,7 +91,7 @@ export class EditRepositoryDialog extends React.Component<IEditRepositoryProps, 
 
     private onCreateOrUpdate() {
         const taskRepository = Object.assign((({id, name, description, location}) => ({
-            id: this.props.mode == RepositoryDialogMode.Create ? undefined : id,
+            id: this.props.mode == DialogMode.Create ? undefined : id,
             name,
             description,
             location
@@ -113,7 +109,7 @@ export class EditRepositoryDialog extends React.Component<IEditRepositoryProps, 
     }
 
     public render() {
-        const title = this.props.mode === RepositoryDialogMode.Create ? "Add New Repository" : "Update Repository";
+        const title = this.props.mode === DialogMode.Create ? "Add New Repository" : "Update Repository";
 
         return (
             <Modal show={this.props.show} onHide={this.props.onCancel} bsSize={null}
@@ -161,11 +157,11 @@ export class EditRepositoryDialog extends React.Component<IEditRepositoryProps, 
                 </Modal.Body>
                 <Modal.Footer>
                     <Button bsStyle="default" onClick={() => this.props.onCancel()}>Cancel</Button>
-                    {(this.props.mode === RepositoryDialogMode.Update && this.props.sourceRepository) ?
+                    {(this.props.mode === DialogMode.Update && this.props.sourceRepository) ?
                         <Button bsStyle="default" onClick={() => this.applySourceRepository()}>Revert</Button> : null}
                     <Button bsStyle="success" onClick={() => this.onCreateOrUpdate()}
                             disabled={!this.isNameValid || !this.isLocationValid} style={{marginLeft: "30px"}}>
-                        {this.props.mode === RepositoryDialogMode.Update ? "Update" : "Create"}
+                        {this.props.mode === DialogMode.Update ? "Update" : "Create"}
                     </Button>
                 </Modal.Footer>
             </Modal>

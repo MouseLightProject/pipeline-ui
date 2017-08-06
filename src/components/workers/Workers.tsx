@@ -2,22 +2,19 @@ import * as React from "react";
 import {Panel} from "react-bootstrap"
 
 import {WorkerTable} from "./WorkerTable";
-import {Loading} from "./Loading";
-import gql from "graphql-tag";
+import {Loading} from "../../Loading";
 import {graphql} from "react-apollo";
-import {contentStyles, panelHeaderStyles} from "./util/styleDefinitions";
+import {contentStyles, panelHeaderStyles} from "../../util/styleDefinitions";
+import {WorkerQuery} from "../../graphql/workers";
 
 const styles = panelHeaderStyles;
 
-export class Workers extends React.Component<any, any> {
-    render() {
-        return (
-            <WorkersPanelQuery/>
-        );
+@ graphql(WorkerQuery, {
+    options: {
+        pollInterval: 5 * 1000
     }
-}
-
-class WorkersPanel extends React.Component<any, any> {
+})
+export class Workers extends React.Component<any, any> {
     private renderHeader() {
         return (
             <div style={styles.flexContainer}>
@@ -40,23 +37,3 @@ class WorkersPanel extends React.Component<any, any> {
         );
     }
 }
-
-const WorkerQuery = gql`query { 
-    pipelineWorkers {
-      id
-      name
-      machine_id
-      work_unit_capacity
-      last_seen
-      task_load
-      status
-      is_in_scheduler_pool
-      is_cluster_proxy
-    }
-}`;
-
-const WorkersPanelQuery = graphql(WorkerQuery, {
-    options: {
-        pollInterval: 5 * 1000
-    }
-})(WorkersPanel);

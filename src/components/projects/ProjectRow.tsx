@@ -6,16 +6,17 @@ import {toast} from "react-toastify";
 
 import {graphql} from "react-apollo";
 import {tableButtonStyles, tableCellStyles} from "../../util/styleDefinitions";
-import {EditProjectDialog, ProjectDialogMode} from "./EditProjectDialog";
+import {EditProjectDialog} from "./EditProjectDialog";
 import {ModalAlert, toastDeleteError, toastDeleteSuccess, toastUpdateError, toastUpdateSuccess} from "ndb-react-components";
 import {DeleteProjectMutation, UpdateProjectMutation} from "../../graphql/project";
 import {IProject, IProjectInput} from "../../models/project";
+import {DialogMode} from "../helpers/DialogUtils";
 
 interface IProjectRowProps {
     project?: IProject;
 
     updateProject?(project: IProject): any;
-    deleteProject?(project: IProject): any;
+    deleteProject?(id: string): any;
 }
 
 interface IProjectRowState {
@@ -129,7 +130,7 @@ export class ProjectRow extends React.Component<IProjectRowProps, IProjectRowSta
         if (this.state.isUpdateDialogShown) {
             return (
                 <EditProjectDialog show={this.state.isUpdateDialogShown}
-                                   mode={ProjectDialogMode.Update}
+                                   mode={DialogMode.Update}
                                    sourceProject={this.props.project}
                                    onCancel={() => this.setState({isUpdateDialogShown: false})}
                                    onAccept={(p: IProjectInput) => this.onAcceptUpdateProject(p)}/>

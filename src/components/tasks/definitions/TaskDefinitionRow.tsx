@@ -11,10 +11,11 @@ import {
     ModalAlert, toastDeleteError, toastDeleteSuccess, toastUpdateError,
     toastUpdateSuccess
 } from "ndb-react-components";
-import {EditTaskDefinitionDialog, TaskDefinitionDialogMode} from "./EditTaskDefinitionDialog";
+import {EditTaskDefinitionDialog} from "./EditTaskDefinitionDialog";
 import {ITaskRepository} from "../../../models/taskRepository";
 import {tableButtonStyles, tableCellStyles} from "../../../util/styleDefinitions";
 import {ViewScriptDialog} from "./ViewScriptDialog";
+import {DialogMode} from "../../helpers/DialogUtils";
 
 interface ITaskDefinitionRowProps {
     taskDefinition: ITaskDefinition;
@@ -103,7 +104,7 @@ export class TaskDefinitionRow extends React.Component<ITaskDefinitionRowProps, 
         if (this.state.isUpdateDialogShown) {
             return (
                 <EditTaskDefinitionDialog show={this.state.isUpdateDialogShown}
-                                          mode={TaskDefinitionDialogMode.Update}
+                                          mode={DialogMode.Update}
                                           sourceTaskDefinition={this.props.taskDefinition}
                                           taskRepositories={this.props.taskRepositories}
                                           onCancel={() => this.setState({isUpdateDialogShown: false})}

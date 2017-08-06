@@ -51,7 +51,7 @@ export const tableButtonStyles = {
         fontSize: "20px"
     },
     edit: {
-        marginTop:  "auto",
+        marginTop: "auto",
         marginBottom: "auto",
         background: "transparent",
         color: "#008cba",
@@ -59,11 +59,19 @@ export const tableButtonStyles = {
         fontSize: "20px"
     },
     view: {
-        marginTop:  "auto",
+        marginTop: "auto",
         marginBottom: "auto",
         background: "transparent",
         color: "#008cba",
         border: "none",
         fontSize: "16px"
+    },
+    editSmall: {
+        marginTop: 0,
+        marginBottom: "auto",
+        background: "transparent",
+        color: "#008cba",
+        border: "none",
+        fontSize: "12px"
     }
 };

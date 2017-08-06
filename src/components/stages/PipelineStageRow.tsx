@@ -10,8 +10,9 @@ import {ModalAlert, toastDeleteError, toastDeleteSuccess, toastUpdateError, toas
 import {IProject} from "../../models/project";
 import {IPipelineStage} from "../../models/pipelineStage";
 import {DeletePipelineStageMutation, UpdatePipelineStageMutation} from "../../graphql/pipelineStage";
-import {EditPipelineStageDialog, PipelineStageDialogMode} from "./EditPipelineStageDialog";
+import {EditPipelineStageDialog} from "./EditPipelineStageDialog";
 import {ITaskDefinition} from "../../models/taskDefinition";
+import {DialogMode} from "../helpers/DialogUtils";
 
 const previousStageIsAcquisitionRoot = "(acquisition root)";
 
@@ -22,7 +23,7 @@ interface IPipelineStageRowProps {
     tasks: ITaskDefinition[];
 
     updatePipelineStage?(project: IProject): any;
-    deletePipelineStage?(project: IProject): any;
+    deletePipelineStage?(id: string): any;
 }
 
 interface IPipelineStageRowState {
@@ -126,7 +127,7 @@ export class PipelineStageRow extends React.Component<IPipelineStageRowProps, IP
         if (this.state.isUpdateDialogShown) {
             return (
                 <EditPipelineStageDialog show={this.state.isUpdateDialogShown}
-                                         mode={PipelineStageDialogMode.Update}
+                                         mode={DialogMode.Update}
                                          sourceStage={this.props.pipelineStage}
                                          projects={this.props.projects}
                                          tasks={this.props.tasks}

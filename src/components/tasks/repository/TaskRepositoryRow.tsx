@@ -6,13 +6,14 @@ import {toast} from "react-toastify";
 import pluralize = require("pluralize");
 
 import {DeleteTaskRepositoryMutation, UpdateTaskRepositoryMutation} from "../../../graphql/taskRepository";
-import {EditRepositoryDialog, RepositoryDialogMode} from "./EditRepositoryDialog";
+import {EditRepositoryDialog} from "./EditRepositoryDialog";
 import {ITaskRepository} from "../../../models/taskRepository";
 import {
     ModalAlert, toastDeleteError, toastDeleteSuccess, toastUpdateError,
     toastUpdateSuccess
 } from "ndb-react-components";
 import {tableButtonStyles, tableCellStyles} from "../../../util/styleDefinitions";
+import {DialogMode} from "../../helpers/DialogUtils";
 
 interface ITaskRepositoryRowProps {
     taskRepository: ITaskRepository;
@@ -120,7 +121,7 @@ export class TaskRepositoryRow extends React.Component<ITaskRepositoryRowProps, 
         if (this.state.isUpdateDialogShown) {
             return (
                 <EditRepositoryDialog show={this.state.isUpdateDialogShown}
-                                      mode={RepositoryDialogMode.Update}
+                                      mode={DialogMode.Update}
                                       sourceRepository={this.props.taskRepository}
                                       onCancel={() => this.setState({isUpdateDialogShown: false})}
                                       onAccept={(r: ITaskRepository) => this.onAcceptUpdateRepository(r)}/>

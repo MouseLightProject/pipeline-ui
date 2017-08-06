@@ -6,14 +6,10 @@ import * as pathIsAbsolute from "path-is-absolute";
 import {ITaskDefinition} from "../../../models/taskDefinition";
 import {TaskRepositorySelect} from "../../helpers/TaskRepositorySelect";
 import {ITaskRepository} from "../../../models/taskRepository";
-
-export enum TaskDefinitionDialogMode {
-    Create,
-    Update
-}
+import {DialogMode} from "../../helpers/DialogUtils";
 
 interface IEditTaskDefinitionProps {
-    mode: TaskDefinitionDialogMode;
+    mode: DialogMode;
     show: boolean;
     taskRepositories: ITaskRepository[];
     sourceTaskDefinition?: ITaskDefinition;
@@ -56,11 +52,11 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
     }
 
     public componentWillReceiveProps(props: IEditTaskDefinitionProps) {
-        this.applySourceTaskDefinition();
+        this.applySourceTaskDefinition(props);
     }
 
-    private applySourceTaskDefinition() {
-        if (this.props.sourceTaskDefinition) {
+    private applySourceTaskDefinition(props: IEditTaskDefinitionProps) {
+        if (props.sourceTaskDefinition) {
             this.setState({
                 taskDefinition: Object.assign(this.state.taskDefinition, (({id, name, description, script, interpreter, args, work_units, task_repository}) => ({
                     id,
@@ -71,7 +67,8 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                     args,
                     work_units,
                     task_repository
-                }))(this.props.sourceTaskDefinition))
+                }))(props.sourceTaskDefinition)),
+                work_units:  props.sourceTaskDefinition ? props.sourceTaskDefinition.work_units.toString() : "1"
             });
         }
     }
@@ -154,7 +151,7 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
 
     private onCreateOrUpdate() {
         const taskDefinition = Object.assign((({id, name, description, script, interpreter, args, work_units, task_repository}) => ({
-            id: this.props.mode == TaskDefinitionDialogMode.Create ? undefined : id,
+            id: this.props.mode == DialogMode.Create ? undefined : id,
             name,
             description,
             script,
@@ -170,7 +167,7 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
     }
 
     public render() {
-        const title = this.props.mode === TaskDefinitionDialogMode.Create ? "Add New Task" : "Update Task";
+        const title = this.props.mode === DialogMode.Create ? "Add New Task" : "Update Task";
 
         return (
             <Modal show={this.props.show} onHide={this.props.onCancel}
@@ -226,12 +223,12 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                 </Modal.Body>
                 <Modal.Footer>
                     <Button bsStyle="default" onClick={() => this.props.onCancel()}>Cancel</Button>
-                    {(this.props.mode === TaskDefinitionDialogMode.Update && this.props.sourceTaskDefinition) ?
+                    {(this.props.mode === DialogMode.Update && this.props.sourceTaskDefinition) ?
                         <Button bsStyle="default"
-                                onClick={() => this.applySourceTaskDefinition()}>Revert</Button> : null}
+                                onClick={() => this.applySourceTaskDefinition(this.props)}>Revert</Button> : null}
                     <Button bsStyle="success" onClick={() => this.onCreateOrUpdate()}
                             disabled={!this.canCreateOrUpdate()} style={{marginLeft: "30px"}}>
-                        {this.props.mode === TaskDefinitionDialogMode.Update ? "Update" : "Create"}
+                        {this.props.mode === DialogMode.Update ? "Update" : "Create"}
                     </Button>
                 </Modal.Footer>
             </Modal>

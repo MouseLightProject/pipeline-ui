@@ -4,13 +4,14 @@ import {graphql} from 'react-apollo';
 import {toast} from "react-toastify";
 
 import {TaskRepositoryTable} from "./TaskRepositoryTable";
-import {EditRepositoryDialog, RepositoryDialogMode} from "./EditRepositoryDialog";
+import {EditRepositoryDialog} from "./EditRepositoryDialog";
 import {CreateTaskRepositoryMutation} from "../../../graphql/taskRepository";
 import {ITaskRepository} from "../../../models/taskRepository";
 import {ModalAlert, toastCreateError, toastCreateSuccess} from "ndb-react-components";
 import FontAwesome = require("react-fontawesome");
 import {panelHeaderStyles} from "../../../util/styleDefinitions";
 import {TaskRepositoryHelpPanel} from "./TaskRepositoryHelp";
+import {DialogMode} from "../../helpers/DialogUtils";
 
 const styles = panelHeaderStyles;
 
@@ -74,7 +75,7 @@ export class TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelPro
         if (this.state.isAddDialogShown) {
             return (
                 <EditRepositoryDialog show={this.state.isAddDialogShown}
-                                      mode={RepositoryDialogMode.Create}
+                                      mode={DialogMode.Create}
                                       onCancel={() => this.setState({isAddDialogShown: false})}
                                       onAccept={(r: ITaskRepository) => this.onAcceptCreateRepository(r)}/>
             );

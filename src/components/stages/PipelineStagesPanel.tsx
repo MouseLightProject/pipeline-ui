@@ -12,11 +12,12 @@ import {IProject} from "../../models/project";
 import {ProjectMenuNavbar} from "../helpers/ProjectMenuNavbar";
 import {StagesHelpPanel} from "./PipelineStagesHelp";
 import {ModalAlert, toastCreateError, toastCreateSuccess} from "ndb-react-components";
-import {EditPipelineStageDialog, PipelineStageDialogMode} from "./EditPipelineStageDialog";
+import {EditPipelineStageDialog} from "./EditPipelineStageDialog";
 import {CreateStageMutation} from "../../graphql/pipelineStage";
 import {TaskQuery} from "../../graphql/taskDefinition";
 import {ITaskRepository} from "../../models/taskRepository";
 import {ITaskDefinition} from "../../models/taskDefinition";
+import {DialogMode} from "../helpers/DialogUtils";
 
 const styles = panelHeaderStyles;
 
@@ -100,7 +101,7 @@ export class PipelineStagesPanel extends React.Component<IPipelineStagesPanelPro
         if (this.state.isAddDialogShown) {
             return (
                 <EditPipelineStageDialog show={this.state.isAddDialogShown}
-                                         mode={PipelineStageDialogMode.Create}
+                                         mode={DialogMode.Create}
                                          projects={this.props.projects}
                                          tasks={this.props.data.taskDefinitions}
                                          onCancel={() => this.setState({isAddDialogShown: false})}

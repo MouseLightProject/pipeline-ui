@@ -6,12 +6,13 @@ import {toast} from "react-toastify";
 import FontAwesome = require("react-fontawesome");
 import {ITaskDefinition} from "../../../models/taskDefinition";
 import {TaskDefinitionsTable} from "./TaskDefinitionTable";
-import {EditTaskDefinitionDialog, TaskDefinitionDialogMode} from "./EditTaskDefinitionDialog";
+import {EditTaskDefinitionDialog} from "./EditTaskDefinitionDialog";
 import {ModalAlert, toastCreateError, toastCreateSuccess} from "ndb-react-components";
 import {ITaskRepository} from "../../../models/taskRepository";
 import {CreateTaskDefinitionMutation} from "../../../graphql/taskDefinition";
 import {panelHeaderStyles} from "../../../util/styleDefinitions";
 import {TaskDefinitionHelpPanel} from "./TaskDefinitionHelp";
+import {DialogMode} from "../../helpers/DialogUtils";
 
 const styles = panelHeaderStyles;
 
@@ -76,7 +77,7 @@ export class TaskDefinitionsPanel extends React.Component<ITaskDefinitionPanelPr
         if (this.state.isAddDialogShown) {
             return (
                 <EditTaskDefinitionDialog show={this.state.isAddDialogShown}
-                                          mode={TaskDefinitionDialogMode.Create}
+                                          mode={DialogMode.Create}
                                           taskRepositories={this.props.taskRepositories}
                                           onCancel={() => this.setState({isAddDialogShown: false})}
                                           onAccept={(r: ITaskDefinition) => this.onAcceptCreateTaskDefinition(r)}/>

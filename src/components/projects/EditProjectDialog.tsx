@@ -5,14 +5,11 @@ import {ChangeEvent} from "react";
 import * as pathIsAbsolute from "path-is-absolute";
 
 import {IProject, IProjectInput} from "../../models/project";
+import {DialogMode} from "../helpers/DialogUtils";
 
-export enum ProjectDialogMode {
-    Create,
-    Update
-}
 
 interface IEditProjectProps {
-    mode: ProjectDialogMode;
+    mode: DialogMode;
     show: boolean;
     sourceProject?: IProject;
 
@@ -170,7 +167,7 @@ export class EditProjectDialog extends React.Component<IEditProjectProps, IEditP
                                                                 id, name, description, root_path, sample_number,
                                                                 region_x_min, region_x_max, region_y_min, region_y_max, region_z_min, region_z_max
                                                             }) => ({
-            id: this.props.mode == ProjectDialogMode.Create ? undefined : id,
+            id: this.props.mode == DialogMode.Create ? undefined : id,
             name,
             description,
             root_path,
@@ -189,7 +186,7 @@ export class EditProjectDialog extends React.Component<IEditProjectProps, IEditP
     }
 
     public render() {
-        const title = this.props.mode === ProjectDialogMode.Create ? "Add New Pipeline" : "Update Pipeline";
+        const title = this.props.mode === DialogMode.Create ? "Add New Pipeline" : "Update Pipeline";
 
         return (
             <Modal show={this.props.show} onHide={this.props.onCancel}
@@ -284,12 +281,12 @@ export class EditProjectDialog extends React.Component<IEditProjectProps, IEditP
                 </Modal.Body>
                 <Modal.Footer>
                     <Button bsStyle="default" onClick={() => this.props.onCancel()}>Cancel</Button>
-                    {(this.props.mode === ProjectDialogMode.Update && this.props.sourceProject) ?
+                    {(this.props.mode === DialogMode.Update && this.props.sourceProject) ?
                         <Button bsStyle="default"
                                 onClick={() => this.applySourceProject()}>Revert</Button> : null}
                     <Button bsStyle="success" onClick={() => this.onCreateOrUpdate()}
                             disabled={!this.canCreateOrUpdate()} style={{marginLeft: "30px"}}>
-                        {this.props.mode === ProjectDialogMode.Update ? "Update" : "Create"}
+                        {this.props.mode === DialogMode.Update ? "Update" : "Create"}
                     </Button>
                 </Modal.Footer>
             </Modal>

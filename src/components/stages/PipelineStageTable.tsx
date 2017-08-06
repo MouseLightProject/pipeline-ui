@@ -26,7 +26,7 @@ export class PipelineStageTable extends React.Component<IPipelineStageTable, any
             <PipelineStageRow key={"tr_pipeline" + pipelineStage.id} pipelineStage={pipelineStage} tasks={this.props.tasks} projects={this.props.projects}/>));
 
         return (
-            <Table condensed>
+            <Table condensed style={{marginBottom: "0"}}>
                 <thead>
                 <tr>
                     <th/>

@@ -4,7 +4,7 @@
   "description": "",
   "dockerRepository": "mouselightpipeline",
   "scripts": {
-    "dev": "DEBUG=mouselight* node $NODE_DEBUG_OPTION src/pipelineClientServer.js",
+    "dev": "DEBUG=pipeline* node $NODE_DEBUG_OPTION src/pipelineClientServer.js",
     "start": "node src/pipelineClientServer.js",
     "lint": "eslint src",
     "docker-build": "gulp docker-build",

@@ -8,9 +8,10 @@ import {ProjectTable} from "./ProjectTable";
 import {panelHeaderStyles} from "../../util/styleDefinitions";
 import {ProjectsHelpPanel} from "./ProjectsHelp";
 import {ModalAlert, toastCreateError, toastCreateSuccess} from "ndb-react-components";
-import {EditProjectDialog, ProjectDialogMode} from "./EditProjectDialog";
+import {EditProjectDialog} from "./EditProjectDialog";
 import {CreateProjectMutation} from "../../graphql/project";
 import {IProject, IProjectInput} from "../../models/project";
+import {DialogMode} from "../helpers/DialogUtils";
 
 const styles = panelHeaderStyles;
 
@@ -74,7 +75,7 @@ export class ProjectsPanel extends React.Component<IProjectsPanelProps, IProject
         if (this.state.isAddDialogShown) {
             return (
                 <EditProjectDialog show={this.state.isAddDialogShown}
-                                   mode={ProjectDialogMode.Create}
+                                   mode={ DialogMode.Create}
                                    onCancel={() => this.setState({isAddDialogShown: false})}
                                    onAccept={(p: IProject) => this.onAcceptCreateProject(p)}/>
             );
