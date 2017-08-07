@@ -5,7 +5,7 @@ const config = require("./../webpack.config.js");
 
 import {Configuration} from "./configuration";
 
-const PORT = process.env.API_CLIENT_PORT || Configuration.port;
+console.log(`Preparing http://${Configuration.host}:${Configuration.port}/`);
 
 new WebpackDevServer(webpack(config), {
     stats: {
@@ -22,10 +22,10 @@ new WebpackDevServer(webpack(config), {
     historyApiFallback: true,
     noInfo: false, quiet: false
 
-}).listen(PORT, "0.0.0.0", (err) => {
+}).listen(Configuration.port, "0.0.0.0", (err) => {
     if (err) {
         return console.log(err);
     }
 
-    console.log(`Listening at http://${Configuration.host}:${PORT}/`);
+    console.log(`Listening at http://${Configuration.host}:${Configuration.port}/`);
 });
