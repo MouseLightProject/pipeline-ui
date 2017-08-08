@@ -16,6 +16,7 @@ interface IWorkerRowProps {
     worker: IWorker;
 
     setWorkerAvailability(id: string, shouldBeInSchedulerPool: boolean);
+
     updateWorker?(worker: IWorker): any;
 }
 
@@ -115,8 +116,8 @@ class WorkerRow extends React.Component<IWorkerRowProps, IWorkerRowState> {
                     <Button bsSize="xs" bsStyle="info" style={tableButtonStyles.editSmall}
                             onClick={(evt) => this.onClickUpdateWorker(evt)}
                             disabled={worker.status === PipelineWorkerStatus.Unavailable}>
-                         <Glyphicon glyph="pencil"/>
-                        </Button>
+                        <Glyphicon glyph="pencil"/>
+                    </Button>
                 </td>
                 <td>{worker.is_cluster_proxy ? "Yes" : "No"}</td>
             </tr>);
@@ -148,14 +149,12 @@ export class WorkerTable extends React.Component<IWorkerTableProps, any> {
     }
 
     public render() {
-        let rows = [];
+        const workers = this.props.workers.slice().sort((a, b) => a.name.localeCompare(b.name));
 
-        if (this.props.workers) {
-            rows = this.props.workers.map(worker => (
-                <WorkerRow key={"tr_worker" + worker.id} worker={worker}
-                           setWorkerAvailability={(id: string, b: boolean) => this.setWorkerAvailability(id, b)}/>)
-            );
-        }
+        const rows = workers.map(worker => (
+            <WorkerRow key={"tr_worker" + worker.id} worker={worker}
+                       setWorkerAvailability={(id: string, b: boolean) => this.setWorkerAvailability(id, b)}/>)
+        );
 
         return (
             <Table condensed style={{marginBottom: "0"}}>
