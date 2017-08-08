@@ -7,7 +7,13 @@ import {toast} from "react-toastify";
 import {graphql} from "react-apollo";
 import {tableButtonStyles, tableCellStyles} from "../../util/styleDefinitions";
 import {EditProjectDialog} from "./EditProjectDialog";
-import {ModalAlert, toastDeleteError, toastDeleteSuccess, toastUpdateError, toastUpdateSuccess} from "ndb-react-components";
+import {
+    ModalAlert,
+    toastDeleteError,
+    toastDeleteSuccess,
+    toastUpdateError,
+    toastUpdateSuccess
+} from "ndb-react-components";
 import {DeleteProjectMutation, UpdateProjectMutation} from "../../graphql/project";
 import {IProject, IProjectInput} from "../../models/project";
 import {DialogMode} from "../helpers/DialogUtils";
@@ -16,6 +22,7 @@ interface IProjectRowProps {
     project?: IProject;
 
     updateProject?(project: IProject): any;
+
     deleteProject?(id: string): any;
 }
 
@@ -74,18 +81,41 @@ export class ProjectRow extends React.Component<IProjectRowProps, IProjectRowSta
 
     getActivateStyle = isActive => isActive ? "info" : "success";
 
-    getRegionText = (value, isMin) => value !== null ? value.toString() : (isMin ? "any" : "any");
+    getRegionText = (value) => value !== null ? value.toString() : "any";
+
+    getSampleText = (value) => value !== null ? value.toString() : "unk";
+
+    getSampleMinDescription = project => {
+        return this.formatSamplePoint(project.sample_x_min, project.sample_y_min, project.sample_z_min);
+    };
+
+    getSampleMaxDescription(project) {
+        return this.formatSamplePoint(project.sample_x_max, project.sample_y_max, project.sample_z_max);
+    };
+
+    private formatSamplePoint(x: number, y: number, z: number)
+    {
+        return `[${this.getSampleText(x)}, ${this.getSampleText(y)}, ${this.getSampleText(z)}]`;
+    }
 
     getRegionMinDescription = project => {
-        return `[${this.getRegionText(project.region_x_min, true)}, ${this.getRegionText(project.region_y_min, true)}, ${this.getRegionText(project.region_z_min, true)}]`;
+        return this.formatRegionPoint(project.region_x_min, project.region_y_min, project.region_z_min);
     };
 
-    getRegionMaxDescription = project => {
-        return `[${this.getRegionText(project.region_x_max, false)}, ${this.getRegionText(project.region_y_max, false)}, ${this.getRegionText(project.region_z_max, false)}]`;
+    getRegionMaxDescription(project) {
+        return this.formatRegionPoint(project.region_x_max, project.region_y_max, project.region_z_max);
     };
+
+    private formatRegionPoint(x: number, y: number, z: number)
+    {
+        return `[${this.getRegionText(x)}, ${this.getRegionText(y)}, ${this.getRegionText(z)}]`;
+    }
 
     public async onActiveClick() {
-        await this.onAcceptUpdateProject({id: this.props.project.id, is_processing: !this.props.project.is_processing}, false);
+        await this.onAcceptUpdateProject({
+            id: this.props.project.id,
+            is_processing: !this.props.project.is_processing
+        }, false);
     };
 
     private async onAcceptUpdateProject(project: IProjectInput, showSuccessToast: boolean = true) {
@@ -176,12 +206,15 @@ export class ProjectRow extends React.Component<IProjectRowProps, IProjectRowSta
             <tr>
                 {this.renderUpdateProjectDialog()}
                 {this.renderDeleteProjectConfirmation()}
-                <td style={tableCellStyles.middle}><Button bsSize="xs" bsStyle={this.getActivateStyle(project.is_processing)}
-                                                           onClick={() => this.onActiveClick()} style={{marginLeft: "10px"}}><Glyphicon
+                <td style={tableCellStyles.middle}><Button bsSize="xs"
+                                                           bsStyle={this.getActivateStyle(project.is_processing)}
+                                                           onClick={() => this.onActiveClick()}
+                                                           style={{marginLeft: "10px"}}><Glyphicon
                     glyph={this.getActivateGlyph(project.is_processing)}/> {this.getActivateText(project.is_processing)}
                 </Button></td>
                 <td style={{paddingLeft: "10px"}}>
-                    <Button bsSize="sm" bsStyle="info" style={tableButtonStyles.edit} onClick={(evt) => this.onClickUpdateProject(evt)} disabled={project.is_processing}>
+                    <Button bsSize="sm" bsStyle="info" style={tableButtonStyles.edit}
+                            onClick={(evt) => this.onClickUpdateProject(evt)} disabled={project.is_processing}>
                         <span>
                         <FontAwesome name="pencil"/>
                         </span>
@@ -197,7 +230,19 @@ export class ProjectRow extends React.Component<IProjectRowProps, IProjectRowSta
                 <td style={tableCellStyles.middle}>
                     {this.renderRootPath()}
                 </td>
-                <td>{this.getRegionMinDescription(project)}<br/><span>{this.getRegionMaxDescription(project)}</span>
+                <td>
+                    {this.getSampleMinDescription(project)}
+                    <br/>
+                    <span>
+                        {this.getSampleMaxDescription(project)}
+                    </span>
+                </td>
+                <td>
+                    {this.getRegionMinDescription(project)}
+                    <br/>
+                    <span>
+                        {this.getRegionMaxDescription(project)}
+                    </span>
                 </td>
                 <td style={{textAlign: "center", paddingRight: "10px", width: "20px", verticalAlign: "middle"}}>
                     {project.stages.length === 0 ?

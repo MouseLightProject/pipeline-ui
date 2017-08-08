@@ -35,6 +35,7 @@ export class ProjectTable extends React.Component<IProjectTableProps, IProjectTa
                     <th>Sample</th>
                     <th>Name<br/><span style={spanStyle}>Description</span></th>
                     <th>Path to Dashboard Root</th>
+                    <th>Sample Limits</th>
                     <th>Selected Region</th>
                     <th/>
                 </tr>
