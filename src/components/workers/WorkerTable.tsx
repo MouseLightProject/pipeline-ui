@@ -105,7 +105,7 @@ class WorkerRow extends React.Component<IWorkerRowProps, IWorkerRowState> {
                     <Button bsSize="xs" bsStyle={this.getActivateStyle(worker.is_in_scheduler_pool)}
                             onClick={() => this.onActiveClick()}>
                         <Glyphicon glyph={this.getActivateGlyph(worker.is_in_scheduler_pool)}/>
-                        {this.getActivateText(worker.is_in_scheduler_pool)}
+                        &nbsp;{this.getActivateText(worker.is_in_scheduler_pool)}
                     </Button></td>
                 <td>{worker.name}</td>
                 <td>{worker.machine_id.slice(0, 8)}</td>

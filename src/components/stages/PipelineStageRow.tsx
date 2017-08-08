@@ -175,7 +175,7 @@ export class PipelineStageRow extends React.Component<IPipelineStageRowProps, IP
                     <Button bsSize="xs" bsStyle={this.getActivateStyle(pipelineStage.is_processing)} onClick={() => this.onActiveClick()}
                             style={{marginLeft: "10px"}} disabled={!pipelineStage.project.is_processing}>
                         <Glyphicon glyph={this.getActivateGlyph(pipelineStage.is_processing)}/>
-                        {this.getActivateText(pipelineStage.is_processing)}
+                        &nbsp;{this.getActivateText(pipelineStage.is_processing)}
                     </Button>
                 </td>
                 <td style={{paddingLeft: "10px"}}>

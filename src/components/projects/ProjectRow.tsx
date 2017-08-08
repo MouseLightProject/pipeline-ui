@@ -210,7 +210,7 @@ export class ProjectRow extends React.Component<IProjectRowProps, IProjectRowSta
                                                            bsStyle={this.getActivateStyle(project.is_processing)}
                                                            onClick={() => this.onActiveClick()}
                                                            style={{marginLeft: "10px"}}><Glyphicon
-                    glyph={this.getActivateGlyph(project.is_processing)}/> {this.getActivateText(project.is_processing)}
+                    glyph={this.getActivateGlyph(project.is_processing)}/>&nbsp;{this.getActivateText(project.is_processing)}
                 </Button></td>
                 <td style={{paddingLeft: "10px"}}>
                     <Button bsSize="sm" bsStyle="info" style={tableButtonStyles.edit}
