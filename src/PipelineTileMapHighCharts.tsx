@@ -293,17 +293,17 @@ class MapPanel extends React.Component<any, any> {
         if (projects.length > 0 && projects[0].id !== this.state.projectId) {
             const project = projects[0];
 
-            if (project.region_z_min > -1) {
+            if (project.region_z_min !== null) {
                 minZ = project.region_z_min;
             }
-            else if (project.sample_z_min > -1) {
+            else if (project.sample_z_min !== null) {
                 minZ = project.sample_z_min;
             }
 
-            if (project.region_z_max > -1) {
+            if (project.region_z_max !== null) {
                 maxZ = project.region_z_max;
             }
-            else if (project.sample_z_max > -1) {
+            else if (project.sample_z_max !== null) {
                 maxZ = project.sample_z_max;
             }
 
