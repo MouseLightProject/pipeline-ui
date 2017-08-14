@@ -255,17 +255,17 @@ class MapPanel extends React.Component<any, any> {
                 let maxZ = 1e6;
                 let plane = this.state.plane;
 
-                if (project.region_z_min > -1) {
+                if (project.region_z_min !== null) {
                     minZ = project.region_z_min;
                 }
-                else if (project.sample_z_min > -1) {
+                else if (project.sample_z_min !== null) {
                     minZ = project.sample_z_min;
                 }
 
-                if (project.region_z_max > -1) {
+                if (project.region_z_max !== null) {
                     maxZ = project.region_z_max;
                 }
-                else if (project.sample_z_max > -1) {
+                else if (project.sample_z_max !== null) {
                     maxZ = project.sample_z_max;
                 }
 
