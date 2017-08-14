@@ -37,6 +37,7 @@ const HeaderSummaryQuery = gql`query {
       id
       name
       depth
+      is_processing
       previous_stage_id
       task_id
       task {
@@ -180,10 +181,12 @@ class AbstractSummary<P, S> extends React.Component<P, S> {
         return projects.map(project => project.stages)
         .reduce((prev, arrStages) => prev.concat(arrStages), [])
         .reduce((previous, stage) => {
-            previous.inProcess += stage.performance.num_in_process;
-            previous.toProcess += stage.performance.num_ready_to_process;
-            previous.complete += stage.performance.num_complete;
-            previous.errors += stage.performance.num_error;
+            if (stage.is_processing) {
+                previous.inProcess += stage.performance.num_in_process;
+                previous.toProcess += stage.performance.num_ready_to_process;
+                previous.complete += stage.performance.num_complete;
+                previous.errors += stage.performance.num_error;
+            }
 
             return previous;
         }, stats);
