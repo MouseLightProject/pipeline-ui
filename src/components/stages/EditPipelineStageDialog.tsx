@@ -4,7 +4,7 @@ import {FormControlValidationState} from "../../util/bootstrapUtils";
 import {ChangeEvent} from "react";
 import * as pathIsAbsolute from "path-is-absolute";
 
-import {IPipelineStage} from "../../models/pipelineStage";
+import {IPipelineStage, PipelineStageMethod} from "../../models/pipelineStage";
 import {IProject} from "../../models/project";
 import {ProjectSelect} from "../helpers/ProjectSelect";
 import {PipelineStageSelect} from "../helpers/PipelineStageSelect";
@@ -30,7 +30,7 @@ function assignStage(stage: IPipelineStage) {
         task: null,
         previous_stage: null,
         dst_path: "",
-        function_type: 0
+        function_type: PipelineStageMethod.MapTile
     }
 }
 

@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Panel, Button} from "react-bootstrap"
+import {Panel, Button, Row} from "react-bootstrap"
 import {graphql} from 'react-apollo';
 import {toast} from "react-toastify";
 
@@ -17,6 +17,7 @@ const styles = panelHeaderStyles;
 
 interface ITaskRepositoryPanelProps {
     taskRepositories: ITaskRepository[];
+    pipelineVolume: string;
 
     createTaskRepository?(taskRepository: ITaskRepository): any;
 }
@@ -116,12 +117,25 @@ export class TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelPro
         );
     }
 
+    private renderPipelineVolume() {
+        if (!this.props.pipelineVolume) {
+            return null;
+        }
+
+        return (
+            <div style={{padding: "6px", borderTop: "1px solid", backgroundColor:"#EFEFEF"}}>
+                {`Note: /opt/pipeline maps to ${this.props.pipelineVolume}`};
+            </div>
+        )
+    }
+
     public render() {
         return (
             <Panel header={this.renderHeader()} bsStyle="primary">
                 {this.renderHelpDialog()}
                 {this.renderAddRepositoryDialog()}
                 <TaskRepositoryTable taskRepositories={this.props.taskRepositories}/>
+                {this.renderPipelineVolume()}
             </Panel>
         );
     }

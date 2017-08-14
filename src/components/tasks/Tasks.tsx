@@ -14,6 +14,7 @@ const styles = contentStyles;
 interface ITaskQueryProps {
     taskDefinitions: ITaskDefinition[];
     taskRepositories: ITaskRepository[];
+    pipelineVolume: string;
 }
 
 interface ITaskDefinitionPanelProps extends InjectedGraphQLProps<ITaskQueryProps> {
@@ -41,7 +42,7 @@ export class TasksPanel extends React.Component<ITaskDefinitionPanelProps, ITask
 
         return (
             <div style={styles.body}>
-                <TaskRepositoryPanel taskRepositories={this.props.data.taskRepositories}/>
+                <TaskRepositoryPanel taskRepositories={this.props.data.taskRepositories} pipelineVolume={this.props.data.pipelineVolume}/>
                 <TaskDefinitionsPanel taskDefinitions={this.props.data.taskDefinitions}
                                       taskRepositories={this.props.data.taskRepositories}/>
             </div>

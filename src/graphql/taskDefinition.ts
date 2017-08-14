@@ -36,6 +36,7 @@ export const TaskQuery = gql`query {
       name
     }
   }
+  pipelineVolume
 }`;
 
 export const CreateTaskDefinitionMutation = gql`mutation CreateTaskDefinition($taskDefinition: TaskDefinitionInput) {

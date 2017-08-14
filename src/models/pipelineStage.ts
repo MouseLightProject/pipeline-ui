@@ -1,6 +1,11 @@
 import {ITaskDefinition} from "./taskDefinition";
 import {IProject} from "./project";
 
+export enum PipelineStageMethod {
+    DashboardProjectRefresh = 1,
+    MapTile = 2,
+    ZIndexTileComparison = 3
+}
 export enum TilePipelineStatus {
     DoesNotExist = 0,
     Waiting = 1,
