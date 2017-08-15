@@ -124,7 +124,7 @@ export class TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelPro
 
         return (
             <div style={{padding: "6px", borderTop: "1px solid", backgroundColor:"#EFEFEF"}}>
-                {`Note: /opt/pipeline maps to ${this.props.pipelineVolume}`};
+                {`Note: /opt/pipeline maps to ${this.props.pipelineVolume}`}
             </div>
         )
     }
