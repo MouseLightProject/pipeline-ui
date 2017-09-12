@@ -149,7 +149,9 @@ export class PipelineGraph extends React.Component<any, IPipelineGraphState> {
             ele = collection[0];
         }
 
-        let totalProcessed = stage.performance.num_in_process + stage.performance.num_ready_to_process + stage.performance.num_complete + stage.performance.num_error;
+        const performance = stage.performance || {num_in_process: 0, num_ready_to_process: 0, num_complete: 0, num_error: 0};
+
+        let totalProcessed = performance ? performance.num_in_process + performance.num_ready_to_process + performance.num_complete + performance.num_error : NaN;
 
         if (ele === null) {
             nodes.push({
@@ -162,11 +164,11 @@ export class PipelineGraph extends React.Component<any, IPipelineGraphState> {
                     breadth: breadth,
                     isPie: 1,
                     shortName: simpleName,
-                    numInProcess: stage.performance.num_in_process / totalProcessed,
-                    numReadyToProcess: stage.performance.num_ready_to_process / totalProcessed,
-                    numComplete: stage.performance.num_complete / totalProcessed,
-                    numError: stage.performance.num_error / totalProcessed,
-                    queueWeight: stage.performance.num_ready_to_process / waitingCount,
+                    numInProcess: performance.num_in_process / totalProcessed,
+                    numReadyToProcess: performance.num_ready_to_process / totalProcessed,
+                    numComplete: performance.num_complete / totalProcessed,
+                    numError: performance.num_error / totalProcessed,
+                    queueWeight: performance.num_ready_to_process / waitingCount,
                     bgColor: stage.is_processing ? "#86B342" : "#FF0000",
                     shape: "rectangle"
                 }
@@ -175,11 +177,11 @@ export class PipelineGraph extends React.Component<any, IPipelineGraphState> {
             ele.data("name", name);
             ele.data("shortName", simpleName);
             ele.data("breadth", breadth);
-            ele.data("numInProcess", stage.performance.num_in_process / totalProcessed);
-            ele.data("numReadyToProcess", stage.performance.num_ready_to_process / totalProcessed);
-            ele.data("numComplete", stage.performance.num_complete / totalProcessed);
-            ele.data("numError", stage.performance.num_error / totalProcessed);
-            ele.data("queueWeight", stage.performance.num_ready_to_process / waitingCount);
+            ele.data("numInProcess", performance.num_in_process / totalProcessed);
+            ele.data("numReadyToProcess", performance.num_ready_to_process / totalProcessed);
+            ele.data("numComplete", performance.num_complete / totalProcessed);
+            ele.data("numError", performance.num_error / totalProcessed);
+            ele.data("queueWeight", performance.num_ready_to_process / waitingCount);
             ele.data("bgColor", stage.is_processing ? "#86B342" : "#FF0000");
         }
 

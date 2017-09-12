@@ -4,7 +4,7 @@ export const WorkerQuery = gql`query {
     pipelineWorkers {
       id
       name
-      machine_id
+      worker_id
       work_unit_capacity
       last_seen
       task_load
@@ -19,7 +19,7 @@ export const UpdateWorkerMutation = gql`mutation UpdateWorker($worker: PipelineW
         worker {
       id
       name
-      machine_id
+      worker_id
       work_unit_capacity
       last_seen
       task_load

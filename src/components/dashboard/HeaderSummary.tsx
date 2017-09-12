@@ -67,7 +67,7 @@ const HeaderSummaryQuery = gql`query {
   pipelineWorkers {
     id
     name
-    machine_id
+    worker_id
     work_unit_capacity
     last_seen
     task_load
@@ -181,7 +181,7 @@ class AbstractSummary<P, S> extends React.Component<P, S> {
         return projects.map(project => project.stages)
         .reduce((prev, arrStages) => prev.concat(arrStages), [])
         .reduce((previous, stage) => {
-            if (stage.is_processing) {
+            if (stage.is_processing && stage.performance) {
                 previous.inProcess += stage.performance.num_in_process;
                 previous.toProcess += stage.performance.num_ready_to_process;
                 previous.complete += stage.performance.num_complete;

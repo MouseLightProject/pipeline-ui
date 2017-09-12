@@ -109,7 +109,7 @@ class WorkerRow extends React.Component<IWorkerRowProps, IWorkerRowState> {
                         &nbsp;{this.getActivateText(worker.is_in_scheduler_pool)}
                     </Button></td>
                 <td>{worker.name}</td>
-                <td>{worker.machine_id.slice(0, 8)}</td>
+                <td>{worker.worker_id.slice(0, 8)}</td>
                 <td>{last_seen_moment}</td>
                 <td>
                     {status}
