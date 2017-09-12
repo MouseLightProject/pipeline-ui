@@ -32,6 +32,7 @@ interface IPipelineStagesPanelProps extends InjectedGraphQLProps<ITaskQueryProps
     pipelinesForProjectId: string;
 
     onPipelinesForProjectIdChanged(id: string);
+    onSelectedPipelineStageChanged(stage: IPipelineStage);
 
     createPipelineStage?(stage: IPipelineStage): any;
 }
