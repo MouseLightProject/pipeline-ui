@@ -162,7 +162,7 @@ export class WorkerTable extends React.Component<IWorkerTableProps, any> {
                 <tr>
                     <th>Scheduler Pool</th>
                     <th>Name</th>
-                    <th>Machine Id</th>
+                    <th>Worker Id</th>
                     <th>Last Seen</th>
                     <th>Status (Load/Capacity)</th>
                     <th>Cluster Proxy</th>
