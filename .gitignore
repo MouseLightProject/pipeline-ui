@@ -28,3 +28,5 @@ tmp
 
 # Generated js in TypeScript source directories.
 *.js
+
+options.sh
