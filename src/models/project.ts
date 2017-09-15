@@ -5,6 +5,7 @@ export interface IProject {
     name?: string;
     description?: string;
     root_path?: string;
+    log_root_path?: string;
     dashboard_json_status?: boolean;
     sample_number?: number;
     sample_x_min?: number;

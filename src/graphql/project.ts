@@ -6,6 +6,7 @@ export const ProjectsQuery = gql`query {
       name
       description
       root_path
+      log_root_path
       dashboard_json_status
       sample_number
       sample_x_min
@@ -58,6 +59,7 @@ export const CreateProjectMutation = gql`mutation CreateProjectMutation($project
         name
         description
         root_path
+        log_root_path
         dashboard_json_status
         sample_number
         sample_x_min
@@ -115,6 +117,7 @@ export const UpdateProjectMutation = gql`
         name
         description
         root_path
+        log_root_path
         dashboard_json_status
         sample_number
         sample_x_min

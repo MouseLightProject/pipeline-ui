@@ -24,6 +24,7 @@ export const TaskQuery = gql`query {
     interpreter
     work_units
     args
+    expected_exit_code
     script_status
     task_repository {
       id
@@ -48,6 +49,7 @@ export const CreateTaskDefinitionMutation = gql`mutation CreateTaskDefinition($t
             script
             interpreter
             args
+            expected_exit_code
             work_units
             task_repository {
               id
@@ -69,6 +71,7 @@ export const UpdateTaskDefinitionMutation = gql`mutation UpdateTaskDefinition($t
             script
             interpreter
             args
+            expected_exit_code
             work_units
             task_repository {
               id

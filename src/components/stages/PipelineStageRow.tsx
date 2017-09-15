@@ -17,6 +17,7 @@ import {DialogMode} from "../helpers/DialogUtils";
 const previousStageIsAcquisitionRoot = "(acquisition root)";
 
 interface IPipelineStageRowProps {
+    isSelected: boolean;
     pipelineStage?: IPipelineStage;
 
     projects: IProject[];
@@ -24,6 +25,7 @@ interface IPipelineStageRowProps {
 
     updatePipelineStage?(project: IProject): any;
     deletePipelineStage?(id: string): any;
+    onSelectedPipelineStageChanged(stage: IPipelineStage);
 }
 
 interface IPipelineStageRowState {
@@ -168,7 +170,7 @@ export class PipelineStageRow extends React.Component<IPipelineStageRowProps, IP
         }
 
         return (
-            <tr>
+            <tr onClick={() => this.props.onSelectedPipelineStageChanged(pipelineStage)} style={this.props.isSelected ? {backgroundColor: "#EEE"} : {}}>
                 {this.renderUpdatePipelineStageDialog()}
                 {this.renderDeletePipelineStageConfirmation()}
                 <td style={tableCellStyles.middle}>

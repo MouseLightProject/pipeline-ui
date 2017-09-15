@@ -28,7 +28,7 @@ export class TaskDefinitionHelpPanel extends React.Component<ITaskDefinitionHelp
                 </p>
                 <h4>Standard Arguments</h4>
                 <p>
-                    All scripts and applications are called with seven standard arguments (e.g., $1 - $7 in a bash
+                    All scripts and applications are called with seven standard arguments (e.g., $1 - $9 in a bash
                     script):
                 </p>
                 <ol>
@@ -38,6 +38,8 @@ export class TaskDefinitionHelpPanel extends React.Component<ITaskDefinitionHelp
                     <li>Stage output root path</li>
                     <li>Relative path to tile (from stage input)</li>
                     <li>Tile name</li>
+                    <li>Log root path</li>
+                    <li>Expected exit code</li>
                     <li>Cluster job flag</li>
                 </ol>
                 <h5>Paths</h5>

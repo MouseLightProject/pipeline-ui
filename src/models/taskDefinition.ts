@@ -8,6 +8,7 @@ export interface ITaskDefinition {
     interpreter?: string;
     description?: string;
     args?: string;
+    expected_exit_code?: number;
     work_units?: number;
     script_status?: boolean;
     task_repository?: ITaskRepository;

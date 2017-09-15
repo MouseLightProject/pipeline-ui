@@ -7,6 +7,7 @@ import {PipelineStagesPanel} from "./PipelineStagesPanel";
 import {PipelineStagesQuery} from "../../graphql/pipelineStage";
 import {ProjectsQuery} from "../../graphql/project";
 import {IPipelineStage} from "../../models/pipelineStage";
+import {PipelineStageDetails} from "./details/PipelineStageDetails";
 
 const styles = contentStyles;
 
@@ -65,8 +66,10 @@ export class PipelineStages extends React.Component<IPipelineStagesProps, IPipel
                 <PipelineStagesPanel projects={this.props.projectsData.projects}
                                      pipelineStages={this.props.data.pipelineStages}
                                      pipelinesForProjectId={this.state.pipelinesForProjectId}
+                                     selectedPipelineStage={this.state.selectedStage}
                                      onPipelinesForProjectIdChanged={(id: string) => this.onPipelinesForProjectIdChanged(id)}
                                      onSelectedPipelineStageChanged={(s: IPipelineStage) => this.onSelectedPipelineStageChanged(s)}/>
+                {/*<PipelineStageDetails selectedPipelineStage={this.state.selectedStage}/>*/}
             </div>
         );
     }

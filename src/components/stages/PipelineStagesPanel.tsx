@@ -30,6 +30,7 @@ interface IPipelineStagesPanelProps extends InjectedGraphQLProps<ITaskQueryProps
     projects: IProject[];
     pipelineStages: IPipelineStage[];
     pipelinesForProjectId: string;
+    selectedPipelineStage: IPipelineStage;
 
     onPipelinesForProjectIdChanged(id: string);
     onSelectedPipelineStageChanged(stage: IPipelineStage);
@@ -159,7 +160,9 @@ export class PipelineStagesPanel extends React.Component<IPipelineStagesPanelPro
                     <PipelineStageTable selectedProjectId={this.state.projectId}
                                         pipelineStages={this.props.pipelineStages}
                                         tasks={this.props.data.taskDefinitions}
-                                        projects={this.props.projects}/>
+                                        projects={this.props.projects}
+                                        selectedPipelineStage={this.props.selectedPipelineStage}
+                                        onSelectedPipelineStageChanged={this.props.onSelectedPipelineStageChanged}/>
                 </Panel>
             </div>
         );

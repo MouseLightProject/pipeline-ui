@@ -28,13 +28,14 @@ export class EditProjectDialog extends React.Component<IEditProjectProps, IEditP
 
         this.state = {
             project: props.sourceProject ? (({
-                                                 id, name, description, root_path, sample_number,
+                                                 id, name, description, root_path, log_root_path, sample_number,
                                                  region_x_min, region_x_max, region_y_min, region_y_max, region_z_min, region_z_max
                                              }) => ({
                 id,
                 name,
                 description,
                 root_path,
+                log_root_path,
                 sample_number,
                 region_x_min,
                 region_x_max,
@@ -47,6 +48,7 @@ export class EditProjectDialog extends React.Component<IEditProjectProps, IEditP
                 name: "",
                 description: "",
                 root_path: "",
+                log_root_path: "",
                 sample_number: null,
                 region_x_min: null,
                 region_x_max: null,
@@ -67,13 +69,14 @@ export class EditProjectDialog extends React.Component<IEditProjectProps, IEditP
         if (this.props.sourceProject) {
             this.setState({
                 project: Object.assign(this.state.project, (({
-                                                                 id, name, description, root_path, sample_number,
+                                                                 id, name, description, root_path, log_root_path, sample_number,
                                                                  region_x_min, region_x_max, region_y_min, region_y_max, region_z_min, region_z_max
                                                              }) => ({
                     id,
                     name,
                     description,
                     root_path,
+                    log_root_path,
                     sample_number,
                     region_x_min,
                     region_x_max,
@@ -111,6 +114,20 @@ export class EditProjectDialog extends React.Component<IEditProjectProps, IEditP
     private onRootPathChanged(evt: ChangeEvent<any>) {
         this.setState({
             project: Object.assign(this.state.project, {root_path: evt.target.value})
+        });
+    }
+
+    private get isLogRootPathValid(): boolean {
+        return !this.state.project.log_root_path || pathIsAbsolute.posix(this.state.project.log_root_path);
+    }
+
+    private get logRootPathValidationState(): FormControlValidationState {
+        return this.isLogRootPathValid ? null : "error";
+    }
+
+    private onLogRootPathChanged(evt: ChangeEvent<any>) {
+        this.setState({
+            project: Object.assign(this.state.project, {log_root_path: evt.target.value})
         });
     }
 
@@ -164,13 +181,14 @@ export class EditProjectDialog extends React.Component<IEditProjectProps, IEditP
 
     private onCreateOrUpdate() {
         const projectInput: IProjectInput = Object.assign((({
-                                                                id, name, description, root_path, sample_number,
+                                                                id, name, description, root_path, log_root_path, sample_number,
                                                                 region_x_min, region_x_max, region_y_min, region_y_max, region_z_min, region_z_max
                                                             }) => ({
             id: this.props.mode == DialogMode.Create ? undefined : id,
             name,
             description,
             root_path,
+            log_root_path,
             sample_number,
             region_bounds: {
                 x_min: region_x_min,
@@ -201,7 +219,7 @@ export class EditProjectDialog extends React.Component<IEditProjectProps, IEditP
                                      placeholder="name is required"
                                      onChange={(evt: any) => this.onNameChanged(evt)}/>
                     </FormGroup>
-                    <FormGroup bsSize="sm" controlId="script" validationState={this.rootPathValidationState}>
+                    <FormGroup bsSize="sm" controlId="root_path" validationState={this.rootPathValidationState}>
                         <ControlLabel>Root Path</ControlLabel>
                         <FormControl type="text" value={this.state.project.root_path}
                                      placeholder="root path is required"
@@ -212,6 +230,12 @@ export class EditProjectDialog extends React.Component<IEditProjectProps, IEditP
                         <FormControl type="text" value={this.state.project.sample_number !== null ? this.state.project.sample_number : ""}
                                      placeholder=""
                                      onChange={evt => this.onSampleNumberChanged(evt)}/>
+                    </FormGroup>
+                    <FormGroup bsSize="sm" controlId="log-root-path" validationState={this.logRootPathValidationState}>
+                        <ControlLabel>Log Root Path</ControlLabel>
+                        <FormControl type="text" value={this.state.project.log_root_path !== null ? this.state.project.log_root_path : ""}
+                                     placeholder=""
+                                     onChange={evt => this.onLogRootPathChanged(evt)}/>
                     </FormGroup>
                     <FormGroup bsSize="sm" controlId="description">
                         <ControlLabel>Description</ControlLabel>

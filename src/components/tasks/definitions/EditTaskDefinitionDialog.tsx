@@ -21,6 +21,7 @@ interface IEditTaskDefinitionProps {
 interface IEditTaskDefinitionState {
     taskDefinition?: ITaskDefinition;
     work_units?: string;
+    expected_exit_code?: string;
 }
 
 export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitionProps, IEditTaskDefinitionState> {
@@ -28,13 +29,14 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
         super(props);
 
         this.state = {
-            taskDefinition: props.sourceTaskDefinition ? (({id, name, description, script, interpreter, args, work_units, task_repository}) => ({
+            taskDefinition: props.sourceTaskDefinition ? (({id, name, description, script, interpreter, args, expected_exit_code, work_units, task_repository}) => ({
                 id,
                 name,
                 description,
                 script,
                 interpreter,
                 args,
+                expected_exit_code,
                 work_units,
                 task_repository
             }))(this.props.sourceTaskDefinition) : {
@@ -44,10 +46,12 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                 script: "",
                 interpreter: "none",
                 args: "",
+                expected_exit_code: 0,
                 work_units: 1,
                 task_repository: null
             },
-            work_units: props.sourceTaskDefinition ? props.sourceTaskDefinition.work_units.toString() : "1"
+            work_units: props.sourceTaskDefinition ? props.sourceTaskDefinition.work_units.toString() : "1",
+            expected_exit_code: props.sourceTaskDefinition ? props.sourceTaskDefinition.expected_exit_code.toString() : "0"
         };
     }
 
@@ -58,17 +62,19 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
     private applySourceTaskDefinition(props: IEditTaskDefinitionProps) {
         if (props.sourceTaskDefinition) {
             this.setState({
-                taskDefinition: Object.assign(this.state.taskDefinition, (({id, name, description, script, interpreter, args, work_units, task_repository}) => ({
+                taskDefinition: Object.assign(this.state.taskDefinition, (({id, name, description, script, interpreter, args, expected_exit_code, work_units, task_repository}) => ({
                     id,
                     name,
                     description,
                     script,
                     interpreter,
                     args,
+                    expected_exit_code,
                     work_units,
                     task_repository
                 }))(props.sourceTaskDefinition)),
-                work_units:  props.sourceTaskDefinition ? props.sourceTaskDefinition.work_units.toString() : "1"
+                work_units: props.sourceTaskDefinition ? props.sourceTaskDefinition.work_units.toString() : "1",
+                expected_exit_code: props.sourceTaskDefinition ? props.sourceTaskDefinition.expected_exit_code.toString() : "0"
             });
         }
     }
@@ -104,6 +110,22 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
     private onChangeTaskRepository(task_repository: ITaskRepository) {
         this.setState({
             taskDefinition: Object.assign(this.state.taskDefinition, {task_repository})
+        });
+    }
+
+    private get isExpectedExitCodeValid(): boolean {
+        const eec = parseInt(this.state.expected_exit_code);
+
+        return !isNaN(eec);
+    }
+
+    private get expectedExitCodeIsValidationState(): FormControlValidationState {
+        return this.isExpectedExitCodeValid ? null : "error";
+    }
+
+    private onExpectedExitCodeChanged(evt: ChangeEvent<any>) {
+        this.setState({
+            expected_exit_code: evt.target.value
         });
     }
 
@@ -160,7 +182,8 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
             work_units,
             task_repository_id: task_repository ? task_repository.id : null
         }))(this.state.taskDefinition), {
-            work_units: parseFloat(this.state.work_units)
+            work_units: parseFloat(this.state.work_units),
+            expected_exit_code: parseFloat(this.state.expected_exit_code)
         });
 
         this.props.onAccept(taskDefinition)
@@ -203,6 +226,12 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                         <FormControl type="text" value={this.state.taskDefinition.args}
                                      placeholder="(optional)"
                                      onChange={(evt: any) => this.onArgumentsChanged(evt)}/>
+                    <FormGroup bsSize="sm" controlId="expected_exit_code" validationState={this.expectedExitCodeIsValidationState}>
+                        <ControlLabel>Expected Exit Code</ControlLabel>
+                        <FormControl type="text" value={this.state.expected_exit_code}
+                                     placeholder="0"
+                                     onChange={(evt: any) => this.onExpectedExitCodeChanged(evt)}/>
+                    </FormGroup>
                     </FormGroup>
                     <FormGroup bsSize="sm" controlId="work_units" validationState={this.workUnitIsValidationState}>
                         <ControlLabel>Work Units</ControlLabel>

@@ -12,6 +12,9 @@ interface IPipelineStageTable {
     selectedProjectId: string;
     tasks: ITaskDefinition[];
     projects: IProject[];
+    selectedPipelineStage: IPipelineStage;
+
+    onSelectedPipelineStageChanged(stage: IPipelineStage);
 }
 
 export class PipelineStageTable extends React.Component<IPipelineStageTable, any> {
@@ -23,18 +26,21 @@ export class PipelineStageTable extends React.Component<IPipelineStageTable, any
         }
 
         stages = stages.sort((a, b) => {
-           if  (a.project.id === b.project.id) {
-               if (a.depth === b.depth) {
-                   return a.depth - b.depth;
-               }
-               return a.name.localeCompare(b.name);
-           }
+            if (a.project.id === b.project.id) {
+                if (a.depth === b.depth) {
+                    return a.depth - b.depth;
+                }
+                return a.name.localeCompare(b.name);
+            }
 
-           return a.project.name.localeCompare(b.project.name);
+            return a.project.name.localeCompare(b.project.name);
         });
 
         let rows = stages.map(pipelineStage => (
-            <PipelineStageRow key={"tr_pipeline" + pipelineStage.id} pipelineStage={pipelineStage} tasks={this.props.tasks} projects={this.props.projects}/>));
+            <PipelineStageRow key={"tr_pipeline" + pipelineStage.id}
+                              isSelected={this.props.selectedPipelineStage === pipelineStage}
+                              pipelineStage={pipelineStage} tasks={this.props.tasks} projects={this.props.projects}
+                              onSelectedPipelineStageChanged={this.props.onSelectedPipelineStageChanged}/>));
 
         return (
             <Table condensed style={{marginBottom: "0"}}>
