@@ -69,7 +69,7 @@ export class PipelineStages extends React.Component<IPipelineStagesProps, IPipel
                                      selectedPipelineStage={this.state.selectedStage}
                                      onPipelinesForProjectIdChanged={(id: string) => this.onPipelinesForProjectIdChanged(id)}
                                      onSelectedPipelineStageChanged={(s: IPipelineStage) => this.onSelectedPipelineStageChanged(s)}/>
-                {/*<PipelineStageDetails selectedPipelineStage={this.state.selectedStage}/>*/}
+                <PipelineStageDetails selectedPipelineStage={this.state.selectedStage}/>
             </div>
         );
     }

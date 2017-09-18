@@ -7,8 +7,8 @@ let Plotly = require("plotly.js");
 let numeric = require("numeric");
 
 import {Loading} from "./Loading";
-import {TilePipelineStatus} from "./models/pipelineStage";
 import {IProject} from "./models/project";
+import {TilePipelineStatus} from "./models/tilePipelineStatus";
 
 enum TileStatusSortIndex {
     Incomplete = 0,
@@ -245,13 +245,13 @@ export class Plot extends React.Component<any, any> {
                 }
 
                 let markedStages = tile.stages.reduce((depth, stage) => {
-                    if (stage.status === TilePipelineStatus.Waiting) {
+                    if (stage.status === TilePipelineStatus.Incomplete) {
                         // Queued or processing
                         if (depth[TileStatusSortIndex.Incomplete] === null || stage.depth < depth[TileStatusSortIndex.Incomplete].depth)
                             depth[TileStatusSortIndex.Incomplete] = stage;
                     }
 
-                    if (stage.status > TilePipelineStatus.Waiting && stage.status < TilePipelineStatus.Complete) {
+                    if (stage.status > TilePipelineStatus.Incomplete && stage.status < TilePipelineStatus.Complete) {
                         // Queued or processing
                         if (depth[TileStatusSortIndex.Queued] === null || stage.depth < depth[TileStatusSortIndex.Queued].depth)
                             depth[TileStatusSortIndex.Queued] = stage;
@@ -316,7 +316,7 @@ export class Plot extends React.Component<any, any> {
                 if (displayStage) {
                     if (displayStage.status === TilePipelineStatus.Complete) {
                         pseudoDepth = displayStage.depth + 1
-                    } else if (displayStage.depth === 1 && displayStage.status === TilePipelineStatus.Waiting) {
+                    } else if (displayStage.depth === 1 && displayStage.status === TilePipelineStatus.Incomplete) {
                         pseudoDepth = displayStage.depth - 0.5;
                     } else if (displayStage.status === TilePipelineStatus.Processing) {
                         pseudoDepth = displayStage.depth + 0.5;
@@ -336,17 +336,17 @@ export class Plot extends React.Component<any, any> {
                         let pipelineStage = pipelineStages[pipelineStageIndex];
 
                         if (useFullText) {
-                            if (displayStage.depth === 1 && status === TilePipelineStatus.Waiting) {
+                            if (displayStage.depth === 1 && status === TilePipelineStatus.Incomplete) {
                                 stageText = "OoS";
                             } else {
-                                status = (status === TilePipelineStatus.Waiting) ? TilePipelineStatus.Queued : status;
+                                status = (status === TilePipelineStatus.Incomplete) ? TilePipelineStatus.Queued : status;
                                 stageText = `${pipelineStage.name}<br>` + TilePipelineStatus[status];
                             }
                         } else {
-                            if (displayStage.depth === 1 && status === TilePipelineStatus.Waiting) {
+                            if (displayStage.depth === 1 && status === TilePipelineStatus.Incomplete) {
                                 stageText = "";
                             } else {
-                                status = (status === TilePipelineStatus.Waiting) ? TilePipelineStatus.Queued : status;
+                                status = (status === TilePipelineStatus.Incomplete) ? TilePipelineStatus.Queued : status;
                                 stageText = `${pipelineStage.name.substr(0, 1)}-${TilePipelineStatus[status].substr(0, 1)}`;
                             }
                         }

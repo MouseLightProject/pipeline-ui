@@ -3,7 +3,7 @@ import {Panel} from "react-bootstrap";
 
 import {IPipelineStage} from "../../../models/pipelineStage";
 import {panelHeaderStyles} from "../../../util/styleDefinitions";
-import {TaskExecutions} from "./TaskExecutions";
+import {Tiles} from "./Tiles";
 
 const styles = panelHeaderStyles;
 
@@ -30,7 +30,7 @@ export class PipelineStageDetails extends React.Component<IPipelineStageDetailsP
 
         return (
             <Panel header={this.renderHeader()} bsStyle="primary">
-               <TaskExecutions/>
+               <Tiles pipelineStage={this.props.selectedPipelineStage}/>
             </Panel>
         );
     }

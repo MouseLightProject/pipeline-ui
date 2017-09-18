@@ -6,14 +6,6 @@ export enum PipelineStageMethod {
     MapTile = 2,
     ZIndexTileComparison = 3
 }
-export enum TilePipelineStatus {
-    DoesNotExist = 0,
-    Waiting = 1,
-    Queued = 2,
-    Processing = 3,
-    Complete = 4,
-    Failed = 5
-}
 
 export interface IPipelinePerformance {
     id: string;
