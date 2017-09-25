@@ -5,3 +5,5 @@ if [ -a "options.sh" ]; then
 fi
 
 nohup npm run devel &
+
+chmod 664 nohup.out
