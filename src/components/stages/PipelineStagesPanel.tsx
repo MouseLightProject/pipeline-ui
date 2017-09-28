@@ -136,7 +136,7 @@ export class PipelineStagesPanel extends React.Component<IPipelineStagesPanelPro
                         style={styles.outlineButtonRight}>
                     <FontAwesome name="plus"/>
                     <span style={{paddingLeft: "10px"}}>
-                        Add Pipeline
+                        Add Stage
                     </span>
                 </Button>
                 <Button bsSize="sm" onClick={(evt: any) => this.onClickShowHelp(evt)} style={styles.buttonRight}>
