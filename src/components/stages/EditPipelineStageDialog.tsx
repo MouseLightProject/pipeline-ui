@@ -4,13 +4,18 @@ import {FormControlValidationState} from "../../util/bootstrapUtils";
 import {ChangeEvent} from "react";
 import * as pathIsAbsolute from "path-is-absolute";
 
-import {IPipelineStage, PipelineStageMethod} from "../../models/pipelineStage";
+import {IPipelineStage} from "../../models/pipelineStage";
 import {IProject} from "../../models/project";
 import {ProjectSelect} from "../helpers/ProjectSelect";
 import {PipelineStageSelect} from "../helpers/PipelineStageSelect";
 import {ITaskDefinition} from "../../models/taskDefinition";
 import {TaskSelect} from "../helpers/TaskSelect";
 import {DialogMode} from "../helpers/DialogUtils";
+import {
+    PIPELINE_STAGE_TYPE_MAP_TILE, PIPELINE_STAGE_TYPES, PipelineStageMethods,
+    PipelineStageType
+} from "../../models/pipelineStageType";
+import {PipelineStageTypeSelect} from "../helpers/PipelineStageTypeSelect";
 
 function assignStage(stage: IPipelineStage) {
     return stage ? (({id, name, description, project, task, previous_stage, dst_path, function_type}) => ({
@@ -30,7 +35,7 @@ function assignStage(stage: IPipelineStage) {
         task: null,
         previous_stage: null,
         dst_path: "",
-        function_type: PipelineStageMethod.MapTile
+        function_type: PipelineStageMethods.MapTile
     }
 }
 
@@ -47,20 +52,23 @@ interface IEditStageProps {
 
 interface IEditStageState {
     stage?: IPipelineStage;
+    pipelineStageType?: PipelineStageType;
 }
 
 export class EditPipelineStageDialog extends React.Component<IEditStageProps, IEditStageState> {
     public constructor(props: IEditStageProps) {
         super(props);
         this.state = {
-            stage: assignStage(props.sourceStage)
+            stage: assignStage(props.sourceStage),
+            pipelineStageType: props.sourceStage ? PipelineStageType.fromMethodId(props.sourceStage.function_type) : PIPELINE_STAGE_TYPE_MAP_TILE
         };
     }
 
     public componentWillReceiveProps(props: IEditStageProps) {
         if (props.sourceStage) {
             this.setState({
-                stage: assignStage(props.sourceStage)
+                stage: assignStage(props.sourceStage),
+                pipelineStageType: props.sourceStage ? PipelineStageType.fromMethodId(props.sourceStage.function_type) : PIPELINE_STAGE_TYPE_MAP_TILE
             })
         }
     }
@@ -125,12 +133,18 @@ export class EditPipelineStageDialog extends React.Component<IEditStageProps, IE
         });
     }
 
+    private onPipelineStageTypeChanged(p: PipelineStageType) {
+        this.setState({
+            pipelineStageType: p
+        });
+    }
+
     private canCreateOrUpdate() {
         return this.isNameValid && this.isProjectValid && this.isTaskValid;
     }
 
     private onCreateOrUpdate() {
-        const stageInput: IPipelineStage = Object.assign((({id, name, description, project, task, previous_stage, dst_path, function_type}) => ({
+        const stageInput: IPipelineStage = Object.assign((({id, name, description, project, task, previous_stage, dst_path}) => ({
             id: this.props.mode == DialogMode.Create ? undefined : id,
             name,
             description,
@@ -138,8 +152,9 @@ export class EditPipelineStageDialog extends React.Component<IEditStageProps, IE
             task_id: task ? task.id : null,
             previous_stage_id: previous_stage ? previous_stage.id : null,
             dst_path,
-            function_type
-        }))(this.state.stage));
+        }))(this.state.stage), {
+            function_type: this.state.pipelineStageType.option
+        });
 
         this.props.onAccept(stageInput)
     }
@@ -177,29 +192,38 @@ export class EditPipelineStageDialog extends React.Component<IEditStageProps, IE
                     <FormGroup bsSize="sm" controlId="stage-project">
                         <ControlLabel>Project</ControlLabel>
                         <ProjectSelect idName="stage-project"
-                                              options={this.props.projects}
-                                              selectedOption={this.state.stage.project}
-                                              multiSelect={false}
-                                              placeholder="(required)"
-                                              onSelect={(p: IProject) => this.onChangeProject(p)}/>
+                                       options={this.props.projects}
+                                       selectedOption={this.state.stage.project}
+                                       multiSelect={false}
+                                       placeholder="(required)"
+                                       onSelect={(p: IProject) => this.onChangeProject(p)}/>
                     </FormGroup>
                     <FormGroup bsSize="sm" controlId="stage-previous-stage">
                         <ControlLabel>Parent Stage</ControlLabel>
                         <PipelineStageSelect idName="stage-previous-stage"
-                                       options={stages}
-                                       selectedOption={this.state.stage.previous_stage}
-                                       multiSelect={false}
-                                       placeholder="(none - use acquisition root)"
-                                       onSelect={(p: IPipelineStage) => this.onChangePreviousStage(p)}/>
+                                             options={stages}
+                                             selectedOption={this.state.stage.previous_stage}
+                                             multiSelect={false}
+                                             placeholder="(none - use acquisition root)"
+                                             onSelect={(p: IPipelineStage) => this.onChangePreviousStage(p)}/>
                     </FormGroup>
                     <FormGroup bsSize="sm" controlId="stage-task">
                         <ControlLabel>Task</ControlLabel>
                         <TaskSelect idName="stage-task"
-                                       options={this.props.tasks}
-                                       selectedOption={this.state.stage.task}
-                                       multiSelect={false}
-                                       placeholder="(required)"
-                                       onSelect={(t: ITaskDefinition) => this.onChangeTask(t)}/>
+                                    options={this.props.tasks}
+                                    selectedOption={this.state.stage.task}
+                                    multiSelect={false}
+                                    placeholder="(required)"
+                                    onSelect={(t: ITaskDefinition) => this.onChangeTask(t)}/>
+                    </FormGroup>
+                    <FormGroup bsSize="sm" controlId="pipeline-method">
+                        <ControlLabel>Method</ControlLabel>
+                        <PipelineStageTypeSelect idName="pipeline-method"
+                                                 options={PIPELINE_STAGE_TYPES}
+                                                 placeholder="required"
+                                                 clearable={false}
+                                                 selectedOption={this.state.pipelineStageType}
+                                                 onSelect={(p: PipelineStageType) => this.onPipelineStageTypeChanged(p)}/>
                     </FormGroup>
                     {this.props.sourceStage ? <div style={{
                         width: "100%",
@@ -209,7 +233,8 @@ export class EditPipelineStageDialog extends React.Component<IEditStageProps, IE
                 <Modal.Footer>
                     <Button bsStyle="default" onClick={() => this.props.onCancel()}>Cancel</Button>
                     {(this.props.mode === DialogMode.Update && this.props.sourceStage) ?
-                        <Button bsStyle="default" onClick={() => this.setState({stage: assignStage(this.props.sourceStage)})}>
+                        <Button bsStyle="default"
+                                onClick={() => this.setState({stage: assignStage(this.props.sourceStage)})}>
                             Revert
                         </Button> : null}
                     <Button bsStyle="success" onClick={() => this.onCreateOrUpdate()}
