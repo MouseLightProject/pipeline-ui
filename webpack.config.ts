@@ -1,11 +1,11 @@
 const path = require("path");
 
-import {Configuration} from "./src/configuration";
+import {Configuration} from "./server/configuration";
 
 module.exports = {
     entry: [
         `webpack-dev-server/client?http://${Configuration.host}:${Configuration.port}/`,
-        "./src/index"
+        "./client/index"
     ],
     devServer: {
         proxy: {

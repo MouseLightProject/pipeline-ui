@@ -22,6 +22,8 @@ export interface IProject {
     region_z_max?: number;
     is_processing?: boolean;
     stages?: IPipelineStage[];
+    created_at?: number;
+    updated_at?: number;
 }
 
 export interface IProjectGridRegion {

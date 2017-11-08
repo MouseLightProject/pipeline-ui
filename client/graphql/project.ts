@@ -22,6 +22,8 @@ export const ProjectsQuery = gql`query {
       region_z_min
       region_z_max
       is_processing
+      created_at
+      updated_at
       stages {
           id
           name
@@ -75,6 +77,7 @@ export const CreateProjectMutation = gql`mutation CreateProjectMutation($project
         region_z_min
         region_z_max
         is_processing
+        updated_at
         stages {
           id
           name
@@ -133,6 +136,7 @@ export const UpdateProjectMutation = gql`
         region_z_min
         region_z_max
         is_processing
+        updated_at
       }
       error
     }

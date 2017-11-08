@@ -1,7 +1,7 @@
 import * as webpack from "webpack";
 import * as WebpackDevServer from "webpack-dev-server";
 
-const config = require("./../webpack.config");
+const config = require("../webpack.config");
 
 import {Configuration} from "./configuration";
 

@@ -56,7 +56,9 @@ export const tableButtonStyles = {
         background: "transparent",
         color: "#008cba",
         border: "none",
-        fontSize: "20px"
+        paddingLeft: "10px",
+        paddingRight: "10px",
+        fontSize: "14px"
     },
     view: {
         marginTop: "auto",

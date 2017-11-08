@@ -93,8 +93,7 @@ export class ProjectRow extends React.Component<IProjectRowProps, IProjectRowSta
         return this.formatSamplePoint(project.sample_x_max, project.sample_y_max, project.sample_z_max);
     };
 
-    private formatSamplePoint(x: number, y: number, z: number)
-    {
+    private formatSamplePoint(x: number, y: number, z: number) {
         return `[${this.getSampleText(x)}, ${this.getSampleText(y)}, ${this.getSampleText(z)}]`;
     }
 
@@ -106,8 +105,7 @@ export class ProjectRow extends React.Component<IProjectRowProps, IProjectRowSta
         return this.formatRegionPoint(project.region_x_max, project.region_y_max, project.region_z_max);
     };
 
-    private formatRegionPoint(x: number, y: number, z: number)
-    {
+    private formatRegionPoint(x: number, y: number, z: number) {
         return `[${this.getRegionText(x)}, ${this.getRegionText(y)}, ${this.getRegionText(z)}]`;
     }
 

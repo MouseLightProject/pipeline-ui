@@ -7,8 +7,8 @@
   "license": "LicenseRef-LICENSE",
   "dockerRepository": "mouselightpipeline",
   "scripts": {
-    "devel": "DEBUG=pipeline* node $NODE_DEBUG_OPTION src/pipelineClientServer.js",
-    "start": "node src/pipelineClientServer.js",
+    "devel": "DEBUG=pipeline* node $NODE_DEBUG_OPTION server/pipelineClientServer.js",
+    "start": "node server/pipelineClientServer.js",
     "lint": "eslint src",
     "docker-build": "gulp docker-build",
     "docker-release": "gulp docker-release"
@@ -27,6 +27,7 @@
     "@types/react-select": "^1.0.48",
     "@types/react-sidebar": "^2.2.0-next.0",
     "@types/react-syntax-highlighter": "^0.0.3",
+    "@types/react-table": "^6.6.0",
     "@types/webpack": "^2.2.6",
     "@types/webpack-dev-server": "^2.4.0",
     "gulp": "^3.9.1",
@@ -62,7 +63,7 @@
     "react-select": "^1.0.0-rc.5",
     "react-sidebar": "^2.2.1",
     "react-syntax-highlighter": "^5.6.2",
-    "react-table": "^6.5.1",
+    "react-table": "^6.7.4",
     "react-tap-event-plugin": "^1.0.0",
     "react-toastify": "^1.7.0",
     "react-virtualized": "^9.8.0",

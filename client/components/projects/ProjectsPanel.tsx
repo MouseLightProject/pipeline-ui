@@ -12,6 +12,7 @@ import {EditProjectDialog} from "./EditProjectDialog";
 import {CreateProjectMutation} from "../../graphql/project";
 import {IProject, IProjectInput} from "../../models/project";
 import {DialogMode} from "../helpers/DialogUtils";
+import {PreferencesManager} from "../../util/preferencesManager";
 
 const styles = panelHeaderStyles;
 
@@ -24,6 +25,7 @@ interface IProjectsPanelProps {
 interface IProjectsPanelState {
     isAddDialogShown?: boolean;
     isHelpDialogShown?: boolean;
+    isFiltered?: boolean;
 }
 
 @graphql(CreateProjectMutation, {
@@ -39,7 +41,8 @@ export class ProjectsPanel extends React.Component<IProjectsPanelProps, IProject
 
         this.state = {
             isAddDialogShown: false,
-            isHelpDialogShown: false
+            isHelpDialogShown: false,
+            isFiltered: PreferencesManager.Instance.IsProjecTableFiltered
         }
     }
 
@@ -53,6 +56,12 @@ export class ProjectsPanel extends React.Component<IProjectsPanelProps, IProject
         evt.stopPropagation();
 
         this.setState({isAddDialogShown: true});
+    }
+
+    private toggleIsFiltered() {
+        PreferencesManager.Instance.IsProjecTableFiltered = !this.state.isFiltered;
+
+        this.setState({isFiltered: !this.state.isFiltered})
     }
 
     private async onAcceptCreateProject(project: IProjectInput) {
@@ -102,6 +111,10 @@ export class ProjectsPanel extends React.Component<IProjectsPanelProps, IProject
         return (
             <div style={styles.flexContainer}>
                 <h4 style={styles.titleItem}>Pipeline Projects</h4>
+                <Button bsSize="sm" onClick={() => this.toggleIsFiltered()}
+                        style={Object.assign({marginRight: "20px"}, styles.buttonRight)}>
+                    <FontAwesome name={this.state.isFiltered ? "remove" : "filter"} size="2x"/>
+                </Button>
                 <Button bsSize="sm" onClick={(evt: any) => this.onClickAddProject(evt)}
                         style={styles.outlineButtonRight}>
                     <FontAwesome name="plus"/>
@@ -122,7 +135,7 @@ export class ProjectsPanel extends React.Component<IProjectsPanelProps, IProject
                 <Panel header={this.renderHeader()} bsStyle="primary">
                     {this.renderHelpDialog()}
                     {this.renderAddProjectDialog()}
-                    <ProjectTable projects={this.props.projects}/>
+                    <ProjectTable projects={this.props.projects} isFiltered={this.state.isFiltered}/>
                 </Panel>
             </div>
         );
