@@ -79,6 +79,7 @@ const tileCountStyle = {
     marginBottom: "0px",
     marginTop: "0px",
     visibility: "visible",
+    maxWidth: "750px"
 };
 
 interface ICumulativeStats {
@@ -179,17 +180,17 @@ class AbstractSummary<P, S> extends React.Component<P, S> {
         };
 
         return projects.map(project => project.stages)
-        .reduce((prev, arrStages) => prev.concat(arrStages), [])
-        .reduce((previous, stage) => {
-            if (stage.is_processing && stage.performance) {
-                previous.inProcess += stage.performance.num_in_process;
-                previous.toProcess += stage.performance.num_ready_to_process;
-                previous.complete += stage.performance.num_complete;
-                previous.errors += stage.performance.num_error;
-            }
+            .reduce((prev, arrStages) => prev.concat(arrStages), [])
+            .reduce((previous, stage) => {
+                if (stage.is_processing && stage.performance) {
+                    previous.inProcess += stage.performance.num_in_process;
+                    previous.toProcess += stage.performance.num_ready_to_process;
+                    previous.complete += stage.performance.num_complete;
+                    previous.errors += stage.performance.num_error;
+                }
 
-            return previous;
-        }, stats);
+                return previous;
+            }, stats);
     }
 
     protected buildStageInProcessProps(stats: ICumulativeStats) {
@@ -314,7 +315,7 @@ export class HeaderSummary extends React.Component<any, any> {
             return (<Loading/>);
         } else if (isNavTile) {
             return (
-                <div>
+                <div style={{color: "white"}}>
                     <MediaQuery minWidth={767} maxWidth={991}>
                         {this.getAbbreviatedComponent(isNavTile)}
                     </MediaQuery>

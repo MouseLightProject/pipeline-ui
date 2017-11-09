@@ -12,8 +12,10 @@ import {Projects} from "./components/projects/Projects";
 import {Dashboard} from "./Dashboard";
 
 import "react-table/react-table.css"
-
 import "./util/overrides.css";
+
+require("file-loader?name=index.html!../index.html");
+
 
 const rootEl = document.getElementById("root");
 

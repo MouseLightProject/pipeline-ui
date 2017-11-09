@@ -299,7 +299,7 @@ export class ProjectTable extends React.Component<IProjectTableProps, IProjectTa
             <div>
                 {this.renderUpdateProjectDialog()}
                 {this.renderDeleteProjectConfirmation()}
-                <ReactTable {...props}/>
+                <ReactTable {...props} className="-highlight"/>
             </div>
         )
 

@@ -15,7 +15,8 @@ export class MainSideBar extends React.Component<any, any> {
                 <div>
                     <h4>Visual</h4>
                     <ListGroup>
-                        <SidebarMenuItem><Link activeStyle={{color: "#FFF"}} to="/dashboard">Status</Link></SidebarMenuItem>
+                        <SidebarMenuItem><Link activeStyle={{color: "#FFF"}}
+                                               to="/dashboard">Status</Link></SidebarMenuItem>
                         <SidebarMenuItem><Link activeStyle={{color: "#FFF"}} to="/graph">Graph</Link></SidebarMenuItem>
                         <SidebarMenuItem><Link activeStyle={{color: "#FFF"}}
                                                to="/tilemap">Tile Map</Link></SidebarMenuItem>
@@ -24,11 +25,12 @@ export class MainSideBar extends React.Component<any, any> {
                 <div>
                     <h4>Data</h4>
                     <ListGroup>
-                        <SidebarMenuItem><Link
-                            to="/projects">Projects</Link></SidebarMenuItem>
-                        <SidebarMenuItem><Link to="/stages">Stages</Link></SidebarMenuItem>
-                        <SidebarMenuItem><Link
-                            to="/workers">Workers</Link></SidebarMenuItem>
+                        <SidebarMenuItem><Link activeStyle={{color: "#FFF"}}
+                                               to="/projects">Projects</Link></SidebarMenuItem>
+                        <SidebarMenuItem><Link activeStyle={{color: "#FFF"}}
+                                               to="/stages">Stages</Link></SidebarMenuItem>
+                        <SidebarMenuItem><Link activeStyle={{color: "#FFF"}}
+                                               to="/workers">Workers</Link></SidebarMenuItem>
                         <SidebarMenuItem><Link to="/tasks">Tasks</Link></SidebarMenuItem>
                     </ListGroup>
                 </div>

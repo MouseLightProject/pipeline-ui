@@ -6,6 +6,8 @@ import {ToastContainer} from "react-toastify";
 import {MainSideBar} from "./MainSideBar";
 import {HeaderSummary} from "./components/dashboard/HeaderSummary";
 
+const logoImage = require("file-loader!./assets/mouselight-pipeline.svg");
+
 const toastStyleOverride = {
     minWidth: "600px",
     marginBottom: "40px"
@@ -13,12 +15,6 @@ const toastStyleOverride = {
 
 export class MainNav extends React.Component<any, any> {
     public render() {
-        const navBarStyle = {
-            height: "60px",
-            color: "#23527C",
-            backgroundColor: "rgba(236, 236, 236, 0.95)",
-            borderBottom: "1px solid #DEDEDE"
-        };
         const sidebarStyle = {
             sidebar: {
                 color: "white",
@@ -46,11 +42,9 @@ export class MainNav extends React.Component<any, any> {
         return (
             <div>
                 <ToastContainer autoClose={6000} position="bottom-center" style={toastStyleOverride}/>
-                <Navbar fixedTop fluid={true} style={navBarStyle}>
+                <Navbar fixedTop fluid={true}>
                     <Navbar.Header>
-                        <Navbar.Brand  style={navBarStyle}>
-                            Mouse Light<br/><small>Acquisition Pipelines</small>
-                        </Navbar.Brand>
+                        <img id="logo" src={logoImage} height={60} style={{padding: 0}}/>
                     </Navbar.Header>
                     <Nav pullRight>
                         <HeaderSummary isNavTile={true}/>
