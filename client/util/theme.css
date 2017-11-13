@@ -28,11 +28,17 @@ i {
 }
 
 .ReactTable .rt-tbody {
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-top: 1px solid rgb(233, 236, 239);
 }
 
 .ReactTable {
-    border: none;
+    border: 1px solid rgba(34, 36, 38, .15);
+}
+
+.ReactTable .-pagination {
+    border-top: none;
+    border-bottom: 1px solid rgb(233, 236, 239);
+    box-shadow: none;
 }
 
 .highcharts-credits {

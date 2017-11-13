@@ -166,7 +166,7 @@ class __ProjectTable extends React.Component<IProjectTableProps, IProjectTableSt
         const disabled_stages = disabled_active || this.state.selectedProject.stages.length > 0;
 
         return (
-            <Menu size="mini" style={{border: "none"}}>
+            <Menu size="mini" style={{borderBottom: "none"}}>
                 <EditProjectDialog
                     element={<MenuItem size="mini" content="Edit" icon="pencil" disabled={disabled_active}
                                        onClick={(evt) => this.onClickUpdateProject(evt)}/>}

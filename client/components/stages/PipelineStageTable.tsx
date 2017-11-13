@@ -133,7 +133,7 @@ class __PipelineStageTable extends React.Component<IPipelineStageTableProps, IPi
         const disabled_active = disabled || this.state.selectedStage.is_processing;
 
         return (
-            <Menu size="mini" style={{border: "none"}}>
+            <Menu size="mini" style={{borderBottom: "none"}}>
                 <EditPipelineStageDialog
                     element={<MenuItem size="small" content="Edit Stage" icon="plus" disabled={disabled_active}
                                        onClick={(evt: any) => this.onClickUpdatePipelineStage(evt)}/>}

@@ -260,7 +260,7 @@ class MapPanel extends React.Component<any, any> {
         }
     }
 
-    onProjectSelectionChange = (eventKey) => {
+    onProjectSelectionChange = (eventKey, savePreferences = false) => {
         let projects = (this.props.data && !this.props.data.loading) ? this.props.data.projects : [];
 
         projects = projects.filter(x => x.id === eventKey);
@@ -287,7 +287,9 @@ class MapPanel extends React.Component<any, any> {
 
             this.setState({projectId: eventKey, minZ: minZ, maxZ: maxZ, plane: minZ}, null);
 
-            PreferencesManager.Instance.PreferredProjectId = eventKey;
+            if (savePreferences) {
+                PreferencesManager.Instance.PreferredProjectId = eventKey;
+            }
         }
     };
 
@@ -363,7 +365,7 @@ class MapPanel extends React.Component<any, any> {
                 <Menu style={{marginBottom: "15px"}}>
                     <ProjectMenu style={{width: "200px"}} keyPrefix="tileMap" projects={projects}
                                  selectedProjectId={this.state.projectId}
-                                 onProjectSelectionChange={this.onProjectSelectionChange}
+                                 onProjectSelectionChange={(project) => this.onProjectSelectionChange(project, true)}
                                  includeAllProjects={false}>
 
                     </ProjectMenu>
