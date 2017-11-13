@@ -1,6 +1,5 @@
 import * as React from "react";
 import {Table} from "react-bootstrap"
-import FontAwesome = require("react-fontawesome");
 import {toast} from "react-toastify";
 
 import {ITaskRepository} from "../../../models/taskRepository";

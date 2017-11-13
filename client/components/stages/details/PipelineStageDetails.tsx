@@ -1,11 +1,7 @@
 import * as React from "react";
-import {Panel} from "react-bootstrap";
 
 import {IPipelineStage} from "../../../models/pipelineStage";
-import {panelHeaderStyles} from "../../../util/styleDefinitions";
 import {Tiles} from "./Tiles";
-
-const styles = panelHeaderStyles;
 
 interface IPipelineStageDetailsProps {
     selectedPipelineStage?: IPipelineStage;
@@ -17,8 +13,8 @@ interface IPipelineStageDetailsState {
 export class PipelineStageDetails extends React.Component<IPipelineStageDetailsProps, IPipelineStageDetailsState> {
     private renderHeader() {
         return (
-            <div style={styles.flexContainer}>
-                <h4 style={styles.titleItem}>Stage Details</h4>
+            <div>
+                <h4>Stage Details</h4>
             </div>
         );
     }
@@ -29,9 +25,7 @@ export class PipelineStageDetails extends React.Component<IPipelineStageDetailsP
         }
 
         return (
-            <Panel header={this.renderHeader()} bsStyle="primary">
-               <Tiles pipelineStage={this.props.selectedPipelineStage}/>
-            </Panel>
+            <Tiles pipelineStage={this.props.selectedPipelineStage}/>
         );
     }
 }

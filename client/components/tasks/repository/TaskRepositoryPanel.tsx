@@ -8,12 +8,8 @@ import {EditRepositoryDialog} from "./EditRepositoryDialog";
 import {CreateTaskRepositoryMutation} from "../../../graphql/taskRepository";
 import {ITaskRepository} from "../../../models/taskRepository";
 import {ModalAlert, toastCreateError, toastCreateSuccess} from "ndb-react-components";
-import FontAwesome = require("react-fontawesome");
-import {panelHeaderStyles} from "../../../util/styleDefinitions";
 import {TaskRepositoryHelpPanel} from "./TaskRepositoryHelp";
 import {DialogMode} from "../../helpers/DialogUtils";
-
-const styles = panelHeaderStyles;
 
 interface ITaskRepositoryPanelProps {
     taskRepositories: ITaskRepository[];
@@ -27,14 +23,7 @@ interface ITaskRepositoryPanelState {
     isHelpDialogShown?: boolean;
 }
 
-@graphql(CreateTaskRepositoryMutation, {
-    props: ({mutate}) => ({
-        createTaskRepository: (taskRepository: ITaskRepository) => mutate({
-            variables: {taskRepository}
-        })
-    })
-})
-export class TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelProps, ITaskRepositoryPanelState> {
+class _TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelProps, ITaskRepositoryPanelState> {
     public constructor(props: ITaskRepositoryPanelProps) {
         super(props);
 
@@ -101,17 +90,16 @@ export class TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelPro
 
     private renderHeader() {
         return (
-            <div style={styles.flexContainer}>
-                <h4 style={styles.titleItem}>Task Repositories</h4>
-                <Button bsSize="sm" onClick={(evt: any) => this.onClickAddRepository(evt)}
-                        style={styles.outlineButtonRight}>
-                    <FontAwesome name="plus"/>
+            <div>
+                <h4>Task Repositories</h4>
+                <Button bsSize="sm" onClick={(evt: any) => this.onClickAddRepository(evt)}>
+                    {/* <FontAwesome name="plus"/>*/}
                     <span style={{paddingLeft: "10px"}}>
                         Add Repository
                     </span>
                 </Button>
-                <Button bsSize="sm" onClick={(evt: any) => this.onClickShowHelp(evt)} style={styles.buttonRight}>
-                    <FontAwesome name="question" size="2x"/>
+                <Button bsSize="sm" onClick={(evt: any) => this.onClickShowHelp(evt)}>
+                    {/*<FontAwesome name="question" size="2x"/>*/}
                 </Button>
             </div>
         );
@@ -140,3 +128,11 @@ export class TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelPro
         );
     }
 }
+
+export const TaskRepositoryPanel = graphql<any, any>(CreateTaskRepositoryMutation, {
+    props: ({mutate}) => ({
+        createTaskRepository: (taskRepository: ITaskRepository) => mutate({
+            variables: {taskRepository}
+        })
+    })
+})(_TaskRepositoryPanel);

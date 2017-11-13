@@ -1,5 +1,5 @@
 import * as React from "react";
-import * as MediaQuery from "react-responsive";
+import MediaQuery from "react-responsive";
 
 export enum CountUnit {
     None,

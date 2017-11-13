@@ -1,9 +1,9 @@
 import * as React from "react";
 import gql from "graphql-tag";
 import {graphql} from "react-apollo";
-import {Grid, Row, Col, Clearfix} from "react-bootstrap";
+import {Container, Statistic, Icon} from "semantic-ui-react"
 import * as moment from "moment";
-import * as MediaQuery from "react-responsive";
+import pluralize = require("pluralize");
 
 import {IColumnLayout} from "../../util/bootstrapUtils";
 import {calculateDurationFromNow} from "../../util/dateUtils";
@@ -259,45 +259,59 @@ class FullTextSummary extends AbstractSummary<any, ITextSummaryState> {
     }
 
     public render() {
-
-        let Component = this.props.isNavTile ? NavTile : CountTile;
-
+        const workers = this.buildWorkersProps(this.props.data.pipelineWorkers);
+        const pipelineProps = this.buildPipelineProps(this.props.data.projects);
         const cumulativeStats = this.buildStageStats(this.props.data.projects);
 
-        const layout = this.state.columnLayout;
-
         return (
-            <Row style={tileCountStyle}>
-                <Col lg={layout.lg} md={layout.md} sm={layout.sm} xs={layout.xs} className="tile_stat">
-                    <Component {...this.buildWorkersProps(this.props.data.pipelineWorkers)}/>
-                </Col>
-                <Col lg={layout.lg} md={layout.md} sm={layout.sm} xs={layout.xs} className="tile_stat">
-                    <Component {...this.buildWorkerLoadProps(this.props.data.pipelineWorkers)}/>
-                </Col>
-                <Col lg={layout.lg} md={layout.md} sm={layout.sm} xs={layout.xs} className="tile_stat">
-                    <Component {...this.buildPipelineProps(this.props.data.projects)}/>
-                </Col>
-                <Col lg={layout.lg} md={layout.md} sm={layout.sm} xs={layout.xs} className="tile_stat">
-                    <Component {...this.buildStageInProcessProps(cumulativeStats)}/>
-                </Col>
-                <Clearfix visibleSmBlock/>
-                <Col lg={layout.lg} md={layout.md} sm={layout.sm} xs={layout.xs} className="tile_stat">
-                    <Component {...this.buildStageToProcessProps(cumulativeStats)}/>
-                </Col>
-                <Col lg={layout.lg} md={layout.md} sm={layout.sm} xs={layout.xs} className="tile_stat">
-                    <Component {...this.buildStageCompleteProps(cumulativeStats)}/>
-                </Col>
-            </Row>
+            <Statistic.Group widths={this.props.width} size={this.props.size} inverted={this.props.inverted}>
+                <Statistic>
+                    <Statistic.Value>
+                        <Icon name="server" size="mini"/>
+                        &nbsp;{workers.count}
+                    </Statistic.Value>
+                    <Statistic.Label>{pluralize("Worker", workers.count)} Online</Statistic.Label>
+                </Statistic>
+                <Statistic>
+                    <Statistic.Value>
+                        {this.buildWorkerLoadProps(this.props.data.pipelineWorkers).count.toFixed(1) + "%"}
+                    </Statistic.Value>
+                    <Statistic.Label>Load</Statistic.Label>
+                </Statistic>
+                <Statistic>
+                    <Statistic.Value>
+                        <Icon name="cube" size="mini"/>
+                        &nbsp;{pipelineProps.count}
+                    </Statistic.Value>
+                    <Statistic.Label>Active {pluralize("Pipeline", pipelineProps.count)} </Statistic.Label>
+                </Statistic>
+                <Statistic>
+                    <Statistic.Value>
+                        <Icon name="spinner" size="mini"/>
+                        &nbsp;{this.buildStageInProcessProps(cumulativeStats).count}
+                    </Statistic.Value>
+                    <Statistic.Label>Processing</Statistic.Label>
+                </Statistic>
+                <Statistic>
+                    <Statistic.Value>
+                        <Icon name="wait" size="mini"/>
+                        &nbsp;{this.buildStageToProcessProps(cumulativeStats).count}
+                    </Statistic.Value>
+                    <Statistic.Label>Queued</Statistic.Label>
+                </Statistic>
+                <Statistic>
+                    <Statistic.Value>
+                        <Icon name="checkmark" size="mini"/>
+                        &nbsp;{this.buildStageCompleteProps(cumulativeStats).count}
+                    </Statistic.Value>
+                    <Statistic.Label>Complete</Statistic.Label>
+                </Statistic>
+            </Statistic.Group>
         );
     }
 }
 
-@graphql(HeaderSummaryQuery, {
-    options: {
-        pollInterval: 5 * 1000
-    }
-})
-export class HeaderSummary extends React.Component<any, any> {
+class _HeaderSummary extends React.Component<any, any> {
     private getAbbreviatedComponent(isNavTile: boolean) {
         return (
             <div>
@@ -316,22 +330,21 @@ export class HeaderSummary extends React.Component<any, any> {
         } else if (isNavTile) {
             return (
                 <div style={{color: "white"}}>
-                    <MediaQuery minWidth={767} maxWidth={991}>
-                        {this.getAbbreviatedComponent(isNavTile)}
-                    </MediaQuery>
-                    <MediaQuery minWidth={992}>
-                        <Grid fluid>
-                            <FullTextSummary data={this.props.data} isNavTile={true}/>
-                        </Grid>
-                    </MediaQuery>
+                    {this.getAbbreviatedComponent(isNavTile)}
                 </div>
             );
         } else {
             return (
-                <Grid fluid>
-                    <FullTextSummary data={this.props.data} isNavTile={false}/>
-                </Grid>
+                <Container fluid style={{padding: "20px"}}>
+                    <FullTextSummary data={this.props.data} size="small" width={3} inverted={false}/>
+                </Container>
             );
         }
     }
 }
+
+export const HeaderSummary = graphql<any, any>(HeaderSummaryQuery, {
+    options: {
+        pollInterval: 5 * 1000
+    }
+})(_HeaderSummary);

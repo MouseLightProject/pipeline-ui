@@ -22,14 +22,7 @@ interface ITileRowState {
     isRemoved?: boolean;
 }
 
-@graphql(TileStatusMutation, {
-    props: ({mutate}) => ({
-        setTileStatus: (pipelineStageId: string, tileId: string, status: TilePipelineStatus) => mutate({
-            variables: {pipelineStageId, tileId, status}
-        })
-    })
-})
-export class TileRow extends React.Component<ITileRowProps, ITileRowState> {
+class _TileRow extends React.Component<ITileRowProps, ITileRowState> {
     public constructor(props: ITileRowProps) {
         super(props);
 
@@ -72,3 +65,11 @@ export class TileRow extends React.Component<ITileRowProps, ITileRowState> {
         );
     }
 }
+
+export const TileRow = graphql<any, any>(TileStatusMutation, {
+    props: ({mutate}) => ({
+        setTileStatus: (pipelineStageId: string, tileId: string, status: TilePipelineStatus) => mutate({
+            variables: {pipelineStageId, tileId, status}
+        })
+    })
+})(_TileRow);

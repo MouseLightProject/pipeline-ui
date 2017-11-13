@@ -1,6 +1,5 @@
 import * as React from "react";
 import {Button, Badge} from "react-bootstrap";
-import FontAwesome = require("react-fontawesome");
 import {graphql} from 'react-apollo';
 import {toast} from "react-toastify";
 import pluralize = require("pluralize");
@@ -12,7 +11,6 @@ import {
     ModalAlert, toastDeleteError, toastDeleteSuccess, toastUpdateError,
     toastUpdateSuccess
 } from "ndb-react-components";
-import {tableButtonStyles, tableCellStyles} from "../../../util/styleDefinitions";
 import {DialogMode} from "../../helpers/DialogUtils";
 
 interface ITaskRepositoryRowProps {
@@ -29,21 +27,7 @@ interface ITaskRepositoryRowState {
     isDeleteDialogShown?: boolean;
 }
 
-@graphql(UpdateTaskRepositoryMutation, {
-    props: ({mutate}) => ({
-        updateTaskRepository: (taskRepository: ITaskRepository) => mutate({
-            variables: {taskRepository}
-        })
-    })
-})
-@graphql(DeleteTaskRepositoryMutation, {
-    props: ({mutate}) => ({
-        deleteTaskRepository: (taskRepository: ITaskRepository) => mutate({
-            variables: {taskRepository}
-        })
-    })
-})
-export class TaskRepositoryRow extends React.Component<ITaskRepositoryRowProps, ITaskRepositoryRowState> {
+class __TaskRepositoryRow extends React.Component<ITaskRepositoryRowProps, ITaskRepositoryRowState> {
     public constructor(props: ITaskRepositoryRowProps) {
         super(props);
 
@@ -143,20 +127,20 @@ export class TaskRepositoryRow extends React.Component<ITaskRepositoryRowProps, 
                 {this.renderUpdateRepositoryDialog()}
                 {this.renderDeleteRepositoryConfirmation()}
                 <td style={{paddingLeft: "10px"}}>
-                    <Button bsSize="sm" bsStyle="info" style={tableButtonStyles.edit} onClick={(evt) => this.onClickUpdateRepository(evt)}>
+                    <Button bsSize="sm" bsStyle="info" onClick={(evt) => this.onClickUpdateRepository(evt)}>
                         <span>
-                        <FontAwesome name="pencil"/>
+                        {/*<FontAwesome name="pencil"/>*/}
                         </span>
                     </Button>
                 </td>
-                <td style={tableCellStyles.middle}>{taskRepository.name}</td>
-                <td style={tableCellStyles.middle}>{taskRepository.location}</td>
-                <td style={tableCellStyles.middle}>{taskRepository.description}</td>
+                <td>{taskRepository.name}</td>
+                <td>{taskRepository.location}</td>
+                <td>{taskRepository.description}</td>
                 <td style={{textAlign: "center", paddingRight: "10px", width: "20px"}}>
                     {taskRepository.task_definitions.length === 0 ?
-                        <Button bsSize="sm" bsStyle="danger" style={tableButtonStyles.remove} onClick={(evt) => this.onClickDeleteRepository(evt)}>
+                        <Button bsSize="sm" bsStyle="danger" onClick={(evt) => this.onClickDeleteRepository(evt)}>
                         <span>
-                            <FontAwesome name="trash"/>
+                           {/* <FontAwesome name="trash"/>*/}
                         </span>
                         </Button>
                         : <Badge>{taskRepository.task_definitions.length} {pluralize("task", taskRepository.task_definitions.length)}</Badge>}
@@ -166,3 +150,18 @@ export class TaskRepositoryRow extends React.Component<ITaskRepositoryRowProps, 
     }
 }
 
+const _TaskRepositoryRow = graphql<ITaskRepositoryRowProps, any>(UpdateTaskRepositoryMutation, {
+    props: ({mutate}) => ({
+        updateTaskRepository: (taskRepository: ITaskRepository) => mutate({
+            variables: {taskRepository}
+        })
+    })
+})(__TaskRepositoryRow);
+
+export const TaskRepositoryRow = graphql<ITaskRepositoryRowProps, any>(DeleteTaskRepositoryMutation, {
+    props: ({mutate}) => ({
+        deleteTaskRepository: (taskRepository: ITaskRepository) => mutate({
+            variables: {taskRepository}
+        })
+    })
+})(_TaskRepositoryRow);

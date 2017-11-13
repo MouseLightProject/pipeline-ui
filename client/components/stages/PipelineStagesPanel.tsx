@@ -1,36 +1,26 @@
 import * as React from "react";
-import {Panel, Button} from "react-bootstrap";
-import FontAwesome = require("react-fontawesome");
-import {graphql, InjectedGraphQLProps} from 'react-apollo';
+import {Container, Header, Menu, MenuItem, Modal} from "semantic-ui-react";
+import {graphql} from 'react-apollo';
 import {toast} from "react-toastify";
 
 import {PipelineStageTable} from "./PipelineStageTable";
-import {AllProjectsId} from "../helpers/ProjectMenu";
+import { ProjectMenu} from "../helpers/ProjectMenu";
 import {IPipelineStage} from "../../models/pipelineStage";
-import {panelHeaderStyles} from "../../util/styleDefinitions";
 import {IProject} from "../../models/project";
-import {ProjectMenuNavbar} from "../helpers/ProjectMenuNavbar";
 import {StagesHelpPanel} from "./PipelineStagesHelp";
-import {ModalAlert, toastCreateError, toastCreateSuccess} from "ndb-react-components";
+import {toastCreateError, toastCreateSuccess} from "ndb-react-components";
 import {EditPipelineStageDialog} from "./EditPipelineStageDialog";
 import {CreateStageMutation} from "../../graphql/pipelineStage";
 import {TaskQuery} from "../../graphql/taskDefinition";
-import {ITaskRepository} from "../../models/taskRepository";
-import {ITaskDefinition} from "../../models/taskDefinition";
 import {DialogMode} from "../helpers/DialogUtils";
+import {themeHighlight} from "../../util/styleDefinitions";
+import {PreferencesManager} from "../../util/preferencesManager";
 
-const styles = panelHeaderStyles;
-
-interface ITaskQueryProps {
-    taskDefinitions: ITaskDefinition[];
-    taskRepositories: ITaskRepository[];
-}
-
-interface IPipelineStagesPanelProps extends InjectedGraphQLProps<ITaskQueryProps> {
+interface IPipelineStagesPanelProps {
     projects: IProject[];
     pipelineStages: IPipelineStage[];
     pipelinesForProjectId: string;
-    selectedPipelineStage: IPipelineStage;
+    data?: any;
 
     onPipelinesForProjectIdChanged(id: string);
     onSelectedPipelineStageChanged(stage: IPipelineStage);
@@ -38,39 +28,26 @@ interface IPipelineStagesPanelProps extends InjectedGraphQLProps<ITaskQueryProps
     createPipelineStage?(stage: IPipelineStage): any;
 }
 
-interface IIPipelineStagesPanelState {
+interface IPipelineStagesPanelState {
     projectId: string;
     isAddDialogShown?: boolean;
-    isHelpDialogShown?: boolean;
+    isFiltered?: boolean;
 }
 
-@graphql(TaskQuery, {
-    options: {
-        pollInterval: 5 * 1000
-    }
-})
-@graphql(CreateStageMutation, {
-    props: ({mutate}) => ({
-        createPipelineStage: (pipelineStage: IPipelineStage) => mutate({
-            variables: {pipelineStage}
-        })
-    })
-})
-export class PipelineStagesPanel extends React.Component<IPipelineStagesPanelProps, IIPipelineStagesPanelState> {
+export class __PipelineStagesPanel extends React.Component<IPipelineStagesPanelProps, IPipelineStagesPanelState> {
     constructor(props) {
         super(props);
 
         this.state = {
-            projectId: AllProjectsId,
-            isAddDialogShown: false,
-            isHelpDialogShown: false
+            projectId: PreferencesManager.Instance.PreferredProjectId,
+            isAddDialogShown: false
         };
     }
 
-    private onClickShowHelp(evt: any) {
-        evt.stopPropagation();
+    private onToggleIsFiltered() {
+        PreferencesManager.Instance.IsStageTableFiltered = !this.state.isFiltered;
 
-        this.setState({isHelpDialogShown: true});
+        this.setState({isFiltered: !this.state.isFiltered})
     }
 
     private onClickAddStage(evt: any) {
@@ -80,6 +57,8 @@ export class PipelineStagesPanel extends React.Component<IPipelineStagesPanelPro
     }
 
     private onProjectSelectionChange(eventKey) {
+        PreferencesManager.Instance.PreferredProjectId = eventKey;
+
         this.setState({projectId: eventKey}, null);
     }
 
@@ -99,72 +78,84 @@ export class PipelineStagesPanel extends React.Component<IPipelineStagesPanelPro
         }
     }
 
-    private renderAddStageDialog() {
-        if (this.state.isAddDialogShown) {
-            return (
-                <EditPipelineStageDialog show={this.state.isAddDialogShown}
-                                         mode={DialogMode.Create}
-                                         projects={this.props.projects}
-                                         tasks={this.props.data.taskDefinitions}
-                                         onCancel={() => this.setState({isAddDialogShown: false})}
-                                         onAccept={(s: IPipelineStage) => this.onAcceptCreateStage(s)}/>
-            );
-        } else {
-            return null;
-        }
-    }
+    private renderMainMenu() {
+        const icon = this.state.isFiltered ? "remove" : "filter";
+        const content = this.state.isFiltered ? "Remove Filters" : "Apply Filters";
 
-    private renderHelpDialog() {
-        return this.state.isHelpDialogShown ? (
-            <ModalAlert modalId="pipeline-stages-help"
-                        show={this.state.isHelpDialogShown}
-                        style="success"
-                        header="Pipeline Stages"
-                        canCancel={false}
-                        acknowledgeContent={"OK"}
-                        onCancel={() => this.setState({isHelpDialogShown: false})}
-                        onAcknowledge={() => this.setState({isHelpDialogShown: false})}>
-                <StagesHelpPanel/>
-            </ModalAlert>) : null;
-    }
-
-    private renderHeader() {
         return (
-            <div style={styles.flexContainer}>
-                <h4 style={styles.titleItem}>Pipeline Stages</h4>
-                <Button bsSize="sm" onClick={(evt: any) => this.onClickAddStage(evt)}
-                        style={styles.outlineButtonRight}>
-                    <FontAwesome name="plus"/>
-                    <span style={{paddingLeft: "10px"}}>
-                        Add Stage
-                    </span>
-                </Button>
-                <Button bsSize="sm" onClick={(evt: any) => this.onClickShowHelp(evt)} style={styles.buttonRight}>
-                    <FontAwesome name="question" size="2x"/>
-                </Button>
-            </div>
+            <Menu style={{borderTop: "none", borderLeft: "none", borderRight: "none"}}>
+                <Menu.Header>
+                    <div style={{
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        paddingLeft: "10px",
+                        paddingRight: "10px",
+                        paddingTop: "4px"
+                    }}>
+                        <Header style={{color: themeHighlight}}>
+                            Pipeline Stages
+                        </Header>
+                    </div>
+                </Menu.Header>
+                <MenuItem style={{padding: 0}}/>
+                <ProjectMenu keyPrefix="createStageSelectProjectTopLevel" projects={this.props.projects}
+                             selectedProjectId={this.state.projectId}
+                             onProjectSelectionChange={(eventKey) => this.onProjectSelectionChange(eventKey)}
+                             includeAllProjects={true}>
+                </ProjectMenu>
+                <Menu.Menu position="right">
+                    <EditPipelineStageDialog element={<MenuItem size="small" content="Add Stage" icon="plus"
+                                                                onClick={(evt: any) => this.onClickAddStage(evt)}/>}
+                                             show={this.state.isAddDialogShown}
+                                             mode={DialogMode.Create}
+                                             projects={this.props.projects}
+                                             tasks={this.props.data.taskDefinitions}
+                                             onCancel={() => this.setState({isAddDialogShown: false})}
+                                             onAccept={(s: IPipelineStage) => this.onAcceptCreateStage(s)}/>
+
+                    <MenuItem size="mini" content={content} icon={icon}
+                              onClick={() => this.onToggleIsFiltered()}/>
+
+                    <Modal closeIcon={true} trigger={<MenuItem size="small" content="Help" icon="question"/>}>
+                        <Modal.Header>Pipeline Projects</Modal.Header>
+                        <Modal.Content image>
+                            <Modal.Description>
+                                <StagesHelpPanel/>
+                            </Modal.Description>
+                        </Modal.Content>
+                    </Modal>
+                </Menu.Menu>
+            </Menu>
         );
     }
 
     public render() {
         return (
-            <div>
-                <Panel header={this.renderHeader()} bsStyle="primary">
-                    {this.renderHelpDialog()}
-                    {this.renderAddStageDialog()}
-                    <ProjectMenuNavbar keyPrefix="createStageSelectProjectTopLevel" projects={this.props.projects}
-                                       selectedProjectId={this.state.projectId}
-                                       onProjectSelectionChange={(eventKey) => this.onProjectSelectionChange(eventKey)}
-                                       includeAllProjects={true}>
-                    </ProjectMenuNavbar>
-                    <PipelineStageTable selectedProjectId={this.state.projectId}
-                                        pipelineStages={this.props.pipelineStages}
-                                        tasks={this.props.data.taskDefinitions}
-                                        projects={this.props.projects}
-                                        selectedPipelineStage={this.props.selectedPipelineStage}
-                                        onSelectedPipelineStageChanged={this.props.onSelectedPipelineStageChanged}/>
-                </Panel>
-            </div>
+            <Container fluid style={{display: "flex", flexDirection: "column"}}>
+                {this.renderMainMenu()}
+                <PipelineStageTable style={{padding: "20px"}}
+                                    isFiltered={this.state.isFiltered}
+                                    selectedProjectId={this.state.projectId}
+                                    pipelineStages={this.props.pipelineStages}
+                                    tasks={this.props.data.taskDefinitions}
+                                    projects={this.props.projects}
+                                    onSelectedPipelineStageChanged={this.props.onSelectedPipelineStageChanged}/>
+            </Container>
         );
     }
 }
+
+const _PipelineStagesPanel = graphql<any, any>(TaskQuery, {
+    options: {
+        pollInterval: 5 * 1000
+    }
+})(__PipelineStagesPanel);
+
+export const PipelineStagesPanel = graphql<any, any>(CreateStageMutation, {
+    props: ({mutate}) => ({
+        createPipelineStage: (pipelineStage: IPipelineStage) => mutate({
+            variables: {pipelineStage}
+        })
+    })
+})(_PipelineStagesPanel);

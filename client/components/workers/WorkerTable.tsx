@@ -1,13 +1,11 @@
 import * as React from "react";
 import {Table, Glyphicon, Button} from "react-bootstrap"
-import FontAwesome = require("react-fontawesome");
 import {toast} from "react-toastify";
 import * as moment from "moment";
 
 import {graphql} from "react-apollo";
 import {IWorker, PipelineWorkerStatus} from "../../models/worker";
-import {SetWorkerInPoolMutation, UpdateWorkerMutation} from "../../graphql/workers";
-import {tableButtonStyles} from "../../util/styleDefinitions";
+import {SetWorkerInPoolMutation} from "../../graphql/workers";
 import {DialogMode} from "../helpers/DialogUtils";
 import {EditWorkerDialog} from "./EditWorkerDialog";
 import {toastUpdateError, toastUpdateSuccess} from "ndb-react-components";
@@ -24,13 +22,6 @@ interface IWorkerRowState {
     isUpdateDialogShown?: boolean;
 }
 
-@graphql(UpdateWorkerMutation, {
-    props: ({mutate}) => ({
-        updateWorker: (worker: IWorker) => mutate({
-            variables: {worker}
-        })
-    })
-})
 class WorkerRow extends React.Component<IWorkerRowProps, IWorkerRowState> {
     public constructor(props: IWorkerRowProps) {
         super(props);
@@ -113,7 +104,7 @@ class WorkerRow extends React.Component<IWorkerRowProps, IWorkerRowState> {
                 <td>{last_seen_moment}</td>
                 <td>
                     {status}
-                    <Button bsSize="xs" bsStyle="info" style={tableButtonStyles.editSmall}
+                    <Button bsSize="xs" bsStyle="info"
                             onClick={(evt) => this.onClickUpdateWorker(evt)}
                             disabled={worker.status === PipelineWorkerStatus.Unavailable}>
                         <Glyphicon glyph="pencil"/>
@@ -130,17 +121,7 @@ interface IWorkerTableProps {
     setWorkerAvailability?(id: string, shouldBeInSchedulerPool: boolean);
 }
 
-@graphql(SetWorkerInPoolMutation, {
-    props: ({mutate}) => ({
-        setWorkerAvailability: (id: string, shouldBeInSchedulerPool: boolean) => mutate({
-            variables: {
-                id: id,
-                shouldBeInSchedulerPool: shouldBeInSchedulerPool
-            }
-        })
-    })
-})
-export class WorkerTable extends React.Component<IWorkerTableProps, any> {
+class _WorkerTable extends React.Component<IWorkerTableProps, any> {
     public setWorkerAvailability(id: string, shouldBeInSchedulerPool: boolean) {
         this.props.setWorkerAvailability(id, shouldBeInSchedulerPool).then(() => {
         }).catch(err => {
@@ -175,3 +156,15 @@ export class WorkerTable extends React.Component<IWorkerTableProps, any> {
         );
     }
 }
+
+export const WorkerTable = graphql<IWorkerTableProps, any>(SetWorkerInPoolMutation, {
+    props: ({mutate}) => ({
+        setWorkerAvailability: (id: string, shouldBeInSchedulerPool: boolean) => mutate({
+            variables: {
+                id: id,
+                shouldBeInSchedulerPool: shouldBeInSchedulerPool
+            }
+        })
+    })
+})(_WorkerTable);
+

@@ -1,3 +1,5 @@
+export const themeHighlight = "rgb(41, 171, 226)";
+
 export const contentStyles = {
     body: {
         padding: "10px"

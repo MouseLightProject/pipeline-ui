@@ -136,6 +136,33 @@ export const UpdateProjectMutation = gql`
         region_z_min
         region_z_max
         is_processing
+      stages {
+          id
+          name
+          description
+          previous_stage_id
+          dst_path
+          depth
+          is_processing
+          function_type
+          project {
+            id
+            name
+            is_processing
+          }
+          task {
+            id
+            name
+          }
+          previous_stage {
+            id
+            name
+          }
+          child_stages {
+            id
+            name
+          }
+      }
         updated_at
       }
       error

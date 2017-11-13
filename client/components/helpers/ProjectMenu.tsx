@@ -1,21 +1,16 @@
 import * as React from "react";
-import {MenuItem, NavDropdown, DropdownButton} from "react-bootstrap"
+import {Dropdown} from "semantic-ui-react"
 import {IProject} from "../../models/project";
 
 export const AllProjectsId = "AllProjectsId";
 
 export const AllProjectsText = "All Projects";
 
-export enum ProjectMenuStyle {
-    DropDownButton,
-    NavDropDown
-}
-
 export interface IProjectMenuProps {
+    style?: any;
     keyPrefix: string;
     projects: IProject[];
     selectedProjectId: string;
-    menuStyle: ProjectMenuStyle;
     includeAllProjects?: boolean;
 
     onProjectSelectionChange(projectId: string);
@@ -29,10 +24,6 @@ export class ProjectMenu extends React.Component<IProjectMenuProps, IProjectMenu
         this.props.onProjectSelectionChange(eventKey);
     };
 
-    public shouldComponentUpdate() {
-        return true;
-    }
-
     public render() {
         const includeAllProjects = this.props.includeAllProjects || false;
 
@@ -42,11 +33,15 @@ export class ProjectMenu extends React.Component<IProjectMenuProps, IProjectMenu
         if (this.props.projects) {
             rows = this.props.projects.map(project => {
                 if (this.props.selectedProjectId === project.id) {
-                    title = `${project.name} (Sample Id ${project.sample_number})`;
+                    title = `${project.name}`;
                 }
 
-                return (<MenuItem key={this.props.keyPrefix + project.id}
-                                  eventKey={project.id}>{`${project.name} (Sample Id ${project.sample_number})`}</MenuItem>)
+                return (
+                    <Dropdown.Item key={this.props.keyPrefix + project.id}
+                                   onClick={() => this.handleChange(project.id)}>
+                        {`${project.name}`}
+                    </Dropdown.Item>
+                );
             });
         }
 
@@ -56,25 +51,21 @@ export class ProjectMenu extends React.Component<IProjectMenuProps, IProjectMenu
             }
 
             rows = [(
-                <MenuItem key={this.props.keyPrefix + AllProjectsId}
-                          eventKey={AllProjectsId}>{AllProjectsText}</MenuItem>), (
-                <MenuItem key={this.props.keyPrefix + "divider"} divider/>)].concat(rows);
+                <Dropdown.Item key={this.props.keyPrefix + AllProjectsId}
+                               onClick={(event, data) => this.handleChange(AllProjectsId)}>
+                    {AllProjectsText}
+                </Dropdown.Item>), (
+                <Dropdown.Divider key={"divider"}/>)].concat(rows);
         }
 
-        if (this.props.menuStyle === ProjectMenuStyle.NavDropDown) {
-            return (
-                <NavDropdown id={this.props.keyPrefix + "project-nav-drop-down"} title={title}
-                             onSelect={(eventKey) => this.handleChange(eventKey)}>
+        const style = this.props.style || null;
+
+        return (
+            <Dropdown item text={title} style={style}>
+                <Dropdown.Menu>
                     {rows}
-                </NavDropdown>
-            )
-        } else {
-            return (
-                <DropdownButton id={this.props.keyPrefix + "project-drop-down"} title={title} bsSize="small"
-                                onSelect={(eventKey) => this.handleChange(eventKey)}>
-                    {rows}
-                </DropdownButton>
-            )
-        }
+                </Dropdown.Menu>
+            </Dropdown>
+        );
     }
 }

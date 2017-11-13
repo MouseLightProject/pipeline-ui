@@ -1,6 +1,6 @@
 import * as React from "react";
-import {Modal, Button, FormGroup, FormControl, ControlLabel, Row, Col} from "react-bootstrap";
-import {FormControlValidationState} from "../../util/bootstrapUtils";
+import {Button, Modal, Form} from "semantic-ui-react";
+
 import {ChangeEvent} from "react";
 import * as pathIsAbsolute from "path-is-absolute";
 
@@ -9,9 +9,10 @@ import {DialogMode} from "../helpers/DialogUtils";
 
 
 interface IEditProjectProps {
-    mode: DialogMode;
     show: boolean;
+    mode: DialogMode;
     sourceProject?: IProject;
+    element: any;
 
     onCancel(): void;
 
@@ -93,10 +94,6 @@ export class EditProjectDialog extends React.Component<IEditProjectProps, IEditP
         return !!this.state.project.name;
     }
 
-    private get nameValidationState(): FormControlValidationState {
-        return this.isNameValid ? null : "error";
-    }
-
     private onNameChanged(evt: ChangeEvent<any>) {
         this.setState({
             project: Object.assign(this.state.project, {name: evt.target.value})
@@ -107,10 +104,6 @@ export class EditProjectDialog extends React.Component<IEditProjectProps, IEditP
         return !!this.state.project.root_path && pathIsAbsolute.posix(this.state.project.root_path);
     }
 
-    private get rootPathValidationState(): FormControlValidationState {
-        return this.isRootPathValid ? null : "error";
-    }
-
     private onRootPathChanged(evt: ChangeEvent<any>) {
         this.setState({
             project: Object.assign(this.state.project, {root_path: evt.target.value})
@@ -119,10 +112,6 @@ export class EditProjectDialog extends React.Component<IEditProjectProps, IEditP
 
     private get isLogRootPathValid(): boolean {
         return !this.state.project.log_root_path || pathIsAbsolute.posix(this.state.project.log_root_path);
-    }
-
-    private get logRootPathValidationState(): FormControlValidationState {
-        return this.isLogRootPathValid ? null : "error";
     }
 
     private onLogRootPathChanged(evt: ChangeEvent<any>) {
@@ -207,112 +196,48 @@ export class EditProjectDialog extends React.Component<IEditProjectProps, IEditP
         const title = this.props.mode === DialogMode.Create ? "Add New Pipeline" : "Update Pipeline";
 
         return (
-            <Modal show={this.props.show} onHide={this.props.onCancel}
-                   aria-labelledby="create-task-dialog">
-                <Modal.Header style={{backgroundColor: "#5bc0de", color: "white"}} closeButton>
-                    <Modal.Title id="create-task-dialog">{title}</Modal.Title>
+            <Modal trigger={this.props.element} open={this.props.show}>
+                <Modal.Header style={{backgroundColor: "#5bc0de", color: "white"}}>
+                    {title}
                 </Modal.Header>
-                <Modal.Body>
-                    <FormGroup bsSize="sm" controlId="name" validationState={this.nameValidationState}>
-                        <ControlLabel>Name</ControlLabel>
-                        <FormControl type="text" value={this.state.project.name}
-                                     placeholder="name is required"
-                                     onChange={(evt: any) => this.onNameChanged(evt)}/>
-                    </FormGroup>
-                    <FormGroup bsSize="sm" controlId="root_path" validationState={this.rootPathValidationState}>
-                        <ControlLabel>Root Path</ControlLabel>
-                        <FormControl type="text" value={this.state.project.root_path}
-                                     placeholder="root path is required"
-                                     onChange={evt => this.onRootPathChanged(evt)}/>
-                    </FormGroup>
-                    <FormGroup bsSize="sm" controlId="sample-number">
-                        <ControlLabel>Sample Number</ControlLabel>
-                        <FormControl type="text" value={this.state.project.sample_number !== null ? this.state.project.sample_number : ""}
-                                     placeholder=""
-                                     onChange={evt => this.onSampleNumberChanged(evt)}/>
-                    </FormGroup>
-                    <FormGroup bsSize="sm" controlId="log-root-path" validationState={this.logRootPathValidationState}>
-                        <ControlLabel>Log Root Path</ControlLabel>
-                        <FormControl type="text" value={this.state.project.log_root_path !== null ? this.state.project.log_root_path : ""}
-                                     placeholder=""
-                                     onChange={evt => this.onLogRootPathChanged(evt)}/>
-                    </FormGroup>
-                    <FormGroup bsSize="sm" controlId="description">
-                        <ControlLabel>Description</ControlLabel>
-                        <FormControl componentClass="textarea" value={this.state.project.description}
-                                     placeholder="(optional)" style={{maxWidth: "100%"}}
-                                     onChange={evt => this.onDescriptionChanged(evt)}/>
-                    </FormGroup>
-                    <h5 style={{paddingTop: "10px"}}>Selected Region (optional)</h5>
-                    <Row>
-                        <Col xs={6}>
-                            <FormGroup bsSize="sm" controlId="region_x_min">
-                                <ControlLabel>Min X</ControlLabel>
-                                <FormControl type="text" value={this.state.project.region_x_min !== null ? this.state.project.region_x_min : ""}
-                                             placeholder=""
-                                             onChange={evt => this.onSampleRegionChanged("region_x_min", evt)}/>
-                            </FormGroup>
-                        </Col>
-                        <Col xs={6}>
-                            <FormGroup bsSize="sm" controlId="region_x_max">
-                                <ControlLabel>Max X</ControlLabel>
-                                <FormControl type="text" value={this.state.project.region_x_max !== null ? this.state.project.region_x_max : ""}
-                                             placeholder=""
-                                             onChange={evt => this.onSampleRegionChanged("region_x_max", evt)}/>
-                            </FormGroup>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col xs={6}>
-                            <FormGroup bsSize="sm" controlId="region_y_min">
-                                <ControlLabel>Min Y</ControlLabel>
-                                <FormControl type="text" value={this.state.project.region_y_min !== null ? this.state.project.region_y_min : ""}
-                                             placeholder=""
-                                             onChange={evt => this.onSampleRegionChanged("region_y_min", evt)}/>
-                            </FormGroup>
-                        </Col>
-                        <Col xs={6}>
-                            <FormGroup bsSize="sm" controlId="region_y_max">
-                                <ControlLabel>Max Y</ControlLabel>
-                                <FormControl type="text" value={this.state.project.region_y_max !== null ? this.state.project.region_y_max : ""}
-                                             placeholder=""
-                                             onChange={evt => this.onSampleRegionChanged("region_y_max", evt)}/>
-                            </FormGroup>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col xs={6}>
-                            <FormGroup bsSize="sm" controlId="region_z_min">
-                                <ControlLabel>Min Z</ControlLabel>
-                                <FormControl type="text" value={this.state.project.region_z_min !== null ? this.state.project.region_z_min : ""}
-                                             placeholder=""
-                                             onChange={evt => this.onSampleRegionChanged("region_z_min", evt)}/>
-                            </FormGroup>
-                        </Col>
-                        <Col xs={6}>
-                            <FormGroup bsSize="sm" controlId="region_z_max">
-                                <ControlLabel>Max Z</ControlLabel>
-                                <FormControl type="text" value={this.state.project.region_z_max !== null ? this.state.project.region_z_max : ""}
-                                             placeholder=""
-                                             onChange={evt => this.onSampleRegionChanged("region_z_max", evt)}/>
-                            </FormGroup>
-                        </Col>
-                    </Row>
-                    {this.props.sourceProject ? <div style={{
-                        width: "100%",
-                        textAlign: "right"
-                    }}>{`(id: ${this.props.sourceProject.id})`}</div> : null}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button bsStyle="default" onClick={() => this.props.onCancel()}>Cancel</Button>
+                <Modal.Content image>
+                    <Modal.Description>
+                        <Form size="small">
+                            <Form.Input label="Name" value={this.state.project.name} error={!this.isNameValid}
+                                        onChange={(evt: any) => this.onNameChanged(evt)}/>
+                            <Form.Input label="Root Path" value={this.state.project.root_path} error={!this.isRootPathValid} onChange={(evt: any) => this.onRootPathChanged(evt)}/>
+                            <Form.Input label="Sample Number" value={this.state.project.sample_number !== null ? this.state.project.sample_number : ""} onChange={(evt: any) => this.onSampleNumberChanged(evt)}/>
+                            <Form.Input label="Log Root Path" value={this.state.project.log_root_path !== null ? this.state.project.log_root_path : ""} error={!this.isLogRootPathValid} onChange={(evt: any) => this.onLogRootPathChanged(evt)}/>
+                            <Form.TextArea label="Description" value={this.state.project.description} onChange={evt => this.onDescriptionChanged(evt)}/>
+                            <h5 style={{paddingTop: "10px"}}>Selected Region (optional)</h5>
+                            <Form.Group widths="equal">
+                                <Form.Input label="Min X" value={this.state.project.region_x_min !== null ? this.state.project.region_x_min : ""} onChange={evt => this.onSampleRegionChanged("region_x_min", evt)}/>
+                                <Form.Input label="Max X" value={this.state.project.region_x_max !== null ? this.state.project.region_x_max : ""} onChange={evt => this.onSampleRegionChanged("region_x_max", evt)}/>
+                            </Form.Group>
+                            <Form.Group widths="equal">
+                                <Form.Input label="Min Y" value={this.state.project.region_y_min !== null ? this.state.project.region_y_min : ""} onChange={evt => this.onSampleRegionChanged("region_y_min", evt)}/>
+                                <Form.Input label="Max Y" value={this.state.project.region_y_max !== null ? this.state.project.region_y_max : ""} onChange={evt => this.onSampleRegionChanged("region_y_max", evt)}/>
+                            </Form.Group>
+                            <Form.Group widths="equal">
+                                <Form.Input label="Min Z" value={this.state.project.region_z_min !== null ? this.state.project.region_z_min : ""} onChange={evt => this.onSampleRegionChanged("region_z_min", evt)}/>
+                                <Form.Input label="Max Z" value={this.state.project.region_z_max !== null ? this.state.project.region_z_max : ""} onChange={evt => this.onSampleRegionChanged("region_z_max", evt)}/>
+                            </Form.Group>
+                        </Form>
+                        {this.props.sourceProject ? <div style={{
+                            width: "100%",
+                            textAlign: "right"
+                        }}>{`(id: ${this.props.sourceProject.id})`}</div> : null}
+                    </Modal.Description>
+                </Modal.Content>
+                <Modal.Actions>
+                    <Button onClick={() => this.props.onCancel()}>Cancel</Button>
                     {(this.props.mode === DialogMode.Update && this.props.sourceProject) ?
-                        <Button bsStyle="default"
-                                onClick={() => this.applySourceProject()}>Revert</Button> : null}
-                    <Button bsStyle="success" onClick={() => this.onCreateOrUpdate()}
+                        <Button  onClick={() => this.applySourceProject()}>Revert</Button> : null}
+                    <Button onClick={() => this.onCreateOrUpdate()}
                             disabled={!this.canCreateOrUpdate()} style={{marginLeft: "30px"}}>
                         {this.props.mode === DialogMode.Update ? "Update" : "Create"}
                     </Button>
-                </Modal.Footer>
+                </Modal.Actions>
             </Modal>
         );
     }

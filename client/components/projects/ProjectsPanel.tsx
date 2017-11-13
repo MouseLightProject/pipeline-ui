@@ -1,20 +1,17 @@
 import * as React from "react";
-import {Panel, Button} from "react-bootstrap"
-import FontAwesome = require("react-fontawesome");
 import {graphql} from 'react-apollo';
+import {Container, Header, Menu, MenuItem, Modal} from "semantic-ui-react";
 import {toast} from "react-toastify";
 
 import {ProjectTable} from "./ProjectTable";
-import {panelHeaderStyles} from "../../util/styleDefinitions";
 import {ProjectsHelpPanel} from "./ProjectsHelp";
-import {ModalAlert, toastCreateError, toastCreateSuccess} from "ndb-react-components";
+import {toastCreateError, toastCreateSuccess} from "ndb-react-components";
 import {EditProjectDialog} from "./EditProjectDialog";
 import {CreateProjectMutation} from "../../graphql/project";
 import {IProject, IProjectInput} from "../../models/project";
 import {DialogMode} from "../helpers/DialogUtils";
 import {PreferencesManager} from "../../util/preferencesManager";
-
-const styles = panelHeaderStyles;
+import {themeHighlight} from "../../util/styleDefinitions";
 
 interface IProjectsPanelProps {
     projects: IProject[];
@@ -24,32 +21,17 @@ interface IProjectsPanelProps {
 
 interface IProjectsPanelState {
     isAddDialogShown?: boolean;
-    isHelpDialogShown?: boolean;
     isFiltered?: boolean;
 }
 
-@graphql(CreateProjectMutation, {
-    props: ({mutate}) => ({
-        createProject: (project: IProject) => mutate({
-            variables: {project}
-        })
-    })
-})
-export class ProjectsPanel extends React.Component<IProjectsPanelProps, IProjectsPanelState> {
+export class _ProjectsPanel extends React.Component<IProjectsPanelProps, IProjectsPanelState> {
     public constructor(props: IProjectsPanelProps) {
         super(props);
 
         this.state = {
             isAddDialogShown: false,
-            isHelpDialogShown: false,
-            isFiltered: PreferencesManager.Instance.IsProjecTableFiltered
+            isFiltered: PreferencesManager.Instance.IsProjectTableFiltered
         }
-    }
-
-    private onClickShowHelp(evt: any) {
-        evt.stopPropagation();
-
-        this.setState({isHelpDialogShown: true});
     }
 
     private onClickAddProject(evt: any) {
@@ -58,8 +40,8 @@ export class ProjectsPanel extends React.Component<IProjectsPanelProps, IProject
         this.setState({isAddDialogShown: true});
     }
 
-    private toggleIsFiltered() {
-        PreferencesManager.Instance.IsProjecTableFiltered = !this.state.isFiltered;
+    private onToggleIsFiltered() {
+        PreferencesManager.Instance.IsProjectTableFiltered = !this.state.isFiltered;
 
         this.setState({isFiltered: !this.state.isFiltered})
     }
@@ -80,64 +62,64 @@ export class ProjectsPanel extends React.Component<IProjectsPanelProps, IProject
         }
     }
 
-    private renderAddProjectDialog() {
-        if (this.state.isAddDialogShown) {
-            return (
-                <EditProjectDialog show={this.state.isAddDialogShown}
-                                   mode={ DialogMode.Create}
-                                   onCancel={() => this.setState({isAddDialogShown: false})}
-                                   onAccept={(p: IProject) => this.onAcceptCreateProject(p)}/>
-            );
-        } else {
-            return null;
-        }
-    }
+    private renderMainMenu() {
+        const icon = this.state.isFiltered ? "remove" : "filter";
+        const content = this.state.isFiltered ? "Remove Filters" : "Apply Filters";
 
-    private renderHelpDialog() {
-        return this.state.isHelpDialogShown ? (
-            <ModalAlert modalId="projects-help"
-                        show={this.state.isHelpDialogShown}
-                        style="success"
-                        header="Pipeline Projects"
-                        canCancel={false}
-                        acknowledgeContent={"OK"}
-                        onCancel={() => this.setState({isHelpDialogShown: false})}
-                        onAcknowledge={() => this.setState({isHelpDialogShown: false})}>
-                <ProjectsHelpPanel/>
-            </ModalAlert>) : null;
-    }
-
-    private renderHeader() {
         return (
-            <div style={styles.flexContainer}>
-                <h4 style={styles.titleItem}>Pipeline Projects</h4>
-                <Button bsSize="sm" onClick={() => this.toggleIsFiltered()}
-                        style={Object.assign({marginRight: "20px"}, styles.buttonRight)}>
-                    <FontAwesome name={this.state.isFiltered ? "remove" : "filter"} size="2x"/>
-                </Button>
-                <Button bsSize="sm" onClick={(evt: any) => this.onClickAddProject(evt)}
-                        style={styles.outlineButtonRight}>
-                    <FontAwesome name="plus"/>
-                    <span style={{paddingLeft: "10px"}}>
-                        Add Pipeline
-                    </span>
-                </Button>
-                <Button bsSize="sm" onClick={(evt: any) => this.onClickShowHelp(evt)} style={styles.buttonRight}>
-                    <FontAwesome name="question" size="2x"/>
-                </Button>
-            </div>
+            <Menu style={{borderTop: "none", borderLeft: "none", borderRight: "none"}}>
+                <Menu.Header>
+                    <div style={{
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        paddingLeft: "10px",
+                        paddingTop: "4px"
+                    }}>
+                        <Header style={{color: themeHighlight}}>
+                            Pipeline Projects
+                        </Header>
+                    </div>
+                </Menu.Header>
+                <Menu.Menu position="right">
+                    <EditProjectDialog element={<MenuItem size="small" content="Add Pipeline" icon="plus"
+                                                          onClick={(evt: any) => this.onClickAddProject(evt)}/>}
+                                       show={this.state.isAddDialogShown}
+                                       mode={DialogMode.Create}
+                                       onCancel={() => this.setState({isAddDialogShown: false})}
+                                       onAccept={(p: IProject) => this.onAcceptCreateProject(p)}/>
+
+                    <MenuItem size="mini" content={content} icon={icon}
+                              onClick={() => this.onToggleIsFiltered()}/>
+
+                    <Modal closeIcon={true} trigger={<MenuItem size="small" content="Help" icon="question"/>}>
+                        <Modal.Header>Pipeline Projects</Modal.Header>
+                        <Modal.Content image>
+                            <Modal.Description>
+                                <ProjectsHelpPanel/>
+                            </Modal.Description>
+                        </Modal.Content>
+                    </Modal>
+                </Menu.Menu>
+            </Menu>
         );
     }
 
     public render() {
         return (
-            <div>
-                <Panel header={this.renderHeader()} bsStyle="primary">
-                    {this.renderHelpDialog()}
-                    {this.renderAddProjectDialog()}
-                    <ProjectTable projects={this.props.projects} isFiltered={this.state.isFiltered}/>
-                </Panel>
-            </div>
+            <Container fluid style={{display: "flex", flexDirection: "column"}}>
+                {this.renderMainMenu()}
+                <ProjectTable style={{padding: "20px"}} projects={this.props.projects}
+                              isFiltered={this.state.isFiltered}/>
+            </Container>
         );
     }
 }
+
+export const ProjectsPanel = graphql<any, any>(CreateProjectMutation, {
+    props: ({mutate}) => ({
+        createProject: (project: IProject) => mutate({
+            variables: {project}
+        })
+    })
+})(_ProjectsPanel);

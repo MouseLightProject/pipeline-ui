@@ -18,7 +18,11 @@ export class TilePipelineStatusType {
     }
 
     public get canSubmit() {
-        return this.option === TilePipelineStatus.Canceled || this.option === TilePipelineStatus.Failed;
+        return this.option === TilePipelineStatus.Canceled || this.option === TilePipelineStatus.Failed|| this.option === TilePipelineStatus.Complete;
+    }
+
+    public static fromStatus(status: TilePipelineStatus): TilePipelineStatusType  {
+        return TILE_PIPELINE_STATUS_TYPES[TILE_PIPELINE_STATUS_TYPES.findIndex(t => t.option === status)];
     }
 }
 

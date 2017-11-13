@@ -49,6 +49,7 @@ export const PipelineStagesQuery = gql`query {
         duration_high
         duration_low
       }
+      created_at
     }
 }`;
 
@@ -81,6 +82,7 @@ export const CreateStageMutation = gql`
             id
             name
           }
+          created_at
         }
         error
     }
@@ -134,6 +136,7 @@ export const UpdatePipelineStageMutation = gql`
             duration_high
             duration_low
           }
+          created_at
         }
       error
     }

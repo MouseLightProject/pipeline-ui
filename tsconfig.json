@@ -5,7 +5,8 @@
     "target": "es6",
     "jsx": "react",
     "sourceMap": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "skipLibCheck": true
   },
   "exclude": [
     "node_modules"

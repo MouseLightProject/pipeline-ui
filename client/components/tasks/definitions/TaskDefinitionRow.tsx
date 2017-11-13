@@ -1,6 +1,5 @@
 import * as React from "react";
 import {Button, Badge} from "react-bootstrap";
-import FontAwesome = require("react-fontawesome");
 import {graphql} from 'react-apollo';
 import {toast} from "react-toastify";
 import pluralize = require("pluralize");
@@ -13,7 +12,6 @@ import {
 } from "ndb-react-components";
 import {EditTaskDefinitionDialog} from "./EditTaskDefinitionDialog";
 import {ITaskRepository} from "../../../models/taskRepository";
-import {tableButtonStyles, tableCellStyles} from "../../../util/styleDefinitions";
 import {ViewScriptDialog} from "./ViewScriptDialog";
 import {DialogMode} from "../../helpers/DialogUtils";
 
@@ -35,21 +33,7 @@ interface ITaskDefinitionRowState {
     isScriptDialogShown?: boolean;
 }
 
-@graphql(UpdateTaskDefinitionMutation, {
-    props: ({mutate}) => ({
-        updateTaskDefinition: (taskDefinition: ITaskDefinition) => mutate({
-            variables: {taskDefinition}
-        })
-    })
-})
-@graphql(DeleteTaskDefinitionMutation, {
-    props: ({mutate}) => ({
-        deleteTaskDefinition: (taskDefinition: ITaskDefinition) => mutate({
-            variables: {taskDefinition}
-        })
-    })
-})
-export class TaskDefinitionRow extends React.Component<ITaskDefinitionRowProps, ITaskDefinitionRowState> {
+class __TaskDefinitionRow extends React.Component<ITaskDefinitionRowProps, ITaskDefinitionRowState> {
     public constructor(props: ITaskDefinitionRowProps) {
         super(props);
 
@@ -201,38 +185,38 @@ export class TaskDefinitionRow extends React.Component<ITaskDefinitionRowProps, 
                 {this.renderUpdateTaskDefinitionDialog()}
                 {this.renderDeleteRepositoryConfirmation()}
                 <td style={{paddingLeft: "10px", verticalAlign: "middle"}}>
-                    <Button bsSize="sm" bsStyle="info" style={tableButtonStyles.edit}
+                    <Button bsSize="sm" bsStyle="info"
                             onClick={(evt) => this.onClickUpdateTaskDefinition(evt)}>
                         <span>
-                        <FontAwesome name="pencil"/>
+                        {/*<FontAwesome name="pencil"/>*/}
                         </span>
                     </Button>
                 </td>
-                <td style={tableCellStyles.middle}>{taskDefinition.name}</td>
+                <td>{taskDefinition.name}</td>
                 <td style={{textAlign: "center", paddingRight: "4px", width: "10px", verticalAlign: "middle"}}>
                     {taskDefinition.script_status ?
-                        <Button bsSize="sm" bsStyle="info" style={tableButtonStyles.view} onClick={(evt) => this.onClickViewScript(evt)}>
-                            <FontAwesome name="eye"/>
-                        </Button> : <span style={{fontSize: "15px"}} className="text-danger"><FontAwesome name="exclamation-circle"/></span>
+                        <Button bsSize="sm" bsStyle="info" onClick={(evt) => this.onClickViewScript(evt)}>
+                           {/* <FontAwesome name="eye"/>*/}
+                        </Button> : <span style={{fontSize: "15px"}} className="text-danger">{/*<FontAwesome name="exclamation-circle"/>*/}</span>
                     }
                 </td>
-                <td style={tableCellStyles.middle}>{this.renderScript()}</td>
-                <td style={tableCellStyles.middle}>{taskDisplayRepository(taskDefinition)}</td>
-                <td style={tableCellStyles.middle}>{taskDefinition.work_units}</td>
+                <td>{this.renderScript()}</td>
+                <td>{taskDisplayRepository(taskDefinition)}</td>
+                <td>{taskDefinition.work_units}</td>
                 <td style={{textAlign: "center", paddingRight: "4px", width: "10px", verticalAlign: "middle"}}>
                     {argArray.length > 2 ?
-                        <Button bsSize="sm" bsStyle="info" style={tableButtonStyles.edit}
+                        <Button bsSize="sm" bsStyle="info"
                                 onClick={(evt) => this.setState({isArgumentListExpanded: !this.state.isArgumentListExpanded})}>
-                            <FontAwesome name={isExpanded ? "minus-circle" : "plus-circle"}/>
+                           {/* <FontAwesome name={isExpanded ? "minus-circle" : "plus-circle"}/>*/}
                         </Button> : null}
                 </td>
-                <td style={tableCellStyles.middle}>{args}</td>
+                <td>{args}</td>
                 <td style={{textAlign: "center", paddingRight: "10px", width: "20px", verticalAlign: "middle"}}>
                     {taskDefinition.pipeline_stages.length === 0 ?
-                        <Button bsSize="sm" bsStyle="danger" style={tableButtonStyles.remove}
+                        <Button bsSize="sm" bsStyle="danger"
                                 onClick={(evt) => this.onClickDeleteTaskDefinition(evt)}>
                         <span>
-                            <FontAwesome name="trash"/>
+                          {/*  <FontAwesome name="trash"/>*/}
                         </span>
                         </Button>
                         : <Badge>{taskDefinition.pipeline_stages.length} {pluralize("stage", taskDefinition.pipeline_stages.length)}</Badge>}
@@ -242,3 +226,18 @@ export class TaskDefinitionRow extends React.Component<ITaskDefinitionRowProps, 
     }
 }
 
+const _TaskDefinitionRow = graphql<any, any>(UpdateTaskDefinitionMutation, {
+    props: ({mutate}) => ({
+        updateTaskDefinition: (taskDefinition: ITaskDefinition) => mutate({
+            variables: {taskDefinition}
+        })
+    })
+})(__TaskDefinitionRow);
+
+export const TaskDefinitionRow = graphql<any, any>(DeleteTaskDefinitionMutation, {
+    props: ({mutate}) => ({
+        deleteTaskDefinition: (taskDefinition: ITaskDefinition) => mutate({
+            variables: {taskDefinition}
+        })
+    })
+})(_TaskDefinitionRow);

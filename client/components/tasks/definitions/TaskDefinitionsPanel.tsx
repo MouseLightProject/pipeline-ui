@@ -3,18 +3,14 @@ import {Panel, Button} from "react-bootstrap"
 import {graphql} from 'react-apollo';
 import {toast} from "react-toastify";
 
-import FontAwesome = require("react-fontawesome");
 import {ITaskDefinition} from "../../../models/taskDefinition";
 import {TaskDefinitionsTable} from "./TaskDefinitionTable";
 import {EditTaskDefinitionDialog} from "./EditTaskDefinitionDialog";
 import {ModalAlert, toastCreateError, toastCreateSuccess} from "ndb-react-components";
 import {ITaskRepository} from "../../../models/taskRepository";
 import {CreateTaskDefinitionMutation} from "../../../graphql/taskDefinition";
-import {panelHeaderStyles} from "../../../util/styleDefinitions";
 import {TaskDefinitionHelpPanel} from "./TaskDefinitionHelp";
 import {DialogMode} from "../../helpers/DialogUtils";
-
-const styles = panelHeaderStyles;
 
 interface ITaskDefinitionPanelProps {
     taskDefinitions: ITaskDefinition[];
@@ -28,14 +24,7 @@ interface ITaskDefinitionPanelState {
     isHelpDialogShown: boolean;
 }
 
-@graphql(CreateTaskDefinitionMutation, {
-    props: ({mutate}) => ({
-        createTaskDefinition: (taskDefinition: ITaskDefinition) => mutate({
-            variables: {taskDefinition}
-        })
-    })
-})
-export class TaskDefinitionsPanel extends React.Component<ITaskDefinitionPanelProps, ITaskDefinitionPanelState> {
+export class _TaskDefinitionsPanel extends React.Component<ITaskDefinitionPanelProps, ITaskDefinitionPanelState> {
     public constructor(props: ITaskDefinitionPanelProps) {
         super(props);
 
@@ -104,17 +93,16 @@ export class TaskDefinitionsPanel extends React.Component<ITaskDefinitionPanelPr
 
     private renderHeader() {
         return (
-            <div style={styles.flexContainer}>
-                <h4 style={styles.titleItem}>Tasks</h4>
-                <Button bsSize="sm" onClick={(evt: any) => this.onClickAddTaskDefinition(evt)}
-                        style={styles.outlineButtonRight}>
-                    <FontAwesome name="plus"/>
+            <div>
+                <h4>Tasks</h4>
+                <Button bsSize="sm" onClick={(evt: any) => this.onClickAddTaskDefinition(evt)}>
+                    {/*<FontAwesome name="plus"/>*/}
                     <span style={{paddingLeft: "10px"}}>
                         Add Task
                     </span>
                 </Button>
-                <Button bsSize="sm" onClick={(evt: any) => this.onClickShowHelp(evt)} style={styles.buttonRight}>
-                    <FontAwesome name="question" size="2x"/>
+                <Button bsSize="sm" onClick={(evt: any) => this.onClickShowHelp(evt)}>
+                    {/*<FontAwesome name="question" size="2x"/>*/}
                 </Button>
             </div>);
     }
@@ -130,3 +118,11 @@ export class TaskDefinitionsPanel extends React.Component<ITaskDefinitionPanelPr
         );
     }
 }
+
+export const TaskDefinitionsPanel = graphql<ITaskDefinitionPanelProps, any>(CreateTaskDefinitionMutation, {
+    props: ({mutate}) => ({
+        createTaskDefinition: (taskDefinition: ITaskDefinition) => mutate({
+            variables: {taskDefinition}
+        })
+    })
+})(_TaskDefinitionsPanel);

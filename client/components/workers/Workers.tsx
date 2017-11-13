@@ -4,23 +4,19 @@ import {Panel} from "react-bootstrap"
 import {WorkerTable} from "./WorkerTable";
 import {Loading} from "../../Loading";
 import {graphql} from "react-apollo";
-import {contentStyles, panelHeaderStyles} from "../../util/styleDefinitions";
 import {WorkerQuery} from "../../graphql/workers";
+import {contentStyles, panelHeaderStyles} from "../../util/styleDefinitions";
 
 const styles = panelHeaderStyles;
 
-@ graphql(WorkerQuery, {
-    options: {
-        pollInterval: 5 * 1000
-    }
-})
-export class Workers extends React.Component<any, any> {
+class _Workers extends React.Component<any, any> {
     private renderHeader() {
         return (
             <div style={styles.flexContainer}>
                 <h4 style={styles.titleItem}>Workers</h4>
                 <div style={styles.buttonRight}/>
-            </div>);
+            </div>
+        );
     }
 
     public render() {
@@ -37,3 +33,10 @@ export class Workers extends React.Component<any, any> {
         );
     }
 }
+
+export const Workers = graphql<any, any>(WorkerQuery, {
+    options: {
+        pollInterval: 5 * 1000
+    }
+})(_Workers);
+

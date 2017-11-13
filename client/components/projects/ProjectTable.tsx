@@ -1,16 +1,11 @@
 import * as React from "react";
-import {Button, Glyphicon, Badge} from "react-bootstrap";
+import {Menu, MenuItem, Button, Confirm} from "semantic-ui-react";
 import {toast} from "react-toastify";
 import ReactTable from "react-table";
 import {graphql} from "react-apollo";
-import FontAwesome = require("react-fontawesome");
-import pluralize = require("pluralize");
 
-import {tableButtonStyles} from "../../util/styleDefinitions";
 import {IProject, IProjectInput} from "../../models/project";
-import {ProjectRow} from "./ProjectRow";
 import {
-    ModalAlert,
     toastDeleteError,
     toastDeleteSuccess,
     toastUpdateError,
@@ -20,13 +15,10 @@ import {DeleteProjectMutation, UpdateProjectMutation} from "../../graphql/projec
 import {EditProjectDialog} from "./EditProjectDialog";
 import {DialogMode} from "../helpers/DialogUtils";
 import {PreferencesManager} from "../../util/preferencesManager";
-
-const spanStyle = {
-    color: "#AAAAAA",
-    width: "100%"
-};
+import {AllProjectsId} from "../helpers/ProjectMenu";
 
 interface IProjectTableProps {
+    style: any;
     projects: IProject[];
     isFiltered: boolean;
 
@@ -41,26 +33,16 @@ interface IProjectTableState {
     isDeleteDialogShown?: boolean;
 }
 
-@graphql(UpdateProjectMutation, {
-    props: ({mutate}) => ({
-        updateProject: (project: IProjectInput) => mutate({
-            variables: {project}
-        })
-    })
-})
-@graphql(DeleteProjectMutation, {
-    props: ({mutate}) => ({
-        deleteProject: (id: string) => mutate({
-            variables: {id}
-        })
-    })
-})
-export class ProjectTable extends React.Component<IProjectTableProps, IProjectTableState> {
+class __ProjectTable extends React.Component<IProjectTableProps, IProjectTableState> {
     constructor(props) {
         super(props);
 
+        const id = PreferencesManager.Instance.PreferredProjectId;
+
+        const index = this.props.projects.findIndex(p => p.id === id);
+
         this.state = {
-            selectedProject: null,
+            selectedProject: index >= 0 ? this.props.projects[index] : null,
             isUpdateDialogShown: false,
             isDeleteDialogShown: false
         }
@@ -69,8 +51,6 @@ export class ProjectTable extends React.Component<IProjectTableProps, IProjectTa
     getActivateText = isActive => isActive ? "pause" : "resume";
 
     getActivateGlyph = isActive => isActive ? "stop" : "play";
-
-    getActivateStyle = isActive => isActive ? "info" : "success";
 
     getRegionText = (value) => value !== null ? value.toString() : "any";
 
@@ -100,10 +80,10 @@ export class ProjectTable extends React.Component<IProjectTableProps, IProjectTa
         return `[${this.getRegionText(x)}, ${this.getRegionText(y)}, ${this.getRegionText(z)}]`;
     }
 
-    private onClickUpdateProject(evt: any, project: IProject) {
+    private onClickUpdateProject(evt: any) {
         evt.stopPropagation();
 
-        this.setState({selectedProject: project, isUpdateDialogShown: true});
+        this.setState({isUpdateDialogShown: true});
     }
 
     private onClickDeleteProject(evt: any) {
@@ -127,39 +107,17 @@ export class ProjectTable extends React.Component<IProjectTableProps, IProjectTa
 
             if (!result.data.updateProject.project) {
                 toast.error(toastUpdateError(result.data.updateProject.error), {autoClose: false});
-            } else if (showSuccessToast) {
-                toast.success(toastUpdateSuccess(), {autoClose: 3000});
+            } else {
+                if (showSuccessToast) {
+                    toast.success(toastUpdateSuccess(), {autoClose: 3000});
+                }
+                this.setState({selectedProject: result.data.updateProject.project});
             }
+
         } catch (error) {
             toast.error(toastUpdateError(error), {autoClose: false});
         }
-    }
 
-    private renderUpdateProjectDialog() {
-        if (this.state.isUpdateDialogShown) {
-            return (
-                <EditProjectDialog show={this.state.isUpdateDialogShown}
-                                   mode={DialogMode.Update}
-                                   sourceProject={this.state.selectedProject}
-                                   onCancel={() => this.setState({isUpdateDialogShown: false})}
-                                   onAccept={(p: IProjectInput) => this.onAcceptUpdateProject(p)}/>
-            );
-        } else {
-            return null;
-        }
-    }
-
-    private renderDeleteProjectConfirmation() {
-        if (!this.state.isDeleteDialogShown) {
-            return null;
-        }
-
-        return (
-            <ModalAlert show={this.state.isDeleteDialogShown} style="danger" header="Delete Pipeline"
-                        message={`Are you sure you want to delete ${this.state.selectedProject.name} as a pipeline?`}
-                        acknowledgeContent="Delete" canCancel={true} onCancel={() => this.onClearDeleteConfirmation()}
-                        onAcknowledge={() => this.onDeleteProject()}/>
-        )
     }
 
     private async onDeleteProject() {
@@ -171,17 +129,71 @@ export class ProjectTable extends React.Component<IProjectTableProps, IProjectTa
             } else {
                 toast.success(toastDeleteSuccess(), {autoClose: 3000});
 
+                if (PreferencesManager.Instance.PreferredProjectId === this.state.selectedProject.id) {
+                    PreferencesManager.Instance.PreferredProjectId = AllProjectsId;
+                }
                 // this.setState({isDeleted: true});
             }
         } catch (error) {
             toast.error(toastDeleteError(error), {autoClose: false});
         }
 
-        this.setState({isDeleteDialogShown: false});
+        this.setState({selectedProject: null, isDeleteDialogShown: false});
     }
 
     private onClearDeleteConfirmation() {
         this.setState({isDeleteDialogShown: false});
+    }
+
+    private renderDeleteProjectConfirmation() {
+        if (!this.state.isDeleteDialogShown) {
+            return null;
+        }
+
+        return (
+            <Confirm open={this.state.isDeleteDialogShown} header="Delete Pipeline"
+                     content={`Are you sure you want to delete ${this.state.selectedProject.name} as a pipeline?`}
+                     confirmButton="Delete" onCancel={() => this.onClearDeleteConfirmation()}
+                     onConfirm={() => this.onDeleteProject()}/>
+        )
+    }
+
+    private renderSubMenu() {
+        const disabled = this.state.selectedProject === null;
+
+        const disabled_active = disabled || this.state.selectedProject.is_processing;
+
+        const disabled_stages = disabled_active || this.state.selectedProject.stages.length > 0;
+
+        return (
+            <Menu size="mini" style={{border: "none"}}>
+                <EditProjectDialog
+                    element={<MenuItem size="mini" content="Edit" icon="pencil" disabled={disabled_active}
+                                       onClick={(evt) => this.onClickUpdateProject(evt)}/>}
+                    show={this.state.isUpdateDialogShown}
+                    mode={DialogMode.Update}
+                    sourceProject={this.state.selectedProject}
+                    onCancel={() => this.setState({isUpdateDialogShown: false})}
+                    onAccept={(p: IProjectInput) => this.onAcceptUpdateProject(p)}/>
+                <MenuItem size="mini" content="Duplicate" icon="clone" disabled={disabled}/>
+                <Menu.Header>
+                    <div style={{
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        paddingLeft: "10px",
+                    }}>
+                        <h5>
+                            {this.state.selectedProject ? this.state.selectedProject.name : ""}
+                        </h5>
+                    </div>
+                </Menu.Header>
+                <Menu.Menu position="right">
+                    <MenuItem size="mini" content="Delete" icon="trash" disabled={disabled_stages}
+                              onClick={(evt) => this.onClickDeleteProject(evt)}/>
+                </Menu.Menu>
+            </Menu>
+        );
     }
 
     public render() {
@@ -192,14 +204,17 @@ export class ProjectTable extends React.Component<IProjectTableProps, IProjectTa
                 accessor: p => p,
                 resizable: false,
                 filterable: false,
-                maxWidth: 70,
-                Cell: row => (
-                    <Button bsSize="xs"
-                            bsStyle={this.getActivateStyle(row.original.is_processing)}
-                            onClick={() => this.onActiveClick(row.original)}><Glyphicon
-                        glyph={this.getActivateGlyph(row.original.is_processing)}/>&nbsp;{this.getActivateText(row.original.is_processing)}
-                    </Button>
-                ),
+                width: 90,
+                Cell: row => {
+                    const style = {border: row.original.is_processing ? "1px solid red" : "1px solid green", width: "84px"};
+                    return (
+                        <Button size="mini" compact style={style} basic={!row.original.is_processing}
+                                icon={this.getActivateGlyph(row.original.is_processing)}
+                                content={this.getActivateText(row.original.is_processing)}
+                                onClick={() => this.onActiveClick(row.original)}>
+                        </Button>
+                    )
+                },
                 sortMethod: (a, b) => {
                     if (a.is_processing === b.is_processing) {
                         return 0;
@@ -211,7 +226,7 @@ export class ProjectTable extends React.Component<IProjectTableProps, IProjectTa
             {
                 Header: "Name",
                 accessor: "name",
-                width: 250
+                width: 220
             }, {
                 Header: "Path to Dashboard Root",
                 accessor: "root_path"
@@ -234,7 +249,7 @@ export class ProjectTable extends React.Component<IProjectTableProps, IProjectTa
             }, {
                 id: "selected_region",
                 Header: "Selected Region",
-                width: 150,
+                width: 120,
                 sortable: false,
                 filterable: false,
                 accessor: p => p,
@@ -248,38 +263,29 @@ export class ProjectTable extends React.Component<IProjectTableProps, IProjectTa
                     </div>
                 )
             }, {
+                id: "stages",
+                Header: "Stages",
+                accessor: "stages",
+                width: 80,
+                filterable: false,
+                Cell: ({value}) => {
+                    return (<div style={{margin: "auto"}}>{value.length}</div>);
+                }
+            }, {
                 Header: "Created",
                 accessor: "created_at",
-                width: 180,
+                width: 100,
                 filterable: false,
                 Cell: props => {
                     const project = props.original;
-
                     return (
-                        <div>
-                            <span>{new Date(project.created_at).toLocaleDateString()}</span>
-                            <Button bsSize="xs" bsStyle="info" style={tableButtonStyles.edit}
-                                    onClick={(evt) => this.onClickUpdateProject(evt, project)}
-                                    disabled={project.is_processing}>
-                                <span>
-                                    <FontAwesome name="pencil"/>
-                                </span>
-                            </Button>
-                            {project.stages.length === 0 ?
-                                <Button bsSize="sm" bsStyle="danger" style={tableButtonStyles.remove}
-                                        onClick={(evt) => this.onClickDeleteProject(evt)}
-                                        disabled={project.is_processing}>
-                                    <span>
-                                        <FontAwesome name="trash"/>
-                                    </span>
-                                </Button>
-                                : <Badge>{project.stages.length} {pluralize("stage", project.stages.length)}</Badge>}
-                        </div>
+                        <div style={{margin: "auto"}}>{new Date(project.created_at).toLocaleDateString()}</div>
                     );
                 }
             }];
 
         const props = {
+            style: {backgroundColor: "white"},
             data: this.props.projects,
             columns: columns,
             showPagination: false,
@@ -292,46 +298,47 @@ export class ProjectTable extends React.Component<IProjectTableProps, IProjectTa
             },
             onFilteredChange: (newFiltered) => {
                 PreferencesManager.Instance.ProjectTableFilter = newFiltered;
+            },
+            getTrProps: (state, rowInfo) => {
+                return {
+                    onClick: (e, handleOriginal) => {
+                        if (!handleOriginal) {
+                            this.setState({selectedProject: rowInfo.original});
+                            PreferencesManager.Instance.PreferredProjectId = rowInfo.original.id;
+                        }
+
+                        if (handleOriginal) {
+                            handleOriginal()
+                        }
+                    },
+                    style: this.state.selectedProject && rowInfo.original.id === this.state.selectedProject.id ? {backgroundColor: "rgb(233, 236, 239)"} : {}
+                }
             }
         };
 
+
         return (
-            <div>
-                {this.renderUpdateProjectDialog()}
+            <div style={Object.assign({width: "100%"}, this.props.style || {})}>
                 {this.renderDeleteProjectConfirmation()}
+                {this.renderSubMenu()}
                 <ReactTable {...props} className="-highlight"/>
             </div>
         )
-
-        /*
-       let rows = [];
-
-        if (this.props.projects) {
-            rows = this.props.projects.map(project => (
-                <ProjectRow key={"tr_project_" + project.id} project={project}/>));
-        }
-
-
-        return (
-            <Table condensed style={{marginBottom: "0"}}>
-                <thead>
-                <tr key="project_header">
-                    <th/>
-                    <th/>
-                    <th>Sample</th>
-                    <th>Name<br/><span style={spanStyle}>Description</span></th>
-                    <th>Path to Dashboard Root</th>
-                    <th>Sample Limits</th>
-                    <th>Selected Region</th>
-                    <th/>
-                </tr>
-                </thead>
-                <tbody>
-                {rows}
-                </tbody>
-            </Table>
-        );
-        */
-
     }
 }
+
+const _ProjectTable = graphql<any, any>(UpdateProjectMutation, {
+    props: ({mutate}) => ({
+        updateProject: (project: IProjectInput) => mutate({
+            variables: {project}
+        })
+    })
+})(__ProjectTable);
+
+export const ProjectTable = graphql<any, any>(DeleteProjectMutation, {
+    props: ({mutate}) => ({
+        deleteProject: (id: string) => mutate({
+            variables: {id}
+        })
+    })
+})(_ProjectTable);

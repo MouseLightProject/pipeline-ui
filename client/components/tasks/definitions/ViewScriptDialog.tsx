@@ -18,14 +18,7 @@ interface IViewScriptDialogProps {
 interface IViewScriptDialogState {
 }
 
-@graphql(ScriptContentsQuery, {
-    options: ({taskDefinition}) => ({
-        variables: {
-            task_definition_id: taskDefinition.id
-        }
-    })
-})
-export class ViewScriptDialog extends React.Component<IViewScriptDialogProps, IViewScriptDialogState> {
+export class _ViewScriptDialog extends React.Component<IViewScriptDialogProps, IViewScriptDialogState> {
     public constructor(props: IViewScriptDialogProps) {
         super(props);
     }
@@ -60,3 +53,11 @@ export class ViewScriptDialog extends React.Component<IViewScriptDialogProps, IV
         );
     }
 }
+
+export const ViewScriptDialog = graphql<any, any>(ScriptContentsQuery, {
+    options: ({taskDefinition}) => ({
+        variables: {
+            task_definition_id: taskDefinition.id
+        }
+    })
+})(_ViewScriptDialog);

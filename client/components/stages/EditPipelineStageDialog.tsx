@@ -1,6 +1,5 @@
 import * as React from "react";
-import {Modal, Button, FormGroup, FormControl, ControlLabel} from "react-bootstrap";
-import {FormControlValidationState} from "../../util/bootstrapUtils";
+import {Button, Modal, Form} from "semantic-ui-react";
 import {ChangeEvent} from "react";
 import * as pathIsAbsolute from "path-is-absolute";
 
@@ -45,6 +44,7 @@ interface IEditStageProps {
     projects: IProject[];
     tasks: ITaskDefinition[];
     sourceStage?: IPipelineStage;
+    element: any;
 
     onCancel(): void;
     onAccept(stage: IPipelineStage): void;
@@ -77,10 +77,6 @@ export class EditPipelineStageDialog extends React.Component<IEditStageProps, IE
         return !!this.state.stage.name;
     }
 
-    private get nameValidationState(): FormControlValidationState {
-        return this.isNameValid ? null : "error";
-    }
-
     private onNameChanged(evt: ChangeEvent<any>) {
         this.setState({
             stage: Object.assign(this.state.stage, {name: evt.target.value})
@@ -97,10 +93,6 @@ export class EditPipelineStageDialog extends React.Component<IEditStageProps, IE
         return !!this.state.stage.dst_path && pathIsAbsolute(this.state.stage.dst_path);
     }
 
-    private get outputPathValidationState(): FormControlValidationState {
-        return this.isOutputPathValid ? null : "error";
-    }
-
     private onOutputPathChanged(evt: ChangeEvent<any>) {
         this.setState({
             stage: Object.assign(this.state.stage, {dst_path: evt.target.value})
@@ -113,7 +105,7 @@ export class EditPipelineStageDialog extends React.Component<IEditStageProps, IE
 
     private onChangeProject(project: IProject) {
         this.setState({
-            stage: Object.assign(this.state.stage, {project})
+            stage: Object.assign(this.state.stage, {project, previous_stage: null})
         });
     }
 
@@ -165,83 +157,59 @@ export class EditPipelineStageDialog extends React.Component<IEditStageProps, IE
         const stages = (this.state.stage.project && this.state.stage.project.stages) ? this.state.stage.project.stages.filter(s => s.id !== this.state.stage.id) : [];
 
         return (
-            <Modal show={this.props.show} onHide={this.props.onCancel}
-                   aria-labelledby="create-stage-dialog">
-                <Modal.Header style={{backgroundColor: "#5bc0de", color: "white"}} closeButton>
-                    <Modal.Title id="create-stage-dialog">{title}</Modal.Title>
+            <Modal trigger={this.props.element} open={this.props.show}>
+                <Modal.Header style={{backgroundColor: "#5bc0de", color: "white"}}>
+                    {title}
                 </Modal.Header>
-                <Modal.Body>
-                    <FormGroup bsSize="sm" controlId="name" validationState={this.nameValidationState}>
-                        <ControlLabel>Name</ControlLabel>
-                        <FormControl type="text" value={this.state.stage.name}
-                                     placeholder="name is required"
-                                     onChange={(evt: any) => this.onNameChanged(evt)}/>
-                    </FormGroup>
-                    <FormGroup bsSize="sm" controlId="description">
-                        <ControlLabel>Description</ControlLabel>
-                        <FormControl componentClass="textarea" value={this.state.stage.description}
-                                     placeholder="(optional)" style={{maxWidth: "100%"}}
-                                     onChange={evt => this.onDescriptionChanged(evt)}/>
-                    </FormGroup>
-                    <FormGroup bsSize="sm" controlId="outputPath" validationState={this.outputPathValidationState}>
-                        <ControlLabel>Output Path</ControlLabel>
-                        <FormControl type="text" value={this.state.stage.dst_path}
-                                     placeholder="output path is required"
-                                     onChange={(evt: any) => this.onOutputPathChanged(evt)}/>
-                    </FormGroup>
-                    <FormGroup bsSize="sm" controlId="stage-project">
-                        <ControlLabel>Project</ControlLabel>
-                        <ProjectSelect idName="stage-project"
-                                       options={this.props.projects}
-                                       selectedOption={this.state.stage.project}
-                                       multiSelect={false}
-                                       placeholder="(required)"
-                                       onSelect={(p: IProject) => this.onChangeProject(p)}/>
-                    </FormGroup>
-                    <FormGroup bsSize="sm" controlId="stage-previous-stage">
-                        <ControlLabel>Parent Stage</ControlLabel>
-                        <PipelineStageSelect idName="stage-previous-stage"
-                                             options={stages}
-                                             selectedOption={this.state.stage.previous_stage}
-                                             multiSelect={false}
-                                             placeholder="(none - use acquisition root)"
-                                             onSelect={(p: IPipelineStage) => this.onChangePreviousStage(p)}/>
-                    </FormGroup>
-                    <FormGroup bsSize="sm" controlId="stage-task">
-                        <ControlLabel>Task</ControlLabel>
-                        <TaskSelect idName="stage-task"
-                                    options={this.props.tasks}
-                                    selectedOption={this.state.stage.task}
-                                    multiSelect={false}
-                                    placeholder="(required)"
-                                    onSelect={(t: ITaskDefinition) => this.onChangeTask(t)}/>
-                    </FormGroup>
-                    <FormGroup bsSize="sm" controlId="pipeline-method">
-                        <ControlLabel>Method</ControlLabel>
-                        <PipelineStageTypeSelect idName="pipeline-method"
-                                                 options={PIPELINE_STAGE_TYPES}
-                                                 placeholder="required"
-                                                 clearable={false}
-                                                 selectedOption={this.state.pipelineStageType}
-                                                 onSelect={(p: PipelineStageType) => this.onPipelineStageTypeChanged(p)}/>
-                    </FormGroup>
+                <Modal.Content>
+                    <Form size="small">
+                        <Form.Input label="Name" value={this.state.stage.name} placeholder="name is required"
+                                    error={!this.isNameValid}
+                                    onChange={(evt: any) => this.onNameChanged(evt)}/>
+                        <Form.TextArea label="Description" value={this.state.stage.description} placeholder="(optional)"
+                                       onChange={evt => this.onDescriptionChanged(evt)}/>
+                        <Form.Input label="Output Path" value={this.state.stage.dst_path}
+                                    placeholder="output path is required"
+                                    error={!this.isOutputPathValid}
+                                    onChange={(evt: any) => this.onOutputPathChanged(evt)}/>
+                        <Form.Field>
+                            <label>Project</label>
+                            <ProjectSelect projects={this.props.projects} selectedProject={this.state.stage.project}
+                                           onSelectProject={p => this.onChangeProject(p)}/>
+                        </Form.Field>
+                        <Form.Field>
+                            <label>Parent Stage</label>
+                            <PipelineStageSelect pipelineStages={stages}
+                                                 selectedPipelineStage={this.state.stage.previous_stage}
+                                                 onSelectPipelineStage={p => this.onChangePreviousStage(p)}/>
+                        </Form.Field>
+                        <Form.Field>
+                            <label>Task</label>
+                            <TaskSelect tasks={this.props.tasks} selectedTask={this.state.stage.task}
+                                        onSelectTask={t => this.onChangeTask(t)}/>
+                        </Form.Field>
+                        <Form.Field>
+                            <label>Method</label>
+                            <PipelineStageTypeSelect pipelineStageTypes={PIPELINE_STAGE_TYPES}
+                                                     selectedPipelineStageType={this.state.pipelineStageType}
+                                                     onSelectPipelineStageType={t => this.onPipelineStageTypeChanged(t)}/>
+                        </Form.Field>
+                    </Form>
                     {this.props.sourceStage ? <div style={{
                         width: "100%",
                         textAlign: "right"
                     }}>{`(id: ${this.props.sourceStage.id})`}</div> : null}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button bsStyle="default" onClick={() => this.props.onCancel()}>Cancel</Button>
+                </Modal.Content>
+                <Modal.Actions>
+                    <Button onClick={() => this.props.onCancel()}>Cancel</Button>
                     {(this.props.mode === DialogMode.Update && this.props.sourceStage) ?
-                        <Button bsStyle="default"
-                                onClick={() => this.setState({stage: assignStage(this.props.sourceStage)})}>
-                            Revert
-                        </Button> : null}
-                    <Button bsStyle="success" onClick={() => this.onCreateOrUpdate()}
+                        <Button
+                            onClick={() => this.setState({stage: assignStage(this.props.sourceStage)})}>Revert</Button> : null}
+                    <Button onClick={() => this.onCreateOrUpdate()}
                             disabled={!this.canCreateOrUpdate()} style={{marginLeft: "30px"}}>
                         {this.props.mode === DialogMode.Update ? "Update" : "Create"}
                     </Button>
-                </Modal.Footer>
+                </Modal.Actions>
             </Modal>
         );
     }

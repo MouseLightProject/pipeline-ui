@@ -122,7 +122,7 @@ const ExecutedPageQuery = gql`query($requestedOffset: Int, $executedPageLimit: I
   }
 }`;
 
-const TablePanelWithQuery = graphql(ExecutedPageQuery, {
+const TablePanelWithQuery = graphql<any, any>(ExecutedPageQuery, {
     options: ({requestedOffset, executedPageLimit}) => ({
         pollInterval: 10 * 1000,
         variables: {requestedOffset, executedPageLimit}
