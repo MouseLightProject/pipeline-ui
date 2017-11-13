@@ -818,7 +818,8 @@ function createConfig(owner) {
             marginTop: 10,
             marginBottom: 90,
             plotBorderWidth: 1,
-            zoomType: "xy"
+            zoomType: "xy",
+            backgroundColor: "#f4f7fa"
         },
 
         mapNavigation: {
