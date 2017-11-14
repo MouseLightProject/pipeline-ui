@@ -29,6 +29,7 @@ tmp
 # Generated js in TypeScript source directories.
 *.js
 !semantic/src/**/*.js
+!semantic/tasks/**/*.js
 !semantic/*.js
 
 options.sh
