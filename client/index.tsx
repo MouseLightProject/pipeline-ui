@@ -4,6 +4,8 @@ import {BrowserRouter} from "react-router-dom";
 
 import {ApolloApp} from "./ApolloApp";
 
+require("file-loader?name=index.html!../index.html");
+
 import "../semantic/dist/semantic.min.css"
 import "react-table/react-table.css"
 

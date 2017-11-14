@@ -5,17 +5,12 @@ import {toast} from "react-toastify";
 import {graphql} from "react-apollo";
 
 import {IProject, IProjectInput} from "../../models/project";
-import {
-    toastDeleteError,
-    toastDeleteSuccess,
-    toastUpdateError,
-    toastUpdateSuccess
-} from "ndb-react-components";
 import {DeleteProjectMutation, UpdateProjectMutation} from "../../graphql/project";
 import {EditProjectDialog} from "./EditProjectDialog";
 import {DialogMode} from "../helpers/DialogUtils";
 import {PreferencesManager} from "../../util/preferencesManager";
 import {AllProjectsId} from "../helpers/ProjectMenu";
+import {toastDeleteError, toastDeleteSuccess, toastUpdateError, toastUpdateSuccess} from "../../util/Toasts";
 
 interface IProjectTableProps {
     style: any;

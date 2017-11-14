@@ -33,3 +33,5 @@ tmp
 !semantic/*.js
 
 options.sh
+
+public/

@@ -8,13 +8,13 @@ import { ProjectMenu} from "../helpers/ProjectMenu";
 import {IPipelineStage} from "../../models/pipelineStage";
 import {IProject} from "../../models/project";
 import {StagesHelpPanel} from "./PipelineStagesHelp";
-import {toastCreateError, toastCreateSuccess} from "ndb-react-components";
 import {EditPipelineStageDialog} from "./EditPipelineStageDialog";
 import {CreateStageMutation} from "../../graphql/pipelineStage";
 import {TaskQuery} from "../../graphql/taskDefinition";
 import {DialogMode} from "../helpers/DialogUtils";
 import {themeHighlight} from "../../util/styleDefinitions";
 import {PreferencesManager} from "../../util/preferencesManager";
+import {toastCreateError, toastCreateSuccess} from "../../util/Toasts";
 
 interface IPipelineStagesPanelProps {
     projects: IProject[];

@@ -7,8 +7,8 @@ import {toast} from "react-toastify";
 import {ITaskRepository} from "../../../models/taskRepository";
 import {DialogMode} from "../../helpers/DialogUtils";
 import {EditRepositoryDialog} from "./EditRepositoryDialog";
-import {toastDeleteError, toastDeleteSuccess, toastUpdateError, toastUpdateSuccess} from "ndb-react-components";
 import {DeleteTaskRepositoryMutation, UpdateTaskRepositoryMutation} from "../../../graphql/taskRepository";
+import {toastDeleteError, toastDeleteSuccess, toastUpdateError, toastUpdateSuccess} from "../../../util/Toasts";
 
 interface ITaskRepositoryTableProps {
     style: any;

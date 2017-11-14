@@ -6,12 +6,12 @@ import {toast} from "react-toastify";
 import {ITaskDefinition} from "../../../models/taskDefinition";
 import {TaskDefinitionsTable} from "./TaskDefinitionTable";
 import {EditTaskDefinitionDialog} from "./EditTaskDefinitionDialog";
-import {toastCreateError, toastCreateSuccess} from "ndb-react-components";
 import {ITaskRepository} from "../../../models/taskRepository";
 import {CreateTaskDefinitionMutation} from "../../../graphql/taskDefinition";
 import {TaskDefinitionHelpPanel} from "./TaskDefinitionHelp";
 import {DialogMode} from "../../helpers/DialogUtils";
 import {themeHighlight} from "../../../util/styleDefinitions";
+import {toastCreateError, toastCreateSuccess} from "../../../util/Toasts";
 
 interface ITaskDefinitionPanelProps {
     taskDefinitions: ITaskDefinition[];

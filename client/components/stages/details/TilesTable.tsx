@@ -7,8 +7,8 @@ import {toast} from "react-toastify";
 import {IPipelineTile} from "../../../models/pipelineTile";
 import {IPipelineStage} from "../../../models/pipelineStage";
 import {TilePipelineStatus} from "../../../models/tilePipelineStatus";
-import {toastUpdateError, toastUpdateSuccess} from "ndb-react-components";
 import {TileStatusMutation} from "../../../graphql/pipelineTile";
+import {toastUpdateError, toastUpdateSuccess} from "../../../util/Toasts";
 
 
 interface ITilesTableProps {

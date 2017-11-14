@@ -10,14 +10,9 @@ import {ITaskDefinition} from "../../models/taskDefinition";
 import {IProject} from "../../models/project";
 import {EditPipelineStageDialog} from "./EditPipelineStageDialog";
 import {DialogMode} from "../helpers/DialogUtils";
-import {
-    toastDeleteError,
-    toastDeleteSuccess,
-    toastUpdateError,
-    toastUpdateSuccess
-} from "ndb-react-components";
 import {DeletePipelineStageMutation, UpdatePipelineStageMutation} from "../../graphql/pipelineStage";
 import {PreferencesManager} from "../../util/preferencesManager";
+import {toastDeleteError, toastDeleteSuccess, toastUpdateError, toastUpdateSuccess} from "../../util/Toasts";
 
 const previousStageIsAcquisitionRoot = "(acquisition root)";
 

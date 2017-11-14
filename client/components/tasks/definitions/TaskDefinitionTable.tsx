@@ -8,9 +8,9 @@ import {ITaskDefinition} from "../../../models/taskDefinition";
 import {ITaskRepository} from "../../../models/taskRepository";
 import {DeleteTaskDefinitionMutation, UpdateTaskDefinitionMutation} from "../../../graphql/taskDefinition";
 import {ViewScriptDialog} from "./ViewScriptDialog";
-import {toastDeleteError, toastDeleteSuccess, toastUpdateError, toastUpdateSuccess} from "ndb-react-components";
 import {DialogMode} from "../../helpers/DialogUtils";
 import {EditTaskDefinitionDialog} from "./EditTaskDefinitionDialog";
+import {toastDeleteError, toastDeleteSuccess, toastUpdateError, toastUpdateSuccess} from "../../../util/Toasts";
 
 interface ITaskDefinitionsTableProps {
     style: any;

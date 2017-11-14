@@ -2,14 +2,18 @@ FROM node:7.10
 
 WORKDIR /app
 
-RUN yarn global add typescript@2.3.4 sequelize-cli knex@0.13.0
+ENV NODE_ENV=production
 
-COPY . .
+ADD ./package.json .
+
+ADD ./yarn.lock .
 
 RUN yarn install
 
-RUN tsc
+ADD ./public/*.* ./public/
 
-CMD ["./docker-entry.sh"]
+ADD ./server/*.js ./server/
+
+CMD ["node", "server/pipelineClientServer.js"]
 
 EXPOSE  3100

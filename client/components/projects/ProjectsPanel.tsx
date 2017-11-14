@@ -5,13 +5,13 @@ import {toast} from "react-toastify";
 
 import {ProjectTable} from "./ProjectTable";
 import {ProjectsHelpPanel} from "./ProjectsHelp";
-import {toastCreateError, toastCreateSuccess} from "ndb-react-components";
 import {EditProjectDialog} from "./EditProjectDialog";
 import {CreateProjectMutation} from "../../graphql/project";
 import {IProject, IProjectInput} from "../../models/project";
 import {DialogMode} from "../helpers/DialogUtils";
 import {PreferencesManager} from "../../util/preferencesManager";
 import {themeHighlight} from "../../util/styleDefinitions";
+import {toastCreateError, toastCreateSuccess} from "../../util/Toasts";
 
 interface IProjectsPanelProps {
     projects: IProject[];

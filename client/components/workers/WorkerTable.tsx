@@ -9,7 +9,7 @@ import {IWorker, PipelineWorkerStatus} from "../../models/worker";
 import {SetWorkerInPoolMutation, UpdateWorkerMutation} from "../../graphql/workers";
 import {DialogMode} from "../helpers/DialogUtils";
 import {EditWorkerDialog} from "./EditWorkerDialog";
-import {toastUpdateError, toastUpdateSuccess} from "ndb-react-components";
+import {toastUpdateError, toastUpdateSuccess} from "../../util/Toasts";
 
 interface IWorkerTableProps {
     style: any;

@@ -7,10 +7,10 @@ import {TaskRepositoryTable} from "./TaskRepositoryTable";
 import {EditRepositoryDialog} from "./EditRepositoryDialog";
 import {CreateTaskRepositoryMutation} from "../../../graphql/taskRepository";
 import {ITaskRepository} from "../../../models/taskRepository";
-import {toastCreateError, toastCreateSuccess} from "ndb-react-components";
 import {TaskRepositoryHelpPanel} from "./TaskRepositoryHelp";
 import {DialogMode} from "../../helpers/DialogUtils";
 import {themeHighlight} from "../../../util/styleDefinitions";
+import {toastCreateError, toastCreateSuccess} from "../../../util/Toasts";
 
 interface ITaskRepositoryPanelProps {
     taskRepositories: ITaskRepository[];
