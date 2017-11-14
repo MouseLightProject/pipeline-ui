@@ -1,13 +1,12 @@
 import * as React from "react";
-import {Panel, Button} from "react-bootstrap"
+import {Container, Header, Menu, MenuItem, Modal} from "semantic-ui-react";
 import {graphql} from 'react-apollo';
 import {toast} from "react-toastify";
-import {Container, Header, Menu} from "semantic-ui-react";
 
 import {ITaskDefinition} from "../../../models/taskDefinition";
 import {TaskDefinitionsTable} from "./TaskDefinitionTable";
 import {EditTaskDefinitionDialog} from "./EditTaskDefinitionDialog";
-import {ModalAlert, toastCreateError, toastCreateSuccess} from "ndb-react-components";
+import {toastCreateError, toastCreateSuccess} from "ndb-react-components";
 import {ITaskRepository} from "../../../models/taskRepository";
 import {CreateTaskDefinitionMutation} from "../../../graphql/taskDefinition";
 import {TaskDefinitionHelpPanel} from "./TaskDefinitionHelp";
@@ -36,12 +35,6 @@ export class _TaskDefinitionsPanel extends React.Component<ITaskDefinitionPanelP
         }
     }
 
-    private onClickShowHelp(evt: any) {
-        evt.stopPropagation();
-
-        this.setState({isHelpDialogShown: true});
-    }
-
     private onClickAddTaskDefinition(evt: any) {
         evt.stopPropagation();
 
@@ -64,54 +57,9 @@ export class _TaskDefinitionsPanel extends React.Component<ITaskDefinitionPanelP
         }
     }
 
-    private renderAddTaskDefinitionDialog() {
-        if (this.state.isAddDialogShown) {
-            return (
-                <EditTaskDefinitionDialog show={this.state.isAddDialogShown}
-                                          mode={DialogMode.Create}
-                                          taskRepositories={this.props.taskRepositories}
-                                          onCancel={() => this.setState({isAddDialogShown: false})}
-                                          onAccept={(r: ITaskDefinition) => this.onAcceptCreateTaskDefinition(r)}/>
-            );
-        } else {
-            return null;
-        }
-    }
-
-    private renderHelpDialog() {
-        return this.state.isHelpDialogShown ? (
-            <ModalAlert modalId="task-definition-help"
-                        show={this.state.isHelpDialogShown}
-                        style="success"
-                        header="Tasks"
-                        bsSize="large"
-                        canCancel={false}
-                        acknowledgeContent={"OK"}
-                        onCancel={() => this.setState({isHelpDialogShown: false})}
-                        onAcknowledge={() => this.setState({isHelpDialogShown: false})}>
-                <TaskDefinitionHelpPanel/>
-            </ModalAlert>) : null;
-    }
-
-    private renderHeader() {
-        return (
-            <div>
-                <h4>Tasks</h4>
-                <Button bsSize="sm" onClick={(evt: any) => this.onClickAddTaskDefinition(evt)}>
-                    {/*<FontAwesome name="plus"/>*/}
-                    <span style={{paddingLeft: "10px"}}>
-                        Add Task
-                    </span>
-                </Button>
-                <Button bsSize="sm" onClick={(evt: any) => this.onClickShowHelp(evt)}>
-                    {/*<FontAwesome name="question" size="2x"/>*/}
-                </Button>
-            </div>);
-    }
-
     private renderMainMenu() {
         return (
-            <Menu style={{borderTop: "none", borderLeft: "none", borderRight: "none"}}>
+            <Menu style={{borderLeft: "none", borderRight: "none"}}>
                 <Menu.Header>
                     <div style={{
                         height: "100%",
@@ -125,6 +73,23 @@ export class _TaskDefinitionsPanel extends React.Component<ITaskDefinitionPanelP
                         </Header>
                     </div>
                 </Menu.Header>
+                <Menu.Menu position="right">
+                    <EditTaskDefinitionDialog element={<MenuItem size="small" content="Add Task" icon="plus"
+                                                             onClick={(evt: any) => this.onClickAddTaskDefinition(evt)}/>}
+                                              show={this.state.isAddDialogShown}
+                                              mode={DialogMode.Create}
+                                              taskRepositories={this.props.taskRepositories}
+                                              onCancel={() => this.setState({isAddDialogShown: false})}
+                                              onAccept={(r: ITaskDefinition) => this.onAcceptCreateTaskDefinition(r)}/>
+                    <Modal closeIcon={true} trigger={<MenuItem size="small" content="Help" icon="question"/>}>
+                        <Modal.Header>Tasks</Modal.Header>
+                        <Modal.Content image>
+                            <Modal.Description>
+                                <TaskDefinitionHelpPanel/>
+                            </Modal.Description>
+                        </Modal.Content>
+                    </Modal>
+                </Menu.Menu>
             </Menu>
         );
     }
@@ -133,8 +98,6 @@ export class _TaskDefinitionsPanel extends React.Component<ITaskDefinitionPanelP
         return (
             <Container fluid style={{display: "flex", flexDirection: "column"}}>
                 {this.renderMainMenu()}
-                {this.renderHelpDialog()}
-                {this.renderAddTaskDefinitionDialog()}
                 <TaskDefinitionsTable style={{padding: "20px"}}
                                       taskDefinitions={this.props.taskDefinitions}
                                       taskRepositories={this.props.taskRepositories}/>

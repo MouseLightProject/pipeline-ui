@@ -1,7 +1,7 @@
 import * as React from "react";
 import gql from "graphql-tag";
 import {graphql} from "react-apollo";
-import {Container, Statistic, Icon, Loader} from "semantic-ui-react";
+import {Container, Statistic, Icon, Loader, Menu, Header} from "semantic-ui-react";
 import * as moment from "moment";
 import pluralize = require("pluralize");
 
@@ -11,6 +11,7 @@ import {ICountTileProps, CountTile, CountUnit} from "./CountTile";
 import {NavTile} from "./NavTile";
 import {IProject} from "../../models/project";
 import {IWorker, PipelineWorkerStatus} from "../../models/worker";
+import {themeHighlight} from "../../util/styleDefinitions";
 
 const HeaderSummaryQuery = gql`query {
   projects {
@@ -323,7 +324,7 @@ class _HeaderSummary extends React.Component<any, any> {
         const isLoading = !this.props.data || this.props.data.loading;
 
         const isNavTile = this.props.isNavTile || false;
-        
+
         if (isLoading) {
             return (
                 <div style={{display: "flex", height: "100%", alignItems: "center"}}>
@@ -338,8 +339,26 @@ class _HeaderSummary extends React.Component<any, any> {
             );
         } else {
             return (
-                <Container fluid style={{padding: "20px"}}>
-                    <FullTextSummary data={this.props.data} size="small" width={3} inverted={false}/>
+                <Container fluid>
+                    <Menu style={{marginBottom: "15px"}}>
+                        <Menu.Header>
+                            <div style={{
+                                height: "100%",
+                                display: "flex",
+                                alignItems: "center",
+                                paddingLeft: "10px",
+                                paddingRight: "10px",
+                                paddingTop: "4px"
+                            }}>
+                                <Header style={{color: themeHighlight}}>
+                                    Activity
+                                </Header>
+                            </div>
+                        </Menu.Header>
+                    </Menu>
+                    <Container fluid style={{padding: "20px"}}>
+                        <FullTextSummary data={this.props.data} size="small" width={3} inverted={false}/>
+                    </Container>
                 </Container>
             );
         }

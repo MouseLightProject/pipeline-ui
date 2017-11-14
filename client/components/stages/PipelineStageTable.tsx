@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Button, Menu, MenuItem, Confirm} from "semantic-ui-react";
+import {Button, Menu, MenuItem, Icon, Confirm} from "semantic-ui-react";
 import ReactTable from "react-table";
 import {graphql} from "react-apollo";
 import {toast} from "react-toastify";
@@ -145,7 +145,7 @@ class __PipelineStageTable extends React.Component<IPipelineStageTableProps, IPi
                     onCancel={() => this.setState({isUpdateDialogShown: false})}
                     onAccept={(s: IPipelineStage) => this.onAcceptUpdatePipelineStage(s)}/>
                 <MenuItem size="mini" content="Duplicate" icon="clone" disabled={disabled}/>
-                <Menu.Header>
+                {this.state.selectedStage ? <Menu.Header>
                     <div style={{
                         height: "100%",
                         display: "flex",
@@ -153,10 +153,11 @@ class __PipelineStageTable extends React.Component<IPipelineStageTableProps, IPi
                         paddingLeft: "10px",
                     }}>
                         <h5>
-                            {this.state.selectedStage ? this.state.selectedStage.name : ""}
+                            {this.state.selectedStage.name}&nbsp;
+                            <Icon name="remove" onClick={() => this.setState({selectedStage: null})}/>
                         </h5>
                     </div>
-                </Menu.Header>
+                </Menu.Header> : null}
                 <Menu.Menu position="right">
                     <MenuItem size="mini" content="Delete" icon="trash" disabled={disabled_active}
                               onClick={(evt) => this.onClickDeletePipelineStage(evt)}/>

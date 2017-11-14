@@ -1,12 +1,12 @@
 import * as React from "react";
-import {Modal, Button, FormGroup, FormControl, ControlLabel, HelpBlock} from "react-bootstrap";
-import {FormControlValidationState} from "../../../util/bootstrapUtils";
+import {Button, Modal, Form, Message} from "semantic-ui-react";
 import {ChangeEvent} from "react";
 import * as pathIsAbsolute from "path-is-absolute";
 import {ITaskRepository} from "../../../models/taskRepository";
 import {DialogMode} from "../../helpers/DialogUtils";
 
 interface IEditRepositoryProps {
+    element: any;
     mode: DialogMode;
     show: boolean;
     sourceRepository?: ITaskRepository;
@@ -59,10 +59,6 @@ export class EditRepositoryDialog extends React.Component<IEditRepositoryProps, 
         return !!this.state.repository.name;
     }
 
-    private get nameValidationState(): FormControlValidationState {
-        return this.isNameValid ? null : "error";
-    }
-
     private onNameChanged(evt: ChangeEvent<any>) {
         this.setState({
             repository: Object.assign(this.state.repository, {name: evt.target.value})
@@ -71,10 +67,6 @@ export class EditRepositoryDialog extends React.Component<IEditRepositoryProps, 
 
     private get isLocationValid(): boolean {
         return !!this.state.repository.location && this.state.repository.location.length > 1 && pathIsAbsolute.posix(this.state.repository.location);
-    }
-
-    private get locationValidationState(): FormControlValidationState {
-        return this.isLocationValid ? null : "error";
     }
 
     private onLocationChanged(evt: ChangeEvent<any>) {
@@ -101,8 +93,8 @@ export class EditRepositoryDialog extends React.Component<IEditRepositoryProps, 
     }
 
     private renderFeedback() {
-        if (this.state.repository.location && this.state.repository.location.length > 1 && !pathIsAbsolute.posix(this.state.repository.location)) {
-            return (<HelpBlock>Location must be an absolute path</HelpBlock>);
+        if (this.state.repository.location.length > 0 && !this.isLocationValid) {
+            return (<Message error content="Location must be an absolute path"/>);
         }
 
         return null;
@@ -112,12 +104,11 @@ export class EditRepositoryDialog extends React.Component<IEditRepositoryProps, 
         const title = this.props.mode === DialogMode.Create ? "Add New Repository" : "Update Repository";
 
         return (
-            <Modal show={this.props.show} onHide={this.props.onCancel} bsSize={null}
-                   aria-labelledby="create-repository-dialog">
-                <Modal.Header style={{backgroundColor: "#5bc0de", color: "white"}} closeButton>
-                    <Modal.Title id="create-repository-dialog">{title}</Modal.Title>
+            <Modal trigger={this.props.element} open={this.props.show}>
+                <Modal.Header style={{backgroundColor: "#5bc0de", color: "white"}}>
+                    {title}
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Content>
                     <p>
                         Task repositories allow for collections of task definitions and scripts that can be moved as a
                         group.
@@ -134,36 +125,33 @@ export class EditRepositoryDialog extends React.Component<IEditRepositoryProps, 
                     <p style={{fontStyle: "italic"}}>
                         Note that you can not delete a repository that has tasks assigned to it.
                     </p>
-                    <FormGroup bsSize="sm" controlId="name" validationState={this.nameValidationState}>
-                        <ControlLabel>Name</ControlLabel>
-                        <FormControl type="text" value={this.state.repository.name}
-                                     placeholder="name is required"
-                                     onChange={(evt: any) => this.onNameChanged(evt)}/>
-                    </FormGroup>
-                    <FormGroup bsSize="sm" controlId="location" validationState={this.locationValidationState}>
-                        <ControlLabel>Absolute path to repository root</ControlLabel>
-                        <FormControl type="text" value={this.state.repository.location}
-                                     placeholder="location is required"
-                                     onChange={evt => this.onLocationChanged(evt)}/>
+                    <Form size="small" error={!this.isLocationValid}>
+                        <Form.Input label="Name" value={this.state.repository.name} error={!this.isNameValid}
+                                    placeholder="name is required"
+                                    onChange={(evt: any) => this.onNameChanged(evt)}/>
+                        <Form.Input label="Absolute path to repository root" value={this.state.repository.location}
+                                    error={!this.isLocationValid}
+                                    placeholder="location is required"
+                                    onChange={(evt: any) => this.onLocationChanged(evt)}/>
                         {this.renderFeedback()}
-                    </FormGroup>
-                    <FormGroup bsSize="sm" controlId="description">
-                        <ControlLabel>Description</ControlLabel>
-                        <FormControl componentClass="textarea" value={this.state.repository.description}
-                                     placeholder="(optional)" style={{maxWidth: "100%"}}
-                                     onChange={evt => this.onDescriptionChanged(evt)}/>
-                    </FormGroup>
-                    {this.props.sourceRepository ? <div style={{width: "100%", textAlign: "right"}}>{`(id: ${this.props.sourceRepository.id})`}</div> : null}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button bsStyle="default" onClick={() => this.props.onCancel()}>Cancel</Button>
+                        <Form.TextArea label="Description" value={this.state.repository.description}
+                                       placeholder="(optional)"
+                                       onChange={(evt: any) => this.onDescriptionChanged(evt)}/>
+                    </Form>
+                    {this.props.sourceRepository ? <div style={{
+                        width: "100%",
+                        textAlign: "right"
+                    }}>{`(id: ${this.props.sourceRepository.id})`}</div> : null}
+                </Modal.Content>
+                <Modal.Actions>
+                    <Button onClick={() => this.props.onCancel()}>Cancel</Button>
                     {(this.props.mode === DialogMode.Update && this.props.sourceRepository) ?
-                        <Button bsStyle="default" onClick={() => this.applySourceRepository()}>Revert</Button> : null}
-                    <Button bsStyle="success" onClick={() => this.onCreateOrUpdate()}
+                        <Button onClick={() => this.applySourceRepository()}>Revert</Button> : null}
+                    <Button onClick={() => this.onCreateOrUpdate()}
                             disabled={!this.isNameValid || !this.isLocationValid} style={{marginLeft: "30px"}}>
                         {this.props.mode === DialogMode.Update ? "Update" : "Create"}
                     </Button>
-                </Modal.Footer>
+                </Modal.Actions>
             </Modal>
         );
     }

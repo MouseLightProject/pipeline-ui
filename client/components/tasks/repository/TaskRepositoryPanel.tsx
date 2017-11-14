@@ -1,14 +1,13 @@
 import * as React from "react";
-import {Panel, Button, Row} from "react-bootstrap"
+import {Container, Header, Menu, MenuItem, Modal} from "semantic-ui-react";
 import {graphql} from 'react-apollo';
 import {toast} from "react-toastify";
-import {Container, Menu, Header} from "semantic-ui-react";
 
 import {TaskRepositoryTable} from "./TaskRepositoryTable";
 import {EditRepositoryDialog} from "./EditRepositoryDialog";
 import {CreateTaskRepositoryMutation} from "../../../graphql/taskRepository";
 import {ITaskRepository} from "../../../models/taskRepository";
-import {ModalAlert, toastCreateError, toastCreateSuccess} from "ndb-react-components";
+import {toastCreateError, toastCreateSuccess} from "ndb-react-components";
 import {TaskRepositoryHelpPanel} from "./TaskRepositoryHelp";
 import {DialogMode} from "../../helpers/DialogUtils";
 import {themeHighlight} from "../../../util/styleDefinitions";
@@ -22,7 +21,6 @@ interface ITaskRepositoryPanelProps {
 
 interface ITaskRepositoryPanelState {
     isAddDialogShown?: boolean;
-    isHelpDialogShown?: boolean;
 }
 
 class _TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelProps, ITaskRepositoryPanelState> {
@@ -30,15 +28,8 @@ class _TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelProps, IT
         super(props);
 
         this.state = {
-            isAddDialogShown: false,
-            isHelpDialogShown: false
+            isAddDialogShown: false
         }
-    }
-
-    private onClickShowHelp(evt: any) {
-        evt.stopPropagation();
-
-        this.setState({isHelpDialogShown: true});
     }
 
     private onClickAddRepository(evt: any) {
@@ -61,50 +52,6 @@ class _TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelProps, IT
         } catch (error) {
             toast.error(toastCreateError(error), {autoClose: false});
         }
-    }
-
-    private renderAddRepositoryDialog() {
-        if (this.state.isAddDialogShown) {
-            return (
-                <EditRepositoryDialog show={this.state.isAddDialogShown}
-                                      mode={DialogMode.Create}
-                                      onCancel={() => this.setState({isAddDialogShown: false})}
-                                      onAccept={(r: ITaskRepository) => this.onAcceptCreateRepository(r)}/>
-            );
-        } else {
-            return null;
-        }
-    }
-
-    private renderHelpDialog() {
-        return this.state.isHelpDialogShown ? (
-            <ModalAlert modalId="task-repository-help"
-                        show={this.state.isHelpDialogShown}
-                        style="success"
-                        header="Task Repositories"
-                        canCancel={false}
-                        acknowledgeContent={"OK"}
-                        onCancel={() => this.setState({isHelpDialogShown: false})}
-                        onAcknowledge={() => this.setState({isHelpDialogShown: false})}>
-                <TaskRepositoryHelpPanel/>
-            </ModalAlert>) : null;
-    }
-
-    private renderHeader() {
-        return (
-            <div>
-                <h4>Task Repositories</h4>
-                <Button bsSize="sm" onClick={(evt: any) => this.onClickAddRepository(evt)}>
-                    {/* <FontAwesome name="plus"/>*/}
-                    <span style={{paddingLeft: "10px"}}>
-                        Add Repository
-                    </span>
-                </Button>
-                <Button bsSize="sm" onClick={(evt: any) => this.onClickShowHelp(evt)}>
-                    {/*<FontAwesome name="question" size="2x"/>*/}
-                </Button>
-            </div>
-        );
     }
 
     private renderPipelineVolume() {
@@ -135,6 +82,22 @@ class _TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelProps, IT
                         </Header>
                     </div>
                 </Menu.Header>
+                <Menu.Menu position="right">
+                    <EditRepositoryDialog element={<MenuItem size="small" content="Add Repository" icon="plus"
+                                                             onClick={(evt: any) => this.onClickAddRepository(evt)}/>}
+                                          show={this.state.isAddDialogShown}
+                                          mode={DialogMode.Create}
+                                          onCancel={() => this.setState({isAddDialogShown: false})}
+                                          onAccept={(r: ITaskRepository) => this.onAcceptCreateRepository(r)}/>
+                    <Modal closeIcon={true} trigger={<MenuItem size="small" content="Help" icon="question"/>}>
+                        <Modal.Header>Task Repositories</Modal.Header>
+                        <Modal.Content image>
+                            <Modal.Description>
+                                <TaskRepositoryHelpPanel/>
+                            </Modal.Description>
+                        </Modal.Content>
+                    </Modal>
+                </Menu.Menu>
             </Menu>
         );
     }
@@ -143,8 +106,6 @@ class _TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelProps, IT
         return (
             <Container fluid style={{display: "flex", flexDirection: "column"}}>
                 {this.renderMainMenu()}
-                {this.renderHelpDialog()}
-                {this.renderAddRepositoryDialog()}
                 <TaskRepositoryTable style={{padding: "20px"}} taskRepositories={this.props.taskRepositories}/>
                 {this.renderPipelineVolume()}
             </Container>

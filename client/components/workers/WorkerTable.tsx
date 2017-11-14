@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Menu, MenuItem, Button} from "semantic-ui-react";
+import {Menu, MenuItem, Button, Icon} from "semantic-ui-react";
 import ReactTable from "react-table";
 import {toast} from "react-toastify";
 import * as moment from "moment";
@@ -11,112 +11,6 @@ import {DialogMode} from "../helpers/DialogUtils";
 import {EditWorkerDialog} from "./EditWorkerDialog";
 import {toastUpdateError, toastUpdateSuccess} from "ndb-react-components";
 
-/*
-interface IWorkerRowProps {
-    worker: IWorker;
-
-    setWorkerAvailability(id: string, shouldBeInSchedulerPool: boolean);
-
-    updateWorker?(worker: IWorker): any;
-}
-
-interface IWorkerRowState {
-    isUpdateDialogShown?: boolean;
-}
-
-class WorkerRow extends React.Component<IWorkerRowProps, IWorkerRowState> {
-    public constructor(props: IWorkerRowProps) {
-        super(props);
-
-        this.state = {
-            isUpdateDialogShown: false
-        }
-    }
-
-    private onClickUpdateWorker(evt: any) {
-        evt.stopPropagation();
-
-        this.setState({isUpdateDialogShown: true});
-    }
-
-    private onActiveClick() {
-        this.props.setWorkerAvailability(this.props.worker.id, !this.props.worker.is_in_scheduler_pool);
-    }
-
-    private getActivateText = isInSchedulerPool => isInSchedulerPool ? "Remove" : "Add";
-
-    private getActivateGlyph = isInSchedulerPool => isInSchedulerPool ? "stop" : "play";
-
-    private getActivateStyle = isInSchedulerPool => isInSchedulerPool ? "warning" : "success";
-
-    private async onAcceptUpdateWorker(worker: IWorker, showSuccessToast: boolean = true) {
-        this.setState({isUpdateDialogShown: false});
-
-        try {
-            const result = await this.props.updateWorker(worker);
-
-            if (!result.data.updateWorker.worker) {
-                toast.error(toastUpdateError(result.data.updateWorker.error), {autoClose: false});
-            } else if (showSuccessToast) {
-                toast.success(toastUpdateSuccess(), {autoClose: 3000});
-            }
-        } catch (error) {
-            toast.error(toastUpdateError(error), {autoClose: false});
-        }
-    }
-
-    private renderUpdateWorkerDialog() {
-        if (this.state.isUpdateDialogShown) {
-            return (
-                <EditWorkerDialog show={this.state.isUpdateDialogShown}
-                                  mode={DialogMode.Update}
-                                  sourceWorker={this.props.worker}
-                                  onCancel={() => this.setState({isUpdateDialogShown: false})}
-                                  onAccept={(w: IWorker) => this.onAcceptUpdateWorker(w)}/>
-            );
-        } else {
-            return null;
-        }
-    }
-
-    public render() {
-        let worker = this.props.worker;
-
-        const last_seen_moment = moment(new Date(worker.last_seen)).fromNow();
-
-        let status = PipelineWorkerStatus[worker.status];
-
-        if (worker.status === PipelineWorkerStatus.Processing) {
-            status = status + ` (${worker.task_load.toFixed(1)} / ${worker.work_unit_capacity.toFixed(1)})`;
-        } else if (worker.status === PipelineWorkerStatus.Idle) {
-            status = status + ` (${worker.task_load.toFixed(1)} / ${worker.work_unit_capacity.toFixed(1)})`;
-        }
-
-        return (
-            <tr>
-                {this.renderUpdateWorkerDialog()}
-                <td>
-                    <Button bsSize="xs" bsStyle={this.getActivateStyle(worker.is_in_scheduler_pool)}
-                            onClick={() => this.onActiveClick()}>
-                        <Glyphicon glyph={this.getActivateGlyph(worker.is_in_scheduler_pool)}/>
-                        &nbsp;{this.getActivateText(worker.is_in_scheduler_pool)}
-                    </Button></td>
-                <td>{worker.name}</td>
-                <td>{worker.worker_id.slice(0, 8)}</td>
-                <td>{last_seen_moment}</td>
-                <td>
-                    {status}
-                    <Button bsSize="xs" bsStyle="info"
-                            onClick={(evt) => this.onClickUpdateWorker(evt)}
-                            disabled={worker.status === PipelineWorkerStatus.Unavailable}>
-                        <Glyphicon glyph="pencil"/>
-                    </Button>
-                </td>
-                <td>{worker.is_cluster_proxy ? "Yes" : "No"}</td>
-            </tr>);
-    }
-}
-*/
 interface IWorkerTableProps {
     style: any;
     workers: IWorker[];
@@ -184,6 +78,19 @@ class __WorkerTable extends React.Component<IWorkerTableProps, IWorkerTableState
                                   sourceWorker={this.state.selectedWorker}
                                   onCancel={() => this.setState({isUpdateDialogShown: false})}
                                   onAccept={(w: IWorker) => this.onAcceptUpdateWorker(w)}/>
+                {this.state.selectedWorker ? <Menu.Header>
+                    <div style={{
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        paddingLeft: "10px",
+                    }}>
+                        <h5>
+                            {this.state.selectedWorker.name}&nbsp;
+                            <Icon name="remove" onClick={() => this.setState({selectedWorker: null})}/>
+                        </h5>
+                    </div>
+                </Menu.Header> : null}
             </Menu>
         );
     }
@@ -314,28 +221,3 @@ export const WorkerTable = graphql<IWorkerTableProps, any>(SetWorkerInPoolMutati
         })
     })
 })(_WorkerTable);
-
-/*
-        const rows = workers.map(worker => (
-            <WorkerRow key={"tr_worker" + worker.id} worker={worker}
-                       setWorkerAvailability={(id: string, b: boolean) => this.setWorkerAvailability(id, b)}/>)
-        );
-
-        return (
-            <Table condensed style={{marginBottom: "0"}}>
-                <thead>
-                <tr>
-                    <th>Scheduler Pool</th>
-                    <th>Name</th>
-                    <th>Worker Id</th>
-                    <th>Last Seen</th>
-                    <th>Status (Load/Capacity)</th>
-                    <th>Cluster Proxy</th>
-                </tr>
-                </thead>
-                <tbody>
-                {rows}
-                </tbody>
-            </Table>
-        );
-*/

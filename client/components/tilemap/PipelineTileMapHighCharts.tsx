@@ -1,7 +1,7 @@
 import * as React from "react";
 import gql from "graphql-tag";
 import {graphql} from "react-apollo";
-import {Container, Loader, Menu} from "semantic-ui-react"
+import {Container, Loader, Menu, Header} from "semantic-ui-react"
 
 let numeric = require("numeric");
 
@@ -13,6 +13,7 @@ import {IProject} from "../../models/project";
 import {TilePipelineStatus} from "../../models/tilePipelineStatus";
 import {AllProjectsId, ProjectMenu} from "../helpers/ProjectMenu";
 import {PreferencesManager} from "../../util/preferencesManager";
+import {themeHighlight} from "../../util/styleDefinitions";
 
 interface IStageStatus {
     stage_id: string;
@@ -363,6 +364,21 @@ class MapPanel extends React.Component<any, any> {
         return (
             <Container fluid>
                 <Menu style={{marginBottom: "15px"}}>
+                    <Menu.Header>
+                        <div style={{
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            paddingLeft: "10px",
+                            paddingRight: "10px",
+                            paddingTop: "4px"
+                        }}>
+                            <Header style={{color: themeHighlight}}>
+                                Tile Maps
+                            </Header>
+                        </div>
+                    </Menu.Header>
+                    <Menu.Item style={{padding: 0}}/>
                     <ProjectMenu style={{width: "200px"}} keyPrefix="tileMap" projects={projects}
                                  selectedProjectId={this.state.projectId}
                                  onProjectSelectionChange={(project) => this.onProjectSelectionChange(project, true)}

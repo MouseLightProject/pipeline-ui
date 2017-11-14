@@ -1,7 +1,7 @@
 import * as React from "react";
 import gql from "graphql-tag";
 import {graphql} from "react-apollo";
-import {Loader, Menu} from "semantic-ui-react"
+import {Menu, Header} from "semantic-ui-react"
 
 import {AllProjectsId, ProjectMenu} from "../helpers/ProjectMenu";
 import {pollingIntervalSeconds} from "../../GraphQLComponents";
@@ -9,6 +9,7 @@ import {IPipelineStage} from "../../models/pipelineStage";
 import {calculateProjectBreadth} from "../../models/modelUtils";
 import {IProject} from "../../models/project";
 import {PreferencesManager} from "../../util/preferencesManager";
+import {themeHighlight} from "../../util/styleDefinitions";
 
 let cytoscape = require("cytoscape");
 
@@ -425,6 +426,21 @@ class _PipelineGraph extends React.Component<any, IPipelineGraphState> {
         return (
             <div style={test}>
                 <Menu>
+                    <Menu.Header>
+                        <div style={{
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            paddingLeft: "10px",
+                            paddingRight: "10px",
+                            paddingTop: "4px"
+                        }}>
+                            <Header style={{color: themeHighlight}}>
+                                Pipeline Graphs
+                            </Header>
+                        </div>
+                    </Menu.Header>
+                    <Menu.Item style={{padding: 0}}/>
                     <ProjectMenu keyPrefix="pipelineGraph"
                                  projects={projects}
                                  selectedProjectId={this.state.projectId}

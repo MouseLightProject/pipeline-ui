@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Modal, Button} from "react-bootstrap";
+import {Modal, Button} from "semantic-ui-react";
 import {ITaskDefinition} from "../../../models/taskDefinition";
 import {graphql} from "react-apollo";
 import {ScriptContentsQuery} from "../../../graphql/taskDefinition";
@@ -8,6 +8,7 @@ import SyntaxHighlighter from "react-syntax-highlighter";
 import { docco } from 'react-syntax-highlighter/dist/styles';
 
 interface IViewScriptDialogProps {
+    element: any;
     show: boolean;
     taskDefinition: ITaskDefinition;
     data?: any;
@@ -39,16 +40,16 @@ export class _ViewScriptDialog extends React.Component<IViewScriptDialogProps, I
     public render() {
 
         return (
-            <Modal show={this.props.show} dialogClassName="view-code-modal" onHide={this.props.onClose} aria-labelledby="view-script-dialog">
-                <Modal.Header style={{backgroundColor: "#5bc0de", color: "white"}} closeButton>
-                    <Modal.Title id="view-script">Script</Modal.Title>
+            <Modal trigger={this.props.element} open={this.props.show}>
+                <Modal.Header style={{backgroundColor: "#5bc0de", color: "white"}}>
+                    Script
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Content>
                     {this.renderContent()}
-                </Modal.Body>
-                <Modal.Footer>
+                </Modal.Content>
+                <Modal.Actions>
                     <Button bsStyle="success" onClick={() => this.props.onClose()}>OK</Button>
-                </Modal.Footer>
+                </Modal.Actions>
             </Modal>
         );
     }

@@ -82,7 +82,6 @@ class TilesTablePanel extends React.Component<ITilesTablePanelProps, ITilesTable
     public render() {
         let tilesForStage = [];
         let pageCount = -1;
-        let page = 0;
         let loading = true;
 
         if (this.props.data && this.props.data.tilesForStage) {
@@ -90,7 +89,6 @@ class TilesTablePanel extends React.Component<ITilesTablePanelProps, ITilesTable
             loading = this.props.data.loading;
             if (this.props.data.tilesForStage.limit > 0) {
                 pageCount = Math.ceil(this.props.data.tilesForStage.totalCount / this.props.data.tilesForStage.limit);
-                page = Math.ceil(this.props.offset / this.props.data.tilesForStage.limit);
             }
         }
 

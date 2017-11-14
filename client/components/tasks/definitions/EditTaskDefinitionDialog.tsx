@@ -1,6 +1,5 @@
 import * as React from "react";
-import {Modal, Button, FormGroup, FormControl, ControlLabel, HelpBlock} from "react-bootstrap";
-import {FormControlValidationState} from "../../../util/bootstrapUtils";
+import {Button, Modal, Form, Message} from "semantic-ui-react";
 import {ChangeEvent} from "react";
 import * as pathIsAbsolute from "path-is-absolute";
 import {ITaskDefinition} from "../../../models/taskDefinition";
@@ -9,6 +8,7 @@ import {ITaskRepository} from "../../../models/taskRepository";
 import {DialogMode} from "../../helpers/DialogUtils";
 
 interface IEditTaskDefinitionProps {
+    element: any;
     mode: DialogMode;
     show: boolean;
     taskRepositories: ITaskRepository[];
@@ -83,10 +83,6 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
         return !!this.state.taskDefinition.name;
     }
 
-    private get nameValidationState(): FormControlValidationState {
-        return this.isNameValid ? null : "error";
-    }
-
     private onNameChanged(evt: ChangeEvent<any>) {
         this.setState({
             taskDefinition: Object.assign(this.state.taskDefinition, {name: evt.target.value})
@@ -95,10 +91,6 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
 
     private get isScriptValid(): boolean {
         return !!this.state.taskDefinition.script && (this.state.taskDefinition.task_repository === null || !pathIsAbsolute.posix(this.state.taskDefinition.script));
-    }
-
-    private get scriptValidationState(): FormControlValidationState {
-        return this.isScriptValid ? null : "error";
     }
 
     private onScriptChanged(evt: ChangeEvent<any>) {
@@ -119,10 +111,6 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
         return !isNaN(eec);
     }
 
-    private get expectedExitCodeIsValidationState(): FormControlValidationState {
-        return this.isExpectedExitCodeValid ? null : "error";
-    }
-
     private onExpectedExitCodeChanged(evt: ChangeEvent<any>) {
         this.setState({
             expected_exit_code: evt.target.value
@@ -133,10 +121,6 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
         const wu = parseFloat(this.state.work_units);
 
         return !isNaN(wu);
-    }
-
-    private get workUnitIsValidationState(): FormControlValidationState {
-        return this.isWorkUnitsValid ? null : "error";
     }
 
     private onWorkUnitsChanged(evt: ChangeEvent<any>) {
@@ -160,7 +144,7 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
     private renderFeedback() {
         if (this.state.taskDefinition.script) {
             if (this.state.taskDefinition.task_repository !== null && pathIsAbsolute.posix(this.state.taskDefinition.script)) {
-                return (<HelpBlock>The script can not contain an absolute path when part of a repository</HelpBlock>);
+                return (<span>The script can not contain an absolute path when part of a repository</span>);
             }
         }
 
@@ -193,73 +177,53 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
         const title = this.props.mode === DialogMode.Create ? "Add New Task" : "Update Task";
 
         return (
-            <Modal show={this.props.show} onHide={this.props.onCancel}
-                   aria-labelledby="create-task-dialog">
+            <Modal trigger={this.props.element} open={this.props.show}>
                 <Modal.Header style={{backgroundColor: "#5bc0de", color: "white"}} closeButton>
-                    <Modal.Title id="create-task-dialog">{title}</Modal.Title>
+                    {title}
                 </Modal.Header>
-                <Modal.Body>
-                    <FormGroup bsSize="sm" controlId="name" validationState={this.nameValidationState}>
-                        <ControlLabel>Name</ControlLabel>
-                        <FormControl type="text" value={this.state.taskDefinition.name}
-                                     placeholder="name is required"
-                                     onChange={(evt: any) => this.onNameChanged(evt)}/>
-                    </FormGroup>
-                    <FormGroup bsSize="sm" controlId="task-repository">
-                        <ControlLabel>Repository</ControlLabel>
-                        <TaskRepositorySelect idName="task-repository"
-                                              options={this.props.taskRepositories}
-                                              selectedOption={this.state.taskDefinition.task_repository}
-                                              multiSelect={false}
-                                              placeholder="(recommended)"
-                                              onSelect={(t: ITaskRepository) => this.onChangeTaskRepository(t)}/>
-                    </FormGroup>
-                    <FormGroup bsSize="sm" controlId="script" validationState={this.scriptValidationState}>
-                        <ControlLabel>Script</ControlLabel>
-                        <FormControl type="text" value={this.state.taskDefinition.script}
-                                     placeholder="script is required"
-                                     onChange={evt => this.onScriptChanged(evt)}/>
+                <Modal.Content>
+                    <Form size="small">
+                        <Form.Input label="Name" value={this.state.taskDefinition.name} error={!this.isNameValid}
+                                    placeholder="name is required"
+                                    onChange={(evt: any) => this.onNameChanged(evt)}/>
+                        <Form.Field>
+                            <label>Parent Stage</label>
+                            <TaskRepositorySelect repositories={this.props.taskRepositories}
+                                                  selectedRepository={this.state.taskDefinition.task_repository}
+                                                  onSelectRepository={t => this.onChangeTaskRepository(t)}/>
+                        </Form.Field>
+                        <Form.Input label="Script" value={this.state.taskDefinition.script}
+                                    error={!this.isScriptValid}
+                                    placeholder="(required)"
+                                    onChange={(evt: any) => this.onScriptChanged(evt)}/>
                         {this.renderFeedback()}
-                    </FormGroup>
-                    <FormGroup bsSize="sm" controlId="arguments">
-                        <ControlLabel>Additional Arguments</ControlLabel>
-                        <FormControl type="text" value={this.state.taskDefinition.args}
-                                     placeholder="(optional)"
-                                     onChange={(evt: any) => this.onArgumentsChanged(evt)}/>
-                    <FormGroup bsSize="sm" controlId="expected_exit_code" validationState={this.expectedExitCodeIsValidationState}>
-                        <ControlLabel>Expected Exit Code</ControlLabel>
-                        <FormControl type="text" value={this.state.expected_exit_code}
-                                     placeholder="0"
-                                     onChange={(evt: any) => this.onExpectedExitCodeChanged(evt)}/>
-                    </FormGroup>
-                    </FormGroup>
-                    <FormGroup bsSize="sm" controlId="work_units" validationState={this.workUnitIsValidationState}>
-                        <ControlLabel>Work Units</ControlLabel>
-                        <FormControl type="text" value={this.state.work_units}
-                                     placeholder="required"
-                                     onChange={(evt: any) => this.onWorkUnitsChanged(evt)}/>
-                    </FormGroup>
-                    <FormGroup bsSize="sm" controlId="description">
-                        <ControlLabel>Description</ControlLabel>
-                        <FormControl componentClass="textarea" value={this.state.taskDefinition.description}
-                                     placeholder="(optional)" style={{maxWidth: "100%"}}
-                                     onChange={evt => this.onDescriptionChanged(evt)}/>
-                    </FormGroup>
+                        <Form.Input label="Additional Arguments" value={this.state.taskDefinition.args}
+                                    placeholder="(optional)" onChange={(evt: any) => this.onArgumentsChanged(evt)}/>
+                        <Form.Input label="Expected Exit Code" value={this.state.expected_exit_code}
+                                    error={!this.isExpectedExitCodeValid}
+                                    placeholder="0"
+                                    onChange={(evt: any) => this.onExpectedExitCodeChanged(evt)}/>
+                        <Form.Input label="Work Units" value={this.state.work_units} error={!this.isWorkUnitsValid}
+                                    placeholder="(required)"
+                                    onChange={(evt: any) => this.onWorkUnitsChanged(evt)}/>
+                        <Form.TextArea label="Description" value={this.state.taskDefinition.description}
+                                       placeholder="(optional)"
+                                       onChange={(evt: any) => this.onDescriptionChanged(evt)}/>
+                    </Form>
                     {this.props.sourceTaskDefinition ? <div style={{
                         width: "100%",
                         textAlign: "right"
                     }}>{`(id: ${this.props.sourceTaskDefinition.id})`}</div> : null}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button bsStyle="default" onClick={() => this.props.onCancel()}>Cancel</Button>
+                </Modal.Content>
+                <Modal.Actions>
+                    <Button onClick={() => this.props.onCancel()}>Cancel</Button>
                     {(this.props.mode === DialogMode.Update && this.props.sourceTaskDefinition) ?
-                        <Button bsStyle="default"
-                                onClick={() => this.applySourceTaskDefinition(this.props)}>Revert</Button> : null}
-                    <Button bsStyle="success" onClick={() => this.onCreateOrUpdate()}
+                        <Button onClick={() => this.applySourceTaskDefinition(this.props)}>Revert</Button> : null}
+                    <Button onClick={() => this.onCreateOrUpdate()}
                             disabled={!this.canCreateOrUpdate()} style={{marginLeft: "30px"}}>
                         {this.props.mode === DialogMode.Update ? "Update" : "Create"}
                     </Button>
-                </Modal.Footer>
+                </Modal.Actions>
             </Modal>
         );
     }

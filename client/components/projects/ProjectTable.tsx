@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Menu, MenuItem, Button, Confirm} from "semantic-ui-react";
+import {Menu, MenuItem, Button, Icon, Confirm} from "semantic-ui-react";
 import ReactTable from "react-table";
 import {toast} from "react-toastify";
 import {graphql} from "react-apollo";
@@ -176,7 +176,7 @@ class __ProjectTable extends React.Component<IProjectTableProps, IProjectTableSt
                     onCancel={() => this.setState({isUpdateDialogShown: false})}
                     onAccept={(p: IProjectInput) => this.onAcceptUpdateProject(p)}/>
                 <MenuItem size="mini" content="Duplicate" icon="clone" disabled={disabled}/>
-                <Menu.Header>
+                {this.state.selectedProject ? <Menu.Header>
                     <div style={{
                         height: "100%",
                         display: "flex",
@@ -184,10 +184,14 @@ class __ProjectTable extends React.Component<IProjectTableProps, IProjectTableSt
                         paddingLeft: "10px",
                     }}>
                         <h5>
-                            {this.state.selectedProject ? this.state.selectedProject.name : ""}
+                            {this.state.selectedProject.name}&nbsp;
+                            <Icon name="remove" onClick={() => {
+                                this.setState({selectedProject: null});
+                                PreferencesManager.Instance.PreferredProjectId = AllProjectsId;
+                            }}/>
                         </h5>
                     </div>
-                </Menu.Header>
+                </Menu.Header> : null}
                 <Menu.Menu position="right">
                     <MenuItem size="mini" content="Delete" icon="trash" disabled={disabled_stages}
                               onClick={(evt) => this.onClickDeleteProject(evt)}/>

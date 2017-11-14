@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Container, Header, Menu, MenuItem, Modal} from "semantic-ui-react";
+import {Container, Header, Menu, Modal} from "semantic-ui-react";
 import {graphql} from 'react-apollo';
 import {toast} from "react-toastify";
 
@@ -98,14 +98,14 @@ export class __PipelineStagesPanel extends React.Component<IPipelineStagesPanelP
                         </Header>
                     </div>
                 </Menu.Header>
-                <MenuItem style={{padding: 0}}/>
+                <Menu.Item style={{padding: 0}}/>
                 <ProjectMenu keyPrefix="createStageSelectProjectTopLevel" projects={this.props.projects}
                              selectedProjectId={this.state.projectId}
                              onProjectSelectionChange={(eventKey) => this.onProjectSelectionChange(eventKey)}
                              includeAllProjects={true}>
                 </ProjectMenu>
                 <Menu.Menu position="right">
-                    <EditPipelineStageDialog element={<MenuItem size="small" content="Add Stage" icon="plus"
+                    <EditPipelineStageDialog element={<Menu.Item size="small" content="Add Stage" icon="plus"
                                                                 onClick={(evt: any) => this.onClickAddStage(evt)}/>}
                                              show={this.state.isAddDialogShown}
                                              mode={DialogMode.Create}
@@ -114,10 +114,10 @@ export class __PipelineStagesPanel extends React.Component<IPipelineStagesPanelP
                                              onCancel={() => this.setState({isAddDialogShown: false})}
                                              onAccept={(s: IPipelineStage) => this.onAcceptCreateStage(s)}/>
 
-                    <MenuItem size="mini" content={content} icon={icon}
+                    <Menu.Item size="mini" content={content} icon={icon}
                               onClick={() => this.onToggleIsFiltered()}/>
 
-                    <Modal closeIcon={true} trigger={<MenuItem size="small" content="Help" icon="question"/>}>
+                    <Modal closeIcon={true} trigger={<Menu.Item size="small" content="Help" icon="question"/>}>
                         <Modal.Header>Pipeline Projects</Modal.Header>
                         <Modal.Content image>
                             <Modal.Description>
