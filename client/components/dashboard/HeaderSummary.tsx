@@ -1,13 +1,12 @@
 import * as React from "react";
 import gql from "graphql-tag";
 import {graphql} from "react-apollo";
-import {Container, Statistic, Icon} from "semantic-ui-react"
+import {Container, Statistic, Icon, Loader} from "semantic-ui-react";
 import * as moment from "moment";
 import pluralize = require("pluralize");
 
 import {IColumnLayout} from "../../util/bootstrapUtils";
 import {calculateDurationFromNow} from "../../util/dateUtils";
-import {Loading} from "../../Loading";
 import {ICountTileProps, CountTile, CountUnit} from "./CountTile";
 import {NavTile} from "./NavTile";
 import {IProject} from "../../models/project";
@@ -324,9 +323,14 @@ class _HeaderSummary extends React.Component<any, any> {
         const isLoading = !this.props.data || this.props.data.loading;
 
         const isNavTile = this.props.isNavTile || false;
-
+        const loading = !this.props.data || this.props.data.loading || !this.props.projectsData || this.props.projectsData.loading;
+        
         if (isLoading) {
-            return (<Loading/>);
+            return (
+                <div style={{display: "flex", height: "100%", alignItems: "center"}}>
+                    <Loader active inline="centered">Loading</Loader>
+                </div>
+            );
         } else if (isNavTile) {
             return (
                 <div style={{color: "white"}}>
