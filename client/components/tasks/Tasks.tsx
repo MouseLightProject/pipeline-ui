@@ -1,7 +1,7 @@
 import * as React from "react";
 import {graphql} from "react-apollo";
+import {Container, Loader} from "semantic-ui-react";
 
-import {Loading} from "../../Loading";
 import {TaskRepositoryPanel} from "./repository/TaskRepositoryPanel";
 import {ITaskRepository} from "../../models/taskRepository";
 import {TaskDefinitionsPanel} from "./definitions/TaskDefinitionsPanel";
@@ -23,10 +23,14 @@ interface ITaskDefinitionPanelState {
 
 class _TasksPanel extends React.Component<ITaskDefinitionPanelProps, ITaskDefinitionPanelState> {
     public render() {
-        const loading = !this.props.data || this.props.data.loading;
+        const isLoading = !this.props.data || this.props.data.loading;
 
-        if (loading) {
-            return (<Loading/>);
+        if (isLoading) {
+            return (
+                <div style={{display: "flex", height: "100%", alignItems: "center"}}>
+                    <Loader active inline="centered">Loading</Loader>
+                </div>
+            );
         }
 
         if (this.props.data.error) {
@@ -34,11 +38,12 @@ class _TasksPanel extends React.Component<ITaskDefinitionPanelProps, ITaskDefini
         }
 
         return (
-            <div>
-                <TaskRepositoryPanel taskRepositories={this.props.data.taskRepositories} pipelineVolume={this.props.data.pipelineVolume}/>
+            <Container fluid style={{display: "flex", flexDirection: "column"}}>
+                <TaskRepositoryPanel taskRepositories={this.props.data.taskRepositories}
+                                     pipelineVolume={this.props.data.pipelineVolume}/>
                 <TaskDefinitionsPanel taskDefinitions={this.props.data.taskDefinitions}
                                       taskRepositories={this.props.data.taskRepositories}/>
-            </div>
+            </Container>
         );
     }
 }

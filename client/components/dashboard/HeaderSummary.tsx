@@ -323,7 +323,6 @@ class _HeaderSummary extends React.Component<any, any> {
         const isLoading = !this.props.data || this.props.data.loading;
 
         const isNavTile = this.props.isNavTile || false;
-        const loading = !this.props.data || this.props.data.loading || !this.props.projectsData || this.props.projectsData.loading;
         
         if (isLoading) {
             return (

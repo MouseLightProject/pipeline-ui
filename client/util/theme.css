@@ -44,3 +44,7 @@ i {
 .highcharts-credits {
     visibility: hidden;
 }
+
+button.active-button i {
+    color: white;
+}

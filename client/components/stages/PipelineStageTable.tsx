@@ -192,12 +192,10 @@ class __PipelineStageTable extends React.Component<IPipelineStageTableProps, IPi
                 filterable: false,
                 width: 90,
                 Cell: row => {
-                    const style = {
-                        border: row.original.is_processing ? "1px solid red" : "1px solid green",
-                        width: "84px"
-                    };
+                    const color = row.original.is_processing ? "orange" : "green";
                     return (
-                        <Button size="mini" compact style={style} basic={!row.original.is_processing}
+                        <Button size="mini" compact color={color}
+                                className="active-button"
                                 disabled={!row.original.project.is_processing}
                                 icon={this.getActivateGlyph(row.original.is_processing)}
                                 content={this.getActivateText(row.original.is_processing)}

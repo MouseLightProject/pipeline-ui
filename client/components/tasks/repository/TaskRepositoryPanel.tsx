@@ -2,6 +2,7 @@ import * as React from "react";
 import {Panel, Button, Row} from "react-bootstrap"
 import {graphql} from 'react-apollo';
 import {toast} from "react-toastify";
+import {Container, Menu, Header} from "semantic-ui-react";
 
 import {TaskRepositoryTable} from "./TaskRepositoryTable";
 import {EditRepositoryDialog} from "./EditRepositoryDialog";
@@ -10,6 +11,7 @@ import {ITaskRepository} from "../../../models/taskRepository";
 import {ModalAlert, toastCreateError, toastCreateSuccess} from "ndb-react-components";
 import {TaskRepositoryHelpPanel} from "./TaskRepositoryHelp";
 import {DialogMode} from "../../helpers/DialogUtils";
+import {themeHighlight} from "../../../util/styleDefinitions";
 
 interface ITaskRepositoryPanelProps {
     taskRepositories: ITaskRepository[];
@@ -117,14 +119,35 @@ class _TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelProps, IT
         )
     }
 
+    private renderMainMenu() {
+        return (
+            <Menu style={{borderTop: "none", borderLeft: "none", borderRight: "none"}}>
+                <Menu.Header>
+                    <div style={{
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        paddingLeft: "10px",
+                        paddingTop: "4px"
+                    }}>
+                        <Header style={{color: themeHighlight}}>
+                            Task Repositories
+                        </Header>
+                    </div>
+                </Menu.Header>
+            </Menu>
+        );
+    }
+
     public render() {
         return (
-            <Panel header={this.renderHeader()} bsStyle="primary">
+            <Container fluid style={{display: "flex", flexDirection: "column"}}>
+                {this.renderMainMenu()}
                 {this.renderHelpDialog()}
                 {this.renderAddRepositoryDialog()}
-                <TaskRepositoryTable taskRepositories={this.props.taskRepositories}/>
+                <TaskRepositoryTable style={{padding: "20px"}} taskRepositories={this.props.taskRepositories}/>
                 {this.renderPipelineVolume()}
-            </Panel>
+            </Container>
         );
     }
 }

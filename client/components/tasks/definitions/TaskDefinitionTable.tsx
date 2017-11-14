@@ -6,6 +6,7 @@ import {TaskDefinitionRow} from "./TaskDefinitionRow";
 import {ITaskRepository} from "../../../models/taskRepository";
 
 interface ITaskDefinitionsTableProps {
+    style: any;
     taskDefinitions: ITaskDefinition[];
     taskRepositories: ITaskRepository[];
 }

@@ -6,6 +6,7 @@ import {ITaskRepository} from "../../../models/taskRepository";
 import {TaskRepositoryRow} from "./TaskRepositoryRow";
 
 interface ITaskRepositoryTableProps {
+    style: any;
     taskRepositories: ITaskRepository[];
 }
 

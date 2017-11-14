@@ -2,6 +2,7 @@ import * as React from "react";
 import {Panel, Button} from "react-bootstrap"
 import {graphql} from 'react-apollo';
 import {toast} from "react-toastify";
+import {Container, Header, Menu} from "semantic-ui-react";
 
 import {ITaskDefinition} from "../../../models/taskDefinition";
 import {TaskDefinitionsTable} from "./TaskDefinitionTable";
@@ -11,6 +12,7 @@ import {ITaskRepository} from "../../../models/taskRepository";
 import {CreateTaskDefinitionMutation} from "../../../graphql/taskDefinition";
 import {TaskDefinitionHelpPanel} from "./TaskDefinitionHelp";
 import {DialogMode} from "../../helpers/DialogUtils";
+import {themeHighlight} from "../../../util/styleDefinitions";
 
 interface ITaskDefinitionPanelProps {
     taskDefinitions: ITaskDefinition[];
@@ -107,14 +109,36 @@ export class _TaskDefinitionsPanel extends React.Component<ITaskDefinitionPanelP
             </div>);
     }
 
+    private renderMainMenu() {
+        return (
+            <Menu style={{borderTop: "none", borderLeft: "none", borderRight: "none"}}>
+                <Menu.Header>
+                    <div style={{
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        paddingLeft: "10px",
+                        paddingTop: "4px"
+                    }}>
+                        <Header style={{color: themeHighlight}}>
+                            Tasks
+                        </Header>
+                    </div>
+                </Menu.Header>
+            </Menu>
+        );
+    }
+
     public render() {
         return (
-            <Panel header={this.renderHeader()} bsStyle="primary">
+            <Container fluid style={{display: "flex", flexDirection: "column"}}>
+                {this.renderMainMenu()}
                 {this.renderHelpDialog()}
                 {this.renderAddTaskDefinitionDialog()}
-                <TaskDefinitionsTable taskDefinitions={this.props.taskDefinitions}
+                <TaskDefinitionsTable style={{padding: "20px"}}
+                                      taskDefinitions={this.props.taskDefinitions}
                                       taskRepositories={this.props.taskRepositories}/>
-            </Panel>
+            </Container>
         );
     }
 }

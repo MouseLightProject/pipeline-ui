@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Menu, MenuItem, Button, Confirm} from "semantic-ui-react";
-import {toast} from "react-toastify";
 import ReactTable from "react-table";
+import {toast} from "react-toastify";
 import {graphql} from "react-apollo";
 
 import {IProject, IProjectInput} from "../../models/project";
@@ -206,9 +206,10 @@ class __ProjectTable extends React.Component<IProjectTableProps, IProjectTableSt
                 filterable: false,
                 width: 90,
                 Cell: row => {
-                    const style = {border: row.original.is_processing ? "1px solid red" : "1px solid green", width: "84px"};
+                    const color = row.original.is_processing ? "orange" : "green";
                     return (
-                        <Button size="mini" compact style={style} basic={!row.original.is_processing}
+                        <Button size="mini" compact color={color}
+                                className="active-button"
                                 icon={this.getActivateGlyph(row.original.is_processing)}
                                 content={this.getActivateText(row.original.is_processing)}
                                 onClick={() => this.onActiveClick(row.original)}>
