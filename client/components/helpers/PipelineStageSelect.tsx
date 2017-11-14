@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Dropdown} from "semantic-ui-react";
 
-import {IPipelineStage} from "../../models/pipelinestage";
+import {IPipelineStage} from "../../models/pipelineStage";
 
 interface IProjectPipelineStageSelectProps {
     pipelineStages: IPipelineStage[];
