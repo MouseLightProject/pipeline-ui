@@ -18,6 +18,16 @@ i {
     color: rgb(41, 171, 226);
 }
 
+.toastify {
+    z-index: 10000;
+}
+
+.toastify--bottom-center {
+    min-width: 600px;
+    margin-left: -300px;
+    margin-bottom: 40px;
+}
+
 .rt-td {
     align-items: center;
     display: flex;

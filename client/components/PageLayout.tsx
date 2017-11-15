@@ -1,12 +1,8 @@
 import * as React from "react";
-import {Route, Redirect, Switch, Link, NavLink} from "react-router-dom";
-import {Container, Sidebar, Icon, Menu, Segment, Transition, SemanticICONS} from "semantic-ui-react"
+import {Route, Redirect, Switch, NavLink} from "react-router-dom";
+import {Container, Icon, Menu, SemanticICONS} from "semantic-ui-react"
 import {ToastContainer} from "react-toastify";
 
-/*
-import {MainSideBar} from "./MainSideBar";
-import {HeaderSummary} from "./components/dashboard/HeaderSummary";
-*/
 import {MenuLayout} from "./header/MenuLayout";
 
 import {PipelineTileMapHighCharts} from "./tilemap/PipelineTileMapHighCharts";
@@ -56,11 +52,11 @@ const menuItems = [{
 interface IPageLayoutProps {
 }
 
-interface IPageLayouttState {
+interface IPageLayoutState {
     isSidebarExpanded?: boolean;
 }
 
-export class PageLayout extends React.Component<IPageLayoutProps, IPageLayouttState> {
+export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutState> {
     public constructor(props) {
         super(props);
 
