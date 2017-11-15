@@ -5,7 +5,6 @@ import {ToastContainer} from "react-toastify";
 
 import {MenuLayout} from "./header/MenuLayout";
 
-import {PipelineTileMapHighCharts} from "./tilemap/PipelineTileMapHighCharts";
 import {PipelineGraph} from "./graph/PipelineGraph";
 import {Workers} from "./workers/Workers";
 import {TasksPanel} from "./tasks/Tasks";
@@ -13,6 +12,7 @@ import {PipelineStages} from "./stages/PipelineStages";
 import {Projects} from "./projects/Projects";
 import {Dashboard} from "./Dashboard";
 import {PreferencesManager} from "../util/preferencesManager";
+import {TileMapPanel} from "./tilemap/Tilemap";
 
 const toastStyleOverride = {
     minWidth: "600px",
@@ -109,7 +109,7 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
                         <Switch>
                             <Route path="/" exact component={Dashboard}/>
                             <Route path="/graphs" component={PipelineGraph}/>
-                            <Route path="/tilemaps" component={PipelineTileMapHighCharts}/>
+                            <Route path="/tilemaps" component={TileMapPanel}/>
                             <Route path="/projects" component={Projects}/>
                             <Route path="/stages" component={PipelineStages}/>
                             <Route path="/tasks" component={TasksPanel}/>
