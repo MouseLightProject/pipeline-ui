@@ -7,6 +7,7 @@ const thumbImage = require("../../assets/Thumbs.png");
 
 interface IThumbnailTileProps {
     project: IProject;
+    stageId: string;
     plane: number;
     projectPlaneTileStatus: any;
 }
@@ -57,10 +58,12 @@ export class ThumbnailTileMap extends React.Component<IThumbnailTileProps, IThum
     }
 
     public componentWillReceiveProps(props: IThumbnailTileProps) {
+        console.log("componentWillReceiveProps");
         this.renderContent(props);
     }
 
     public render() {
+        console.log("render");
         return (
             <Container style={{width: "100%", height: "100%", padding: "0 5px 5px 5px"}}>
                 <div className="thumbnail-canvas-container" ref="thumbnailCanvas" style={{width: "100%", height: "800px"}}>
@@ -70,6 +73,7 @@ export class ThumbnailTileMap extends React.Component<IThumbnailTileProps, IThum
     }
 
     private renderContent(props: IThumbnailTileProps) {
+        console.log("renderContent");
         this.updateDimensions();
 
         this.calculateDrawParameters(props);
@@ -142,7 +146,14 @@ export class ThumbnailTileMap extends React.Component<IThumbnailTileProps, IThum
 
                     this._frameGraphics.drawRect(x, y, this._xDelta, this._yDelta);
 
-                    const texture = PIXI.Texture.fromImage(`http://localhost:3000/thumbnail/${props.project.id}/${idx + this._xMin}/${jdx + this._yMin}/${props.plane}/Thumbs.png`, true);
+                   const texture = PIXI.Texture.fromImage(`http://localhost:3000/thumbnail/${props.stageId}/${idx + this._xMin}/${jdx + this._yMin}/${props.plane}/Thumbs.png`, true);
+                   //texture.update();
+                   // const img = new Image();
+                   // img.crossOrigin = "";
+                   // img.src = `http://localhost:3000/thumbnail/${props.stageId}/${idx + this._xMin}/${jdx + this._yMin}/${props.plane}/Thumbs.png`;
+                   // const base = new PIXI.BaseTexture(img);
+                   // const texture = new PIXI.Texture(base);// return you the texture
+
 
                     const thumb = new PIXI.Sprite(texture);
                     thumb.anchor.set(0.0);

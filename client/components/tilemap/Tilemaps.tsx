@@ -14,6 +14,7 @@ import {TileMapPlotPanel} from "./StageTileMap";
 import {ThumbnailTileMap} from "./ThumbnailTileMap";
 import {IProject} from "../../models/project";
 import {TilePipelineStatus} from "../../models/tilePipelineStatus";
+import {PipelineStagesMenu} from "../helpers/PipelineStagesMenu";
 
 enum TileMapFormat {
     QueueStatus,
@@ -33,162 +34,47 @@ export interface ITileStatus {
 }
 
 interface _ITileMapsProps {
-    projects: IProject[];
-    projectId: string;
+    project: IProject;
+    stageId: string;
     plane: number;
     planeQuery?: any;
-    minZ: number;
-    maxZ: number;
-
-    onProjectSelectionChange(id: string, savePreferences: boolean): void;
-    onPlaneChanged(plane: number): void;
+    format: TileMapFormat;
 }
 
 interface _ITileMapsPState {
-    format?: TileMapFormat;
 }
 
 class _InnerTileMapPanel extends React.Component<_ITileMapsProps, _ITileMapsPState> {
-    public constructor(props) {
-        super(props);
-
-        this.state = {
-            format: TileMapFormat.QueueStatus
-        };
-    }
-
-    onFirst = () => {
-        this.props.onPlaneChanged(this.props.minZ);
-    };
-
-    onLast = () => {
-        this.props.onPlaneChanged(this.props.maxZ);
-    };
-
-    onPrev = () => {
-        if (this.props.plane > this.props.minZ) {
-            this.props.onPlaneChanged(this.props.plane - 1);
-        }
-    };
-
-    onNext = () => {
-        if (this.props.plane < this.props.maxZ) {
-            this.props.onPlaneChanged(this.props.plane + 1);
-        }
-    };
-
-    onJumpBack = () => {
-        let p = this.props.plane - 10;
-        if (p < this.props.minZ) {
-            p = this.props.minZ;
-        }
-        this.props.onPlaneChanged(p);
-    };
-
-    onJumpForward = () => {
-        let p = this.props.plane + 10;
-        if (p > this.props.maxZ) {
-            p = this.props.maxZ;
-        }
-        this.props.onPlaneChanged(p);
-    };
-
-    private onChangeFormat(format: TileMapFormat) {
-        this.setState({format});
-    }
-
-    private choosePanel(projects) {
-        if (!projects) {
-            return (<h2>There are no projects</h2>);
-        }
-
-        projects = projects.filter(project => project.id === this.props.projectId);
-
-        if (!projects || projects.length === 0) {
+    private choosePanel(project) {
+        if (!project) {
             return (<h2>There is no selected pipeline</h2>);
         }
 
-        if (!projects[0].is_processing) {
+        if (!project.is_processing) {
             return (<h2>The selected pipeline must be running to view the tile map</h2>);
         }
 
-        if (this.state.format === TileMapFormat.QueueStatus) {
-            return (<TileMapPlotPanel project={projects[0]} plane={this.props.plane}
+        if (this.props.format === TileMapFormat.QueueStatus) {
+            return (<TileMapPlotPanel project={project} plane={this.props.plane}
                                       projectPlaneTileStatus={this.props.planeQuery.projectPlaneTileStatus}/>)
         } else {
-            return (<ThumbnailTileMap project={projects[0]} plane={this.props.plane} projectPlaneTileStatus={this.props.planeQuery.projectPlaneTileStatus}/>);
+            return (<ThumbnailTileMap project={project} plane={this.props.plane} stageId={this.props.stageId}
+                                      projectPlaneTileStatus={this.props.planeQuery.projectPlaneTileStatus}/>);
         }
     }
 
-    private renderFormatMenu() {
-        const title = this.state.format === TileMapFormat.QueueStatus ? "Queue Status" : "Thumbnail";
-
-        return (
-            <Dropdown item text={title}>
-                <Dropdown.Menu>
-                    <Dropdown.Item key={TileMapFormat.QueueStatus}
-                                   onClick={() => this.onChangeFormat(TileMapFormat.QueueStatus)}>
-                        Queue Status
-                    </Dropdown.Item>
-                    <Dropdown.Item key={TileMapFormat.Thumbnail}
-                                   onClick={() => this.onChangeFormat(TileMapFormat.Thumbnail)}>
-                        Thumbnail
-                    </Dropdown.Item>
-                </Dropdown.Menu>
-            </Dropdown>
-        );
-    }
-
     public render() {
-        const projects = this.props.projects;
-
-        return (
-            <Container fluid style={{height: "100%"}}>
-                <Menu style={{marginBottom: "15px"}}>
-                    <Menu.Header>
-                        <div style={{
-                            height: "100%",
-                            display: "flex",
-                            alignItems: "center",
-                            paddingLeft: "10px",
-                            paddingRight: "10px",
-                            paddingTop: "4px"
-                        }}>
-                            <Header style={{color: themeHighlight}}>
-                                Tile Maps
-                            </Header>
-                        </div>
-                    </Menu.Header>
-                    <Menu.Item style={{padding: 0}}/>
-                    <ProjectMenu style={{width: "200px"}} keyPrefix="tileMap" projects={projects}
-                                 selectedProjectId={this.props.projectId}
-                                 onProjectSelectionChange={(project) => this.props.onProjectSelectionChange(project, true)}
-                                 includeAllProjects={false}>
-
-                    </ProjectMenu>
-                    {this.renderFormatMenu()}
-                    <Menu.Menu position="right">
-                        <Menu.Item>{`Current Z Index:  ${this.props.plane}`}</Menu.Item>
-                        <Menu.Item icon="fast backward" onClick={this.onFirst}/>
-                        <Menu.Item icon="step backward" onClick={this.onJumpBack}/>
-                        <Menu.Item icon="play" style={{transform: "rotate(180deg)"}} onClick={this.onPrev}/>
-                        <Menu.Item icon="play" onClick={this.onNext}/>
-                        <Menu.Item icon="step forward" onClick={this.onJumpForward}/>
-                        <Menu.Item icon="fast forward" onClick={this.onLast}/>
-                    </Menu.Menu>
-                </Menu>
-                {this.choosePanel(projects)}
-            </Container>
-        );
+        return this.choosePanel(this.props.project);
     }
 }
 
 const InnerTileMapPanel = graphql<any, any>(PipelinePlaneQuery, {
     name: "planeQuery",
-    options: ({projectId, plane}) => ({
+    options: ({project, plane}) => ({
         pollInterval: 5000,
+        // fetchPolicy: "cache-and-network",
         variables: {
-            project_id: projectId,
+            project_id: project.id,
             plane: plane
         }
     })
@@ -200,9 +86,11 @@ interface ITileMapsProps {
 
 interface ITileMapsPState {
     projectId?: string;
+    stageId?: string;
     plane?: number;
     minZ: number;
     maxZ: number;
+    format?: TileMapFormat;
 }
 
 export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPState> {
@@ -211,9 +99,11 @@ export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPSta
 
         this.state = {
             projectId: PreferencesManager.Instance.PreferredProjectId,
+            stageId: null,
             plane: -1,
             minZ: 0,
-            maxZ: 1e6
+            maxZ: 1e6,
+            format: TileMapFormat.QueueStatus
         };
     }
 
@@ -226,6 +116,8 @@ export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPSta
             if (processing.length > 0) {
                 this.onProjectSelectionChange(processing[0].id);
             }
+        } else {
+            this.onProjectSelectionChange(this.state.projectId);
         }
     };
 
@@ -240,6 +132,8 @@ export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPSta
             } else if (projects.length > 0) {
                 this.onProjectSelectionChange(projects[0].id);
             }
+        } else {
+            this.onProjectSelectionChange(this.state.projectId);
         }
     };
 
@@ -282,7 +176,11 @@ export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPSta
         }
     }
 
-    onProjectSelectionChange = (eventKey, savePreferences = false) => {
+    private onChangeFormat(format: TileMapFormat) {
+        this.setState({format});
+    }
+
+    private onProjectSelectionChange(eventKey, savePreferences = false) {
         let projects = (this.props.data && !this.props.data.loading) ? this.props.data.projects : [];
 
         projects = projects.filter(x => x.id === eventKey);
@@ -307,13 +205,78 @@ export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPSta
                 maxZ = project.sample_z_max;
             }
 
-            this.setState({projectId: eventKey, minZ: minZ, maxZ: maxZ, plane: minZ}, null);
+            let stageId = eventKey;
+
+            if (project.stages.length > 0) {
+                stageId = project.stages[0].id;
+            }
+
+            this.setState({projectId: eventKey, stageId, minZ: minZ, maxZ: maxZ, plane: minZ});
 
             if (savePreferences) {
                 PreferencesManager.Instance.PreferredProjectId = eventKey;
             }
         }
     };
+
+    private onStageSelectionChange(id: string) {
+        this.setState({stageId: id});
+    }
+
+    private onFirst() {
+        this.onPlaneChanged(this.state.minZ);
+    };
+
+    private onLast() {
+        this.onPlaneChanged(this.state.maxZ);
+    };
+
+    private onPrev() {
+        if (this.state.plane > this.state.minZ) {
+            this.onPlaneChanged(this.state.plane - 1);
+        }
+    };
+
+    private onNext() {
+        if (this.state.plane < this.state.maxZ) {
+            this.onPlaneChanged(this.state.plane + 1);
+        }
+    };
+
+    private onJumpBack() {
+        let p = this.state.plane - 10;
+        if (p < this.state.minZ) {
+            p = this.state.minZ;
+        }
+        this.onPlaneChanged(p);
+    };
+
+    private onJumpForward() {
+        let p = this.state.plane + 10;
+        if (p > this.state.maxZ) {
+            p = this.state.maxZ;
+        }
+        this.onPlaneChanged(p);
+    };
+
+    private renderFormatMenu() {
+        const title = this.state.format === TileMapFormat.QueueStatus ? "Queue Status" : "Thumbnail";
+
+        return (
+            <Dropdown item text={title}>
+                <Dropdown.Menu>
+                    <Dropdown.Item key={TileMapFormat.QueueStatus}
+                                   onClick={() => this.onChangeFormat(TileMapFormat.QueueStatus)}>
+                        Queue Status
+                    </Dropdown.Item>
+                    <Dropdown.Item key={TileMapFormat.Thumbnail}
+                                   onClick={() => this.onChangeFormat(TileMapFormat.Thumbnail)}>
+                        Thumbnail
+                    </Dropdown.Item>
+                </Dropdown.Menu>
+            </Dropdown>
+        );
+    }
 
     public render() {
         const loading = !this.props.data || this.props.data.loading;
@@ -326,19 +289,71 @@ export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPSta
             );
         }
 
+        let project = null;
+
+        const projects = this.props.data.projects.filter(project => project.id === this.state.projectId);
+
+        if (projects.length > 0) {
+            project = projects[0];
+        } else {
+            return (<h2>There are no available pipelines</h2>);
+        }
+
         const props = {
-            projects: this.props.data.projects,
-            projectId: this.state.projectId,
+            project,
+            stageId: this.state.stageId || project.id,
             plane: this.state.plane,
-            minZ: this.state.minZ,
-            maxZ: this.state.maxZ,
+            format: this.state.format,
             onProjectSelectionChange: (id: string, b: boolean) => this.onProjectSelectionChange(id, b),
             onPlaneChanged: (plane: number) => this.onPlaneChanged(plane)
         };
 
         return (
-            <InnerTileMapPanel {...props}/>
-        )
+            <Container fluid style={{height: "100%"}}>
+                <Menu style={{marginBottom: "15px"}}>
+                    <Menu.Header>
+                        <div style={{
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            paddingLeft: "10px",
+                            paddingRight: "10px",
+                            paddingTop: "4px"
+                        }}>
+                            <Header style={{color: themeHighlight}}>
+                                Tile Maps
+                            </Header>
+                        </div>
+                    </Menu.Header>
+                    <Menu.Item style={{padding: 0}}/>
+                    <ProjectMenu style={{width: "200px"}} keyPrefix="tileMap" projects={this.props.data.projects}
+                                 selectedProjectId={this.state.projectId}
+                                 onProjectSelectionChange={(project) => this.onProjectSelectionChange(project, true)}
+                                 includeAllProjects={false}>
+
+                    </ProjectMenu>
+                    {this.renderFormatMenu()}
+                    {project !== null && this.state.format === TileMapFormat.Thumbnail ?
+                        <PipelineStagesMenu style={{width: "200px"}} keyPrefix="tileMap" stages={project.stages}
+                                            selectedStageId={this.state.stageId || project.id}
+                                            onStageSelectionChange={(s) => this.onStageSelectionChange(s)}
+                                            projectId={project.id}
+                                            includeProject={true}>
+
+                        </PipelineStagesMenu> : null}
+                    <Menu.Menu position="right">
+                        <Menu.Item>{`Current Z Index:  ${this.state.plane}`}</Menu.Item>
+                        <Menu.Item icon="fast backward" onClick={() => this.onFirst()}/>
+                        <Menu.Item icon="step backward" onClick={() => this.onJumpBack()}/>
+                        <Menu.Item icon="play" style={{transform: "rotate(180deg)"}} onClick={() => this.onPrev()}/>
+                        <Menu.Item icon="play" onClick={() => this.onNext()}/>
+                        <Menu.Item icon="step forward" onClick={() => this.onJumpForward()}/>
+                        <Menu.Item icon="fast forward" onClick={() => this.onLast()}/>
+                    </Menu.Menu>
+                </Menu>
+                <InnerTileMapPanel {...props}/>
+            </Container>
+        );
     }
 
     private onPlaneChanged(plane: number) {
