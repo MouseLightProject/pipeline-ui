@@ -50,6 +50,24 @@ export const ProjectsQuery = gql`query {
             id
             name
           }
+          performance {
+            id
+            num_in_process
+            num_ready_to_process
+            num_execute
+            num_complete
+            num_error
+            num_cancel
+            cpu_average
+            cpu_high
+            cpu_low
+            memory_average
+            memory_high
+            memory_low
+            duration_average
+            duration_high
+            duration_low
+          }
       }
     }
 }`;
@@ -178,3 +196,22 @@ export const DeleteProjectMutation = gql`
     }
   }
 `;
+
+export const PipelinePlaneQuery = gql`query($project_id: String, $plane: Int) { 
+  projectPlaneTileStatus(project_id: $project_id, plane: $plane) {
+    max_depth
+    x_min
+    x_max
+    y_min
+    y_max
+    tiles {
+      x_index
+      y_index
+      stages {
+        stage_id
+        depth
+        status
+      }
+    }
+  }
+}`;

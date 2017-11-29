@@ -12,7 +12,7 @@ import {PipelineStages} from "./stages/PipelineStages";
 import {Projects} from "./projects/Projects";
 import {Dashboard} from "./Dashboard";
 import {PreferencesManager} from "../util/preferencesManager";
-import {TileMapPanel} from "./tilemap/Tilemap";
+import {TileMapPanel} from "./tilemap/Tilemaps";
 
 const toastStyleOverride = {
     minWidth: "600px",
@@ -24,6 +24,10 @@ const menuItems = [{
     name: "Home",
     icon: "home"
 }, {
+    path: "/projects",
+    name: "Projects",
+    icon: "cube"
+}, {
     path: "/graphs",
     name: "Project Graphs",
     icon: "sitemap"
@@ -31,10 +35,6 @@ const menuItems = [{
     path: "/tilemaps",
     name: "Tile Maps",
     icon: "block layout"
-}, {
-    path: "/projects",
-    name: "Projects",
-    icon: "cube"
 }, {
     path: "/stages",
     name: "Stages",
@@ -108,9 +108,9 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
                     <Container style={{order: 1, flex: "1 1 auto", backgroundColor: "rgb(244, 247, 250)", width: "100%"}}>
                         <Switch>
                             <Route path="/" exact component={Dashboard}/>
+                            <Route path="/projects" component={Projects}/>
                             <Route path="/graphs" component={PipelineGraph}/>
                             <Route path="/tilemaps" component={TileMapPanel}/>
-                            <Route path="/projects" component={Projects}/>
                             <Route path="/stages" component={PipelineStages}/>
                             <Route path="/tasks" component={TasksPanel}/>
                             <Route path="/workers" component={Workers}/>

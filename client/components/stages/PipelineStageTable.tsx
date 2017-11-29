@@ -235,7 +235,7 @@ class __PipelineStageTable extends React.Component<IPipelineStageTableProps, IPi
             }, {
                 Header: "Queue",
                 accessor: "performance",
-                width: 60,
+                width: 90,
                 Cell: ({value}) => {
                     return (
                         <div style={{margin: "auto"}}>{renderPerformance(value)}</div>

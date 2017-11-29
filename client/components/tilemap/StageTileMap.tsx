@@ -1,7 +1,4 @@
 import * as React from "react";
-import gql from "graphql-tag";
-import {graphql} from "react-apollo";
-
 let numeric = require("numeric");
 
 const HighCharts = require("highcharts");
@@ -10,18 +7,8 @@ require("highcharts/modules/map")(HighCharts);
 
 import {IProject} from "../../models/project";
 import {TilePipelineStatus} from "../../models/tilePipelineStatus";
-
-interface IStageStatus {
-    stage_id: string;
-    depth: number;
-    status: TilePipelineStatus
-}
-
-interface ITileStatus {
-    x_index: number;
-    y_index: number;
-    stages: IStageStatus[];
-}
+import {jet} from "../../util/colors";
+import {ITileStatus} from "./Tilemaps";
 
 enum TileStatusSortIndex {
     Incomplete = 0,
@@ -29,73 +16,6 @@ enum TileStatusSortIndex {
     Complete = 2,
     Failed = 3,
 }
-
-const jet = [
-    [0.00, "#00008F"],
-    [0.02, "#00009F"],
-    [0.03, "#0000AF"],
-    [0.05, "#0000BF"],
-    [0.06, "#0000CF"],
-    [0.08, "#0000DF"],
-    [0.10, "#0000EF"],
-    [0.11, "#0000FF"],
-    [0.13, "#0010FF"],
-    [0.14, "#0020FF"],
-    [0.16, "#0030FF"],
-    [0.17, "#0040FF"],
-    [0.19, "#0050FF"],
-    [0.21, "#0060FF"],
-    [0.22, "#0070FF"],
-    [0.24, "#0080FF"],
-    [0.25, "#008FFF"],
-    [0.27, "#009FFF"],
-    [0.29, "#00AFFF"],
-    [0.30, "#00BFFF"],
-    [0.32, "#00CFFF"],
-    [0.33, "#00DFFF"],
-    [0.35, "#00EFFF"],
-    [0.37, "#00FFFF"],
-    [0.38, "#10FFEF"],
-    [0.40, "#20FFDF"],
-    [0.41, "#30FFCF"],
-    [0.43, "#40FFBF"],
-    [0.44, "#50FFAF"],
-    [0.46, "#60FF9F"],
-    [0.48, "#70FF8F"],
-    [0.49, "#80FF80"],
-    [0.51, "#8FFF70"],
-    [0.52, "#9FFF60"],
-    [0.54, "#AFFF50"],
-    [0.56, "#BFFF40"],
-    [0.57, "#CFFF30"],
-    [0.59, "#DFFF20"],
-    [0.60, "#EFFF10"],
-    [0.62, "#FFFF00"],
-    [0.63, "#FFEF00"],
-    [0.65, "#FFDF00"],
-    [0.67, "#FFCF00"],
-    [0.68, "#FFBF00"],
-    [0.70, "#FFAF00"],
-    [0.71, "#FF9F00"],
-    [0.73, "#FF8F00"],
-    [0.75, "#FF8000"],
-    [0.76, "#FF7000"],
-    [0.78, "#FF6000"],
-    [0.79, "#FF5000"],
-    [0.81, "#FF4000"],
-    [0.83, "#FF3000"],
-    [0.84, "#FF2000"],
-    [0.86, "#FF1000"],
-    [0.87, "#FF0000"],
-    [0.89, "#EF0000"],
-    [0.90, "#DF0000"],
-    [0.92, "#CF0000"],
-    [0.94, "#BF0000"],
-    [0.95, "#AF0000"],
-    [0.97, "#9F0000"],
-    [0.98, "#8F0000"],
-    [1.00, "#800000"],
-];
 
 (function (H) {
     H.wrap(H.Chart.prototype, 'pan', function (proceed) {
@@ -151,31 +71,28 @@ const jet = [
 
 }(HighCharts));
 
-class _TileMapPlotPanel extends React.Component<any, any> {
+interface ITileMapPlotPanelProps {
+    project: IProject;
+    plane: number;
+    projectPlaneTileStatus: any;
+}
+
+export class TileMapPlotPanel extends React.Component<ITileMapPlotPanelProps, any> {
     constructor(props) {
         super(props);
+
         this.state = {
             xRange: [],
             yRange: []
         };
     }
 
-    createFigure = (props) => {
-        if (!props.data || !props.data.projects) {
+    public createFigure(props: ITileMapPlotPanelProps) {
+        if (!props.project || !props.projectPlaneTileStatus) {
             return null;
         }
 
-        let projects = props.data.projects.filter(x => x.id === props.project_id);
-
-        let project: IProject = null;
-
-        if (projects.length > 0) {
-            project = projects[0];
-        } else {
-            project = null;
-        }
-
-        // let pipelineStages = props.pipelineStages;
+        let project = props.project;
 
         let pipelineIds = project.stages.map(p => p.id);
 
@@ -183,16 +100,14 @@ class _TileMapPlotPanel extends React.Component<any, any> {
         let y = [];
         let z = [];
 
-
         let xMin = 0;
         let xMax = 0;
         let yMin = 0;
         let yMax = 0;
         let zMax = 0;
 
-        if (props.data.projectPlaneTileStatus) {
-            let data = props.data.projectPlaneTileStatus;
-
+        if (props.projectPlaneTileStatus && props.projectPlaneTileStatus.tiles) {
+            const data = props.projectPlaneTileStatus;
             zMax = data.max_depth + 1;
 
             xMin = findMinValue(project, "sample_x_min", data, "x_min");
@@ -342,15 +257,16 @@ class _TileMapPlotPanel extends React.Component<any, any> {
 
     private chartContainer = null;
 
-    componentDidMount() {
+    public componentDidMount() {
         this.chartContainer = HighCharts.chart("tile_map_plot", createConfig(this));
+        this.componentWillUpdate(this.props);
     };
 
-    componentWillUpdate(nextProps) {
+    public componentWillUpdate(nextProps) {
         let data = this.createFigure(nextProps);
 
         if (this.chartContainer) {
-            if (nextProps.data && !nextProps.data.loading) {
+            if (nextProps.projectPlaneTileStatus && nextProps.projectPlaneTileStatus.tiles) {
                 this.chartContainer.hideLoading();
             } else {
                 this.chartContainer.showLoading("Waiting for update");
@@ -405,13 +321,13 @@ class _TileMapPlotPanel extends React.Component<any, any> {
         }
     };
 
-    render() {
+    public render() {
         return (
-            <div id="tile_map_plot"></div>
+            <div id="tile_map_plot"/>
         );
     }
 
-    componentDidUpdate() {
+    public componentDidUpdate() {
         this.chartContainer.redraw();
     }
 
@@ -446,83 +362,6 @@ class _TileMapPlotPanel extends React.Component<any, any> {
         }
     }
 }
-
-const PipelineTileMapQuery = gql`query($project_id: String, $plane: Int) { 
-  projectPlaneTileStatus(project_id: $project_id, plane: $plane) {
-    max_depth
-    x_min
-    x_max
-    y_min
-    y_max
-    tiles {
-      x_index
-      y_index
-      stages {
-        stage_id
-        depth
-        status
-      }
-    }
-  }
-  projects {
-    id
-    name
-    description
-    root_path
-    sample_number
-    sample_x_min
-    sample_x_max
-    sample_y_min
-    sample_y_max
-    sample_z_min
-    sample_z_max
-    region_x_min
-    region_x_max
-    region_y_min
-    region_y_max
-    region_z_min
-    region_z_max
-    is_processing
-    stages {
-      id
-      name
-      depth
-      previous_stage_id
-      task_id
-      task {
-        id
-        name
-      }
-      performance {
-        id
-        num_in_process
-        num_ready_to_process
-        num_execute
-        num_complete
-        num_error
-        num_cancel
-        cpu_average
-        cpu_high
-        cpu_low
-        memory_average
-        memory_high
-        memory_low
-        duration_average
-        duration_high
-        duration_low
-      }
-    }
-  }
-}`;
-export const TileMapPlotPanel = graphql<any, any>(PipelineTileMapQuery, {
-    options: ({project_id, plane}) => ({
-        pollInterval: 5000,
-        variables: {
-            project_id: project_id,
-            plane: plane
-        }
-    })
-})(_TileMapPlotPanel);
 
 function findMinValue(project, property, backupSource = null, backupProperty = null) {
     if (project) {
@@ -630,7 +469,7 @@ function createConfig(owner) {
                     textOutline: null
                 },
                 allowOverlap: false,
-                oveflow: "none",
+                overflow: "none",
                 verticalAlign: "middle"
             }
         }]
