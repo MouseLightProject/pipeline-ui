@@ -195,7 +195,7 @@ class __TaskDefinitionsTable extends React.Component<ITaskDefinitionsTableProps,
                 )
             }, {
                 Header: "Arguments",
-                accessor: "args",
+                accessor: "script_args",
                 Cell: ({value}) => {
                     const argArray = value.split(/[\s+]/).filter(Boolean);
 

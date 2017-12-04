@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Button, Modal, Form, Message} from "semantic-ui-react";
+import {Button, Modal, Form} from "semantic-ui-react";
 import {ChangeEvent} from "react";
 import * as pathIsAbsolute from "path-is-absolute";
 import {ITaskDefinition} from "../../../models/taskDefinition";
@@ -29,13 +29,13 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
         super(props);
 
         this.state = {
-            taskDefinition: props.sourceTaskDefinition ? (({id, name, description, script, interpreter, args, expected_exit_code, work_units, task_repository}) => ({
+            taskDefinition: props.sourceTaskDefinition ? (({id, name, description, script, interpreter, script_args, expected_exit_code, work_units, task_repository}) => ({
                 id,
                 name,
                 description,
                 script,
                 interpreter,
-                args,
+                script_args,
                 expected_exit_code,
                 work_units,
                 task_repository
@@ -45,7 +45,7 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                 description: "",
                 script: "",
                 interpreter: "none",
-                args: "",
+                script_args: "",
                 expected_exit_code: 0,
                 work_units: 1,
                 task_repository: null
@@ -62,13 +62,13 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
     private applySourceTaskDefinition(props: IEditTaskDefinitionProps) {
         if (props.sourceTaskDefinition) {
             this.setState({
-                taskDefinition: Object.assign(this.state.taskDefinition, (({id, name, description, script, interpreter, args, expected_exit_code, work_units, task_repository}) => ({
+                taskDefinition: Object.assign(this.state.taskDefinition, (({id, name, description, script, interpreter, script_args, expected_exit_code, work_units, task_repository}) => ({
                     id,
                     name,
                     description,
                     script,
                     interpreter,
-                    args,
+                    script_args,
                     expected_exit_code,
                     work_units,
                     task_repository
@@ -156,13 +156,13 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
     }
 
     private onCreateOrUpdate() {
-        const taskDefinition = Object.assign((({id, name, description, script, interpreter, args, work_units, task_repository}) => ({
+        const taskDefinition = Object.assign((({id, name, description, script, interpreter, script_args, work_units, task_repository}) => ({
             id: this.props.mode == DialogMode.Create ? undefined : id,
             name,
             description,
             script,
             interpreter,
-            args,
+            script_args,
             work_units,
             task_repository_id: task_repository ? task_repository.id : null
         }))(this.state.taskDefinition), {
@@ -197,7 +197,7 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                                     placeholder="(required)"
                                     onChange={(evt: any) => this.onScriptChanged(evt)}/>
                         {this.renderFeedback()}
-                        <Form.Input label="Additional Arguments" value={this.state.taskDefinition.args}
+                        <Form.Input label="Additional Arguments" value={this.state.taskDefinition.script_args}
                                     placeholder="(optional)" onChange={(evt: any) => this.onArgumentsChanged(evt)}/>
                         <Form.Input label="Expected Exit Code" value={this.state.expected_exit_code}
                                     error={!this.isExpectedExitCodeValid}

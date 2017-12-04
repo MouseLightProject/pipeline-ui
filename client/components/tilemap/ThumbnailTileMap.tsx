@@ -3,7 +3,7 @@ import {Container} from "semantic-ui-react";
 import * as PIXI from "pixi.js";
 import {IProject} from "../../models/project";
 
-const thumbImage = require("../../assets/Thumbs.png");
+import {Configuration} from "../../../server/configuration";
 
 interface IThumbnailTileProps {
     project: IProject;
@@ -17,7 +17,7 @@ interface IThumbnailTileState {
 
 const tileWidth = 89;
 const tileHeight = 105;
-const tileRatio = tileWidth/tileHeight;
+const tileRatio = tileWidth / tileHeight;
 
 export class ThumbnailTileMap extends React.Component<IThumbnailTileProps, IThumbnailTileState> {
     private _app: PIXI.Application;
@@ -66,7 +66,8 @@ export class ThumbnailTileMap extends React.Component<IThumbnailTileProps, IThum
         console.log("render");
         return (
             <Container style={{width: "100%", height: "100%", padding: "0 5px 5px 5px"}}>
-                <div className="thumbnail-canvas-container" ref="thumbnailCanvas" style={{width: "100%", height: "800px"}}>
+                <div className="thumbnail-canvas-container" ref="thumbnailCanvas"
+                     style={{width: "100%", height: "800px"}}>
                 </div>
             </Container>
         )
@@ -110,10 +111,10 @@ export class ThumbnailTileMap extends React.Component<IThumbnailTileProps, IThum
         const viewRatio = this._app.renderer.width / this._app.renderer.height;
 
         if (viewRatio < tileRatio) {
-            this._xDelta = Math.min(Math.floor(this._app.renderer.width/this._xCount), tileWidth);
+            this._xDelta = Math.min(Math.floor(this._app.renderer.width / this._xCount), tileWidth);
             this._yDelta = this._xDelta / tileRatio;
         } else {
-            this._yDelta = Math.min(Math.floor(this._app.renderer.height/this._yCount), tileHeight);
+            this._yDelta = Math.min(Math.floor(this._app.renderer.height / this._yCount), tileHeight);
             this._xDelta = this._yDelta * tileRatio;
         }
 
@@ -126,7 +127,7 @@ export class ThumbnailTileMap extends React.Component<IThumbnailTileProps, IThum
 
         if (props.projectPlaneTileStatus && props.projectPlaneTileStatus.tiles) {
             props.projectPlaneTileStatus.tiles.map(t => {
-               tileMap[t.x_index + "_" + t.y_index] = true;
+                tileMap[t.x_index + "_" + t.y_index] = true;
             });
         }
 
@@ -146,19 +147,20 @@ export class ThumbnailTileMap extends React.Component<IThumbnailTileProps, IThum
 
                     this._frameGraphics.drawRect(x, y, this._xDelta, this._yDelta);
 
-                   const texture = PIXI.Texture.fromImage(`http://localhost:3000/thumbnail/${props.stageId}/${idx + this._xMin}/${jdx + this._yMin}/${props.plane}/Thumbs.png`, true);
-                   //texture.update();
-                   // const img = new Image();
-                   // img.crossOrigin = "";
-                   // img.src = `http://localhost:3000/thumbnail/${props.stageId}/${idx + this._xMin}/${jdx + this._yMin}/${props.plane}/Thumbs.png`;
-                   // const base = new PIXI.BaseTexture(img);
-                   // const texture = new PIXI.Texture(base);// return you the texture
-
+                    const texture = PIXI.Texture.fromImage(`http://vega.int.janelia.org:3000/thumbnail/${props.stageId}/${idx + this._xMin}/${jdx + this._yMin}/${props.plane}/Thumbs.png`, true);
+                    //texture.update();
+                    // const img = new Image();
+                    // img.crossOrigin = "";
+                    // img.src = `http://localhost:3000/thumbnail/${props.stageId}/${idx + this._xMin}/${jdx + this._yMin}/${props.plane}/Thumbs.png`;
+                    // const base = new PIXI.BaseTexture(img);
+                    // const texture = new PIXI.Texture(base);// return you the texture
 
                     const thumb = new PIXI.Sprite(texture);
                     thumb.anchor.set(0.0);
                     thumb.x = x;
                     thumb.y = y;
+                    thumb.width = this._xDelta;
+                    thumb.height = this._yDelta;
 
                     this._container.addChild(thumb);
                 }

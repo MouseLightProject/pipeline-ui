@@ -18,7 +18,7 @@ import {PipelineStagesMenu} from "../helpers/PipelineStagesMenu";
 
 enum TileMapFormat {
     QueueStatus,
-    Thumbnail
+    SnapTile
 }
 
 export interface IStageStatus {
@@ -260,7 +260,7 @@ export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPSta
     };
 
     private renderFormatMenu() {
-        const title = this.state.format === TileMapFormat.QueueStatus ? "Queue Status" : "Thumbnail";
+        const title = this.state.format === TileMapFormat.QueueStatus ? "Queue Status" : "SnapTile";
 
         return (
             <Dropdown item text={title}>
@@ -269,9 +269,9 @@ export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPSta
                                    onClick={() => this.onChangeFormat(TileMapFormat.QueueStatus)}>
                         Queue Status
                     </Dropdown.Item>
-                    <Dropdown.Item key={TileMapFormat.Thumbnail}
-                                   onClick={() => this.onChangeFormat(TileMapFormat.Thumbnail)}>
-                        Thumbnail
+                    <Dropdown.Item key={TileMapFormat.SnapTile}
+                                   onClick={() => this.onChangeFormat(TileMapFormat.SnapTile)}>
+                        Snaptile
                     </Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
@@ -333,7 +333,7 @@ export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPSta
 
                     </ProjectMenu>
                     {this.renderFormatMenu()}
-                    {project !== null && this.state.format === TileMapFormat.Thumbnail ?
+                    {project !== null && this.state.format === TileMapFormat.SnapTile ?
                         <PipelineStagesMenu style={{width: "200px"}} keyPrefix="tileMap" stages={project.stages}
                                             selectedStageId={this.state.stageId || project.id}
                                             onStageSelectionChange={(s) => this.onStageSelectionChange(s)}

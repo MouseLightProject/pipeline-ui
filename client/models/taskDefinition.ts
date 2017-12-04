@@ -7,9 +7,11 @@ export interface ITaskDefinition {
     script?: string;
     interpreter?: string;
     description?: string;
-    args?: string;
+    script_args?: string;
+    cluster_args?: string;
     expected_exit_code?: number;
     work_units?: number;
+    cluster_work_units?: number;
     script_status?: boolean;
     task_repository?: ITaskRepository;
     pipeline_stages?: IPipelineStage[];

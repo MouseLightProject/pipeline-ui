@@ -23,7 +23,9 @@ export const TaskQuery = gql`query {
     script
     interpreter
     work_units
-    args
+    cluster_work_units
+    script_args
+    cluster_args
     expected_exit_code
     script_status
     task_repository {
@@ -48,7 +50,7 @@ export const CreateTaskDefinitionMutation = gql`mutation CreateTaskDefinition($t
             description
             script
             interpreter
-            args
+            script_args
             expected_exit_code
             work_units
             task_repository {
@@ -70,7 +72,7 @@ export const UpdateTaskDefinitionMutation = gql`mutation UpdateTaskDefinition($t
             description
             script
             interpreter
-            args
+            script_args
             expected_exit_code
             work_units
             task_repository {
