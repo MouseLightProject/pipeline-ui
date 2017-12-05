@@ -6,4 +6,6 @@ fi
 
 nohup npm run devel &
 
-chmod 664 nohup.out
+sleep 2
+
+chmod 775 nohup.out
