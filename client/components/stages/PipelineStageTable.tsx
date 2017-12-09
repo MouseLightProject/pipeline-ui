@@ -221,7 +221,7 @@ class __PipelineStageTable extends React.Component<IPipelineStageTableProps, IPi
                     );
                 }
             }, {
-                Header: "Task",
+                Header: "Previous Stage",
                 accessor: "previous_stage",
                 width: 120,
                 Cell: ({value}) => {
