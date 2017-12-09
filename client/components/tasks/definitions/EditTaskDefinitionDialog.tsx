@@ -131,7 +131,7 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
 
     private onArgumentsChanged(evt: ChangeEvent<any>) {
         this.setState({
-            taskDefinition: Object.assign(this.state.taskDefinition, {args: evt.target.value})
+            taskDefinition: Object.assign(this.state.taskDefinition, {script_args: evt.target.value})
         });
     }
 
