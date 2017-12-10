@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
-npm run devel
+export DEBUG=pipeline*
+
+logName=$(date '+%Y-%m-%d%H-%M-%S');
+
+node server/pipelineClientServer.js &> /var/log/pipeline/coordinator-ui-${logName}.log
 
 sleep infinity
