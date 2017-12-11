@@ -74,7 +74,7 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                     task_repository
                 }))(props.sourceTaskDefinition)),
                 work_units: props.sourceTaskDefinition ? props.sourceTaskDefinition.work_units.toString() : "1",
-                expected_exit_code: props.sourceTaskDefinition ? props.sourceTaskDefinition.expected_exit_code.toString() : "0"
+                expected_exit_code: props.sourceTaskDefinition && props.sourceTaskDefinition.expected_exit_code ? props.sourceTaskDefinition.expected_exit_code.toString() : "0"
             });
         }
     }
@@ -187,7 +187,7 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                                     placeholder="name is required"
                                     onChange={(evt: any) => this.onNameChanged(evt)}/>
                         <Form.Field>
-                            <label>Parent Stage</label>
+                            <label>Repository</label>
                             <TaskRepositorySelect repositories={this.props.taskRepositories}
                                                   selectedRepository={this.state.taskDefinition.task_repository}
                                                   onSelectRepository={t => this.onChangeTaskRepository(t)}/>
