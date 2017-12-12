@@ -27,6 +27,7 @@ export const TaskQuery = gql`query {
     script_args
     cluster_args
     expected_exit_code
+    log_prefix
     script_status
     task_repository {
       id
@@ -55,6 +56,7 @@ export const CreateTaskDefinitionMutation = gql`mutation CreateTaskDefinition($t
             expected_exit_code
             work_units
             cluster_work_units
+            log_prefix
             task_repository {
               id
               name
@@ -79,6 +81,7 @@ export const UpdateTaskDefinitionMutation = gql`mutation UpdateTaskDefinition($t
             expected_exit_code
             work_units
             cluster_work_units
+            log_prefix
             task_repository {
               id
               name

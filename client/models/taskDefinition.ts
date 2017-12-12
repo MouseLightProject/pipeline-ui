@@ -12,6 +12,7 @@ export interface ITaskDefinition {
     expected_exit_code?: number;
     work_units?: number;
     cluster_work_units?: number;
+    log_prefix?: string;
     script_status?: boolean;
     task_repository?: ITaskRepository;
     pipeline_stages?: IPipelineStage[];
