@@ -51,8 +51,10 @@ export const CreateTaskDefinitionMutation = gql`mutation CreateTaskDefinition($t
             script
             interpreter
             script_args
+            cluster_args
             expected_exit_code
             work_units
+            cluster_work_units
             task_repository {
               id
               name
@@ -73,8 +75,10 @@ export const UpdateTaskDefinitionMutation = gql`mutation UpdateTaskDefinition($t
             script
             interpreter
             script_args
+            cluster_args
             expected_exit_code
             work_units
+            cluster_work_units
             task_repository {
               id
               name

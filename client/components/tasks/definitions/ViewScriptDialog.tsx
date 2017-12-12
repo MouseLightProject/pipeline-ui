@@ -48,7 +48,7 @@ export class _ViewScriptDialog extends React.Component<IViewScriptDialogProps, I
                     {this.renderContent()}
                 </Modal.Content>
                 <Modal.Actions>
-                    <Button bsStyle="success" onClick={() => this.props.onClose()}>OK</Button>
+                    <Button onClick={() => this.props.onClose()}>OK</Button>
                 </Modal.Actions>
             </Modal>
         );

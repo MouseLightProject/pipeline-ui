@@ -40,9 +40,12 @@ export interface ITaskExecution {
     pipeline_stage_id: string;
     pipeline_stage: IPipelineStage;
     work_units: number;
+    cluster_work_units: number;
     resolved_script: string;
     resolved_interpreter: string;
-    resolved_args: string;
+    resolved_script_args: string;
+    resolved_cluster_args: string;
+    resolved_log_path: string;
     last_process_status_code: number;
     completion_status_code: number;
     execution_status_code: number;
