@@ -12,6 +12,7 @@ import {NavTile} from "./NavTile";
 import {IProject} from "../../models/project";
 import {IWorker, PipelineWorkerStatus} from "../../models/worker";
 import {themeHighlight} from "../../util/styleDefinitions";
+import {IPipelineStageTileStatus} from "../../models/pipelineStage";
 
 const HeaderSummaryQuery = gql`query {
   projects {
@@ -44,14 +45,16 @@ const HeaderSummaryQuery = gql`query {
         id
         name
       }
+      tile_status {
+        incomplete
+        queued
+        processing
+        complete
+        failed
+        canceled
+      }
       performance {
         id
-        num_in_process
-        num_ready_to_process
-        num_execute
-        num_complete
-        num_error
-        num_cancel
         cpu_average
         cpu_high
         cpu_low
@@ -81,13 +84,6 @@ const tileCountStyle = {
     visibility: "visible",
     maxWidth: "750px"
 };
-
-interface ICumulativeStats {
-    inProcess: number;
-    toProcess: number;
-    complete: number;
-    errors: number;
-}
 
 interface ITextSummaryState {
     columnLayout?: IColumnLayout;
@@ -171,49 +167,53 @@ class AbstractSummary<P, S> extends React.Component<P, S> {
         }
     }
 
-    protected buildStageStats(projects: IProject[]): ICumulativeStats {
-        let stats: ICumulativeStats = {
-            inProcess: 0,
-            toProcess: 0,
+    protected buildStageStats(projects: IProject[]): IPipelineStageTileStatus {
+        let stats: IPipelineStageTileStatus = {
+            incomplete: 0,
+            processing: 0,
+            queued: 0,
             complete: 0,
-            errors: 0
+            failed: 0,
+            canceled: 0
         };
 
         return projects.map(project => project.stages)
             .reduce((prev, arrStages) => prev.concat(arrStages), [])
             .reduce((previous, stage) => {
-                if (stage.is_processing && stage.performance) {
-                    previous.inProcess += stage.performance.num_in_process;
-                    previous.toProcess += stage.performance.num_ready_to_process;
-                    previous.complete += stage.performance.num_complete;
-                    previous.errors += stage.performance.num_error;
+                if (stage.is_processing && stage.tile_status) {
+                    previous.incomplete += stage.tile_status.incomplete;
+                    previous.processing += stage.tile_status.processing;
+                    previous.queued += stage.tile_status.queued;
+                    previous.complete += stage.tile_status.complete;
+                    previous.failed += stage.tile_status.failed;
+                    previous.canceled += stage.tile_status.canceled;
                 }
 
                 return previous;
             }, stats);
     }
 
-    protected buildStageInProcessProps(stats: ICumulativeStats) {
+    protected buildStageInProcessProps(stats: IPipelineStageTileStatus) {
         return {
             title: "Processing",
-            count: stats.inProcess,
+            count: stats.processing,
             message: ``
         }
     }
 
-    protected buildStageToProcessProps(stats: ICumulativeStats) {
+    protected buildStageToProcessProps(stats: IPipelineStageTileStatus) {
         return {
             title: "Queued",
-            count: stats.toProcess,
+            count: stats.queued,
             message: ``
         }
     }
 
-    protected buildStageCompleteProps(stats: ICumulativeStats) {
+    protected buildStageCompleteProps(stats: IPipelineStageTileStatus) {
         return {
             title: "Complete",
             count: stats.complete,
-            message: `${stats.errors} errors`
+            message: `${stats.failed} errors`
         }
     }
 }

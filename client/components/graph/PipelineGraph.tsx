@@ -55,14 +55,16 @@ const pipelineGraphQuery = gql`query {
         id
         name
       }
+      tile_status {
+        incomplete
+        queued
+        processing
+        complete
+        failed
+        canceled
+      }
       performance {
         id
-        num_in_process
-        num_ready_to_process
-        num_execute
-        num_complete
-        num_error
-        num_cancel
         cpu_average
         cpu_high
         cpu_low
@@ -113,7 +115,7 @@ class _PipelineGraph extends React.Component<any, IPipelineGraphState> {
         let sum = 0;
 
         return project.stages.reduce((sum, stage) => {
-            return sum + (stage.performance === null ? 0 : stage.performance.num_ready_to_process);
+            return sum + (stage.performance === null ? 0 : stage.tile_status.queued);
         }, sum);
     }
 
@@ -126,19 +128,34 @@ class _PipelineGraph extends React.Component<any, IPipelineGraphState> {
 
         let simpleName = name;
 
-        if (stage.performance !== null) {
-            if (stage.is_processing) {
-                name = name + "\n" + `${stage.performance.num_in_process} processing`;
-                name = name + "\n" + `${stage.performance.num_ready_to_process} waiting`;
-                name = name + "\n" + `${stage.performance.num_complete} complete`;
-                name = name + "\n" + `${stage.performance.num_error} with errors`;
-            } else {
-                name = name + "\n(paused)";
-                name = name + "\n" + `${stage.performance.num_in_process} processing`;
-                name = name + "\n" + `${stage.performance.num_ready_to_process} waiting`;
-                name = name + "\n" + `${stage.performance.num_complete} complete`;
-                name = name + "\n" + `${stage.performance.num_error} with errors`;
-            }
+        const tileStatus = stage.tile_status || {
+            incomplete: 0,
+            queued: 0,
+            processing: 0,
+            complete: 0,
+            failed: 0,
+            canceled: 0
+        };
+
+        let totalKnown = tileStatus.incomplete + tileStatus.processing + tileStatus.queued + tileStatus.complete + tileStatus.failed + tileStatus.canceled;
+
+        if (stage.is_processing) {
+            name = name + "\n" + `${totalKnown} tiles`;
+            name = name + "\n" + `${tileStatus.incomplete} not ready`;
+            name = name + "\n" + `${tileStatus.queued} queued`;
+            name = name + "\n" + `${tileStatus.processing} processing`;
+            name = name + "\n" + `${tileStatus.canceled} canceled`;
+            name = name + "\n" + `${tileStatus.complete} complete`;
+            name = name + "\n" + `${tileStatus.failed} failed`;
+        } else {
+            name = name + "\n(paused)";
+            name = name + "\n" + `${totalKnown} tiles`;
+            name = name + "\n" + `${tileStatus.incomplete} not ready`;
+            name = name + "\n" + `${tileStatus.queued} queued`;
+            name = name + "\n" + `${tileStatus.processing} processing`;
+            name = name + "\n" + `${tileStatus.canceled} canceled`;
+            name = name + "\n" + `${tileStatus.complete} complete`;
+            name = name + "\n" + `${tileStatus.failed} failed`;
         }
 
         let ele = null;
@@ -148,15 +165,6 @@ class _PipelineGraph extends React.Component<any, IPipelineGraphState> {
         if (collection.length > 0) {
             ele = collection[0];
         }
-
-        const performance = stage.performance || {
-            num_in_process: 0,
-            num_ready_to_process: 0,
-            num_complete: 0,
-            num_error: 0
-        };
-
-        let totalProcessed = performance ? performance.num_in_process + performance.num_ready_to_process + performance.num_complete + performance.num_error : NaN;
 
         if (ele === null) {
             nodes.push({
@@ -169,11 +177,13 @@ class _PipelineGraph extends React.Component<any, IPipelineGraphState> {
                     breadth: breadth,
                     isPie: 1,
                     shortName: simpleName,
-                    numInProcess: performance.num_in_process / totalProcessed,
-                    numReadyToProcess: performance.num_ready_to_process / totalProcessed,
-                    numComplete: performance.num_complete / totalProcessed,
-                    numError: performance.num_error / totalProcessed,
-                    queueWeight: performance.num_ready_to_process / waitingCount,
+                    numIncomplete: tileStatus.incomplete / totalKnown,
+                    numInProcess: tileStatus.processing / totalKnown,
+                    numReadyToProcess: tileStatus.queued / totalKnown,
+                    numComplete: tileStatus.complete / totalKnown,
+                    numError: tileStatus.failed / totalKnown,
+                    numCanceled: tileStatus.canceled / totalKnown,
+                    queueWeight: tileStatus.queued / waitingCount,
                     bgColor: stage.is_processing ? "#86B342" : "#FF0000",
                     shape: "rectangle"
                 }
@@ -182,11 +192,13 @@ class _PipelineGraph extends React.Component<any, IPipelineGraphState> {
             ele.data("name", name);
             ele.data("shortName", simpleName);
             ele.data("breadth", breadth);
-            ele.data("numInProcess", performance.num_in_process / totalProcessed);
-            ele.data("numReadyToProcess", performance.num_ready_to_process / totalProcessed);
-            ele.data("numComplete", performance.num_complete / totalProcessed);
-            ele.data("numError", performance.num_error / totalProcessed);
-            ele.data("queueWeight", performance.num_ready_to_process / waitingCount);
+            ele.data("numIncomplete", tileStatus.incomplete / totalKnown);
+            ele.data("numInProcess", tileStatus.processing / totalKnown);
+            ele.data("numReadyToProcess", tileStatus.queued / totalKnown);
+            ele.data("numComplete", tileStatus.complete / totalKnown);
+            ele.data("numError", tileStatus.failed / totalKnown);
+            ele.data("numCanceled", tileStatus.canceled / totalKnown);
+            ele.data("queueWeight", tileStatus.queued / waitingCount);
             ele.data("bgColor", stage.is_processing ? "#86B342" : "#FF0000");
         }
 
