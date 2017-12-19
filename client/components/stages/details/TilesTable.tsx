@@ -20,7 +20,7 @@ interface ITilesTableProps {
     pageCount: number;
 
     onCursorChanged(page: number, pageSize: number): void;
-    setTileStatus?(pipelineStageId: string, tileId: string, status: TilePipelineStatus): any;
+    setTileStatus?(pipelineStageId: string, tileIds: string[], status: TilePipelineStatus): any;
 }
 
 interface ITilesTableState {
@@ -29,7 +29,7 @@ interface ITilesTableState {
 class _TilesTable extends React.Component<ITilesTableProps, ITilesTableState> {
     private async onResubmitTile(tile: IPipelineTile) {
         try {
-            const result = await this.props.setTileStatus(this.props.pipelineStage.id, tile.relative_path, TilePipelineStatus.Incomplete);
+            const result = await this.props.setTileStatus(this.props.pipelineStage.id, [tile.relative_path], TilePipelineStatus.Incomplete);
 
             if (!result.data.setTileStatus) {
                 toast.error(toastUpdateError(result.data.setTileStatus.error), {autoClose: false});
@@ -129,8 +129,8 @@ class _TilesTable extends React.Component<ITilesTableProps, ITilesTableState> {
 
 export const TilesTable = graphql<any, any>(TileStatusMutation, {
     props: ({mutate}) => ({
-        setTileStatus: (pipelineStageId: string, tileId: string, status: TilePipelineStatus) => mutate({
-            variables: {pipelineStageId, tileId, status}
+        setTileStatus: (pipelineStageId: string, tileIds: string[], status: TilePipelineStatus) => mutate({
+            variables: {pipelineStageId, tileIds, status}
         })
     })
 })(_TilesTable);
