@@ -42,7 +42,6 @@ class _TilesTable extends React.Component<ITilesTableProps, ITilesTableState> {
         }
     }
 
-
     public render() {
         if (this.props.tiles.length > 0) {
             const columns = [
@@ -80,7 +79,7 @@ class _TilesTable extends React.Component<ITilesTableProps, ITilesTableState> {
                 sortable: false,
                 filterable: false,
                 minRows: 0,
-                loading: this.props.loading,
+                // loading: this.props.loading,
                 manual: true,
                 pages: this.props.pageCount,
                 onFetchData: (state) => {
@@ -125,7 +124,6 @@ class _TilesTable extends React.Component<ITilesTableProps, ITilesTableState> {
         }
     }
 }
-
 
 export const TilesTable = graphql<any, any>(TileStatusMutation, {
     props: ({mutate}) => ({

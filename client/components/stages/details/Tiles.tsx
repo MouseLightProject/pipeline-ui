@@ -7,11 +7,15 @@ import gql from "graphql-tag";
 import {IPipelineStage} from "../../../models/pipelineStage";
 import {TilesTable} from "./TilesTable";
 import {
-    TILE_PIPELINE_STATUS_TYPES,
+    TILE_PIPELINE_STATUS_TYPES, TilePipelineStatus,
     TilePipelineStatusType
 } from "../../../models/tilePipelineStatus";
 import {TilePipelineStatusSelect} from "../../helpers/TilePipelineStatusSelect";
 import {PreferencesManager} from "../../../util/preferencesManager";
+import {IPipelineTile} from "../../../models/pipelineTile";
+import {toastUpdateError, toastUpdateSuccess} from "../../../util/Toasts";
+import {toast} from "react-toastify";
+import {TileStatusMutation} from "../../../graphql/pipelineTile";
 
 interface ITilesProps {
     pipelineStage: IPipelineStage;
@@ -47,7 +51,7 @@ export class Tiles extends React.Component<ITilesProps, ITilesState> {
                 offset,
                 limit: pageSize
             });
-      }
+        }
     }
 
     public render() {
@@ -73,12 +77,29 @@ interface ITilesTablePanelProps {
 
     onCursorChanged(page: number, pageSize: number): void;
     onRequestedStatusChanged(t: TilePipelineStatusType): void;
+    setTileStatus?(pipelineStageId: string, tileIds: string[], status: TilePipelineStatus): any;
 }
 
 interface ITilesTablePanelState {
 }
 
-class TilesTablePanel extends React.Component<ITilesTablePanelProps, ITilesTablePanelState> {
+class _TilesTablePanel extends React.Component<ITilesTablePanelProps, ITilesTablePanelState> {
+    private async onResubmitTiles() {
+        try {
+            const result = await this.props.setTileStatus(this.props.pipelineStage.id, this.props.data.tilesForStage.items.map(t => t.relative_path), TilePipelineStatus.Incomplete);
+
+            if (!result.data.setTileStatus) {
+                toast.error(toastUpdateError(result.data.setTileStatus.error), {autoClose: false});
+            } else {
+                toast.success(toastUpdateSuccess(), {autoClose: 3000});
+                this.setState({isRemoved: true});
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error(toastUpdateError({name: "", message: "Tile not found"}), {autoClose: false});
+        }
+    }
+
     public render() {
         let tilesForStage = [];
         let pageCount = -1;
@@ -94,11 +115,16 @@ class TilesTablePanel extends React.Component<ITilesTablePanelProps, ITilesTable
 
         return (
             <Container fluid style={{padding: "20px"}}>
-                <Menu size="mini" style={{borderBottom: "none"}}>
+                <Menu size="mini" style={{borderBottomWidth: pageCount > 0 ? "0" : "1px"}}>
                     <TilePipelineStatusSelect
                         statusTypes={TILE_PIPELINE_STATUS_TYPES}
                         selectedStatus={this.props.requestedStatus}
                         onSelectStatus={(t) => this.props.onRequestedStatusChanged(t)}/>
+                    <Menu.Menu position="right">
+                        <Menu.Item size="mini" content="Resubmit Page" icon="repeat"
+                                   disabled={!this.props.requestedStatus.canSubmit || tilesForStage.length === 0}
+                                   onClick={() => this.onResubmitTiles()}/>
+                    </Menu.Menu>
                 </Menu>
                 <TilesTable pipelineStage={this.props.pipelineStage}
                             tiles={tilesForStage}
@@ -106,7 +132,7 @@ class TilesTablePanel extends React.Component<ITilesTablePanelProps, ITilesTable
                             loading={loading}
                             pageCount={pageCount}
                             onCursorChanged={this.props.onCursorChanged}
-            />
+                />
             </Container>
         );
     }
@@ -127,9 +153,18 @@ const TileStatusQuery = gql`query($pipelineStageId: String, $status: Int, $offse
     }
 }`;
 
+const TilesTablePanel = graphql<any, any>(TileStatusMutation, {
+    props: ({mutate}) => ({
+        setTileStatus: (pipelineStageId: string, tileIds: string[], status: TilePipelineStatus) => mutate({
+            variables: {pipelineStageId, tileIds, status}
+        })
+    })
+})(_TilesTablePanel);
+
 const TablePanelWithQuery = graphql<any, any>(TileStatusQuery, {
     options: ({pipelineStage, requestedStatus, offset, limit}) => ({
-        pollInterval: 10 * 1000,
-        variables: {pipelineStageId: pipelineStage.id, status: requestedStatus.option, offset, limit}
+        pollInterval: 5 * 1000,
+        variables: {pipelineStageId: pipelineStage.id, status: requestedStatus.option, offset, limit},
+        fetchPolicy: "cache-and-network"
     })
 })(TilesTablePanel);
