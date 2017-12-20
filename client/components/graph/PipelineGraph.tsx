@@ -95,9 +95,9 @@ class __PipelineGraph extends React.Component<any, IPipelineGraphState> {
         };
     }
 
-    private async onToggleIsProcessing(project: IProjectInput) {
+    private async onToggleIsProcessing(project: IProjectInput, isProcessing: boolean) {
         try {
-            const result = await this.props.updateProject({id: project.id, is_processing: !project.is_processing});
+            const result = await this.props.updateProject({id: project.id, is_processing: isProcessing});
 
             if (!result.data.updateProject.project) {
                 toast.error(toastUpdateError(result.data.updateProject.error), {autoClose: false});
@@ -464,7 +464,7 @@ class __PipelineGraph extends React.Component<any, IPipelineGraphState> {
                 {
                     content: "Pause",
                     select: async (ele) => {
-                        await this.onToggleIsProcessing(ele.data("project"));
+                        await this.onToggleIsProcessing(ele.data("project"), false);
                     },
                     enabled: (ele) => {
                         return ele.data("is_processing");
@@ -472,7 +472,7 @@ class __PipelineGraph extends React.Component<any, IPipelineGraphState> {
                 }, {
                     content: "Resume",
                     select: async (ele) => {
-                        await this.onToggleIsProcessing(ele.data("project"));
+                        await this.onToggleIsProcessing(ele.data("project"), true);
                     },
                     enabled: (ele) => {
                         return !ele.data("is_processing");
