@@ -58,3 +58,7 @@ i {
 button.active-button i {
     color: white;
 }
+
+.cxtmenu-disabled {
+    opacity: 0.333;
+}

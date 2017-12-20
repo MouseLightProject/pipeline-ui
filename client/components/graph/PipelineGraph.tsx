@@ -7,11 +7,16 @@ import {AllProjectsId, ProjectMenu} from "../helpers/ProjectMenu";
 import {pollingIntervalSeconds} from "../../GraphQLComponents";
 import {IPipelineStage} from "../../models/pipelineStage";
 import {calculateProjectBreadth} from "../../models/modelUtils";
-import {IProject} from "../../models/project";
+import {IProject, IProjectInput} from "../../models/project";
 import {PreferencesManager} from "../../util/preferencesManager";
 import {themeHighlight} from "../../util/styleDefinitions";
+import {toastUpdateError, toastUpdateSuccess} from "../../util/Toasts";
+import {toast} from "react-toastify";
+import {UpdateProjectMutation} from "../../graphql/project";
 
 let cytoscape = require("cytoscape");
+let cxtmenu = require("../../util/graphMenu")(cytoscape);
+
 
 function SetDifference<T>(setA: Set<T>, setB: Set<T>): Set<T> {
     let difference: Set<T> = new Set<T>(setA);
@@ -79,8 +84,7 @@ const pipelineGraphQuery = gql`query {
   }
 }`;
 
-class _PipelineGraph extends React.Component<any, IPipelineGraphState> {
-
+class __PipelineGraph extends React.Component<any, IPipelineGraphState> {
     protected cy = null;
 
     constructor(props) {
@@ -89,6 +93,18 @@ class _PipelineGraph extends React.Component<any, IPipelineGraphState> {
         this.state = {
             projectId: PreferencesManager.Instance.PreferredProjectId
         };
+    }
+
+    private async onToggleIsProcessing(project: IProjectInput) {
+        try {
+            const result = await this.props.updateProject({id: project.id, is_processing: !project.is_processing});
+
+            if (!result.data.updateProject.project) {
+                toast.error(toastUpdateError(result.data.updateProject.error), {autoClose: false});
+            }
+        } catch (error) {
+            toast.error(toastUpdateError(error), {autoClose: false});
+        }
     }
 
     private onProjectSelectionChange = (projectId: any) => {
@@ -241,7 +257,9 @@ class _PipelineGraph extends React.Component<any, IPipelineGraphState> {
                 data: {
                     group: "nodes",
                     id: project.id,
+                    project,
                     name: project.name,
+                    is_processing: project.is_processing,
                     isProject: 1,
                     depth: 0,
                     breadth: breadth,
@@ -251,6 +269,7 @@ class _PipelineGraph extends React.Component<any, IPipelineGraphState> {
             });
         } else {
             ele.data("name", project.name);
+            ele.data("is_processing", project.is_processing);
             ele.data("bgColor", project.is_processing ? "#86B342" : "#FF0000");
             ele.data("breadth", breadth);
         }
@@ -403,6 +422,65 @@ class _PipelineGraph extends React.Component<any, IPipelineGraphState> {
                     roots: []
                 }
             });
+/*
+        this.cy.cxtmenu({
+            menuRadius: 120,
+            selector: "node[isProject = 0]",
+            commands: [
+                {
+                    content: "Pause/Resume",
+                    select: function () {
+                        console.log("bg1");
+                    },
+                    enabled: (ele) => {
+                        return false;
+                    }
+                },
+                {
+                    content: "Resubmit Canceled",
+                    select: function () {
+                        console.log("bg2");
+                    }
+                },
+                {
+                    content: "Resubmit Failed",
+                    select: function () {
+                        console.log("bg2");
+                    }
+                },
+                {
+                    content: "Resubmit All",
+                    select: function () {
+                        console.log("bg2");
+                    }
+                }
+            ]
+        });
+*/
+        this.cy.cxtmenu({
+            menuRadius: 100,
+            selector: "node[isProject = 1]",
+            commands: [
+                {
+                    content: "Pause",
+                    select: async (ele) => {
+                        await this.onToggleIsProcessing(ele.data("project"));
+                    },
+                    enabled: (ele) => {
+                        return ele.data("is_processing");
+                    }
+                }, {
+                    content: "Resume",
+                    select: async (ele) => {
+                        await this.onToggleIsProcessing(ele.data("project"));
+                    },
+                    enabled: (ele) => {
+                        return !ele.data("is_processing");
+                    }
+                }
+
+            ]
+        });
 
         this.cy.on("vclick", "node", {}, (evt) => {
             const node = evt.cyTarget;
@@ -469,10 +547,18 @@ class _PipelineGraph extends React.Component<any, IPipelineGraphState> {
     }
 }
 
-export const PipelineGraph = graphql<any, any>(pipelineGraphQuery, {
+const _PipelineGraph = graphql<any, any>(pipelineGraphQuery, {
     options: {
         pollInterval: pollingIntervalSeconds * 1000
     }
+})(__PipelineGraph);
+
+export const PipelineGraph = graphql<any, any>(UpdateProjectMutation, {
+    props: ({mutate}) => ({
+        updateProject: (project: IProjectInput) => mutate({
+            variables: {project}
+        })
+    })
 })(_PipelineGraph);
 
 const pieStyle = {

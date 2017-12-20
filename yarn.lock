@@ -46,6 +46,10 @@
   dependencies:
     "@types/node" "*"
 
+"@types/lodash@^4.14.91":
+  version "4.14.91"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.91.tgz#794611b28056d16b5436059c6d800b39d573cd3a"
+
 "@types/mime@*":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@types/mime/-/mime-2.0.0.tgz#5a7306e367c539b9f6543499de8dd519fac37a8b"
@@ -1294,6 +1298,10 @@ currently-unhandled@^0.4.1:
 cyclist@~0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/cyclist/-/cyclist-0.2.2.tgz#1b33792e11e914a2fd6d6ed6447464444e5fa640"
+
+cytoscape-cxtmenu@^2.10.3:
+  version "2.10.3"
+  resolved "https://registry.yarnpkg.com/cytoscape-cxtmenu/-/cytoscape-cxtmenu-2.10.3.tgz#d24dcee0e0a244d151c4f8d805651f2f674e817a"
 
 cytoscape@^2.7.13:
   version "2.7.25"
