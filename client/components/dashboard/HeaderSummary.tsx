@@ -117,7 +117,7 @@ class AbstractSummary<P, S> extends React.Component<P, S> {
                 if (!lastSeen || elapsedTime < maxElapsed) {
                     lastSeen = worker.last_seen
                 }
-                
+
                 return false;
             }
 
