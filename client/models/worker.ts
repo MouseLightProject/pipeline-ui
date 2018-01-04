@@ -13,7 +13,7 @@ export interface IWorker {
     work_unit_capacity?: number;
     last_seen?: number;
     task_load?: number;
-    status?: number;
+    status?: PipelineWorkerStatus;
     is_in_scheduler_pool?: boolean;
     is_cluster_proxy?: boolean;
 }

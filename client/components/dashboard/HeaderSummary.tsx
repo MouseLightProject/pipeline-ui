@@ -113,10 +113,11 @@ class AbstractSummary<P, S> extends React.Component<P, S> {
         let onlineWorkerCount = workers.filter(worker => {
             const elapsedTime = moment(now).subtract(worker.last_seen).minutes();
 
-            if (elapsedTime > 2) {
+            if (worker.status == PipelineWorkerStatus.Unavailable ||  elapsedTime > 2) {
                 if (!lastSeen || elapsedTime < maxElapsed) {
                     lastSeen = worker.last_seen
                 }
+                
                 return false;
             }
 
