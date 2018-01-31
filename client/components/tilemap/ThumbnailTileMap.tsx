@@ -3,8 +3,6 @@ import {Container} from "semantic-ui-react";
 import * as PIXI from "pixi.js";
 import {IProject} from "../../models/project";
 
-import {Configuration} from "../../../server/configuration";
-
 interface IThumbnailTileProps {
     project: IProject;
     stageId: string;
@@ -13,6 +11,7 @@ interface IThumbnailTileProps {
 }
 
 interface IThumbnailTileState {
+    thumbnailName?: string;
 }
 
 const tileWidth = 89;
@@ -34,6 +33,14 @@ export class ThumbnailTileMap extends React.Component<IThumbnailTileProps, IThum
     private _yOffset: number;
     private _xDelta: number;
     private _yDelta: number;
+
+    public constructor(props: IThumbnailTileProps) {
+        super(props);
+
+        this.state = {
+            thumbnailName: "Thumbs.png"
+        };
+    }
 
     public componentDidMount() {
         this._app = new PIXI.Application(800, 600);
@@ -63,7 +70,6 @@ export class ThumbnailTileMap extends React.Component<IThumbnailTileProps, IThum
     }
 
     public render() {
-        console.log("render");
         return (
             <Container style={{width: "100%", height: "100%", padding: "0 5px 5px 5px"}}>
                 <div className="thumbnail-canvas-container" ref="thumbnailCanvas"
@@ -147,7 +153,7 @@ export class ThumbnailTileMap extends React.Component<IThumbnailTileProps, IThum
 
                     this._frameGraphics.drawRect(x, y, this._xDelta, this._yDelta);
 
-                    const texture = PIXI.Texture.fromImage(`http://10.40.4.97:7000/thumbnail/${props.stageId}/${idx + this._xMin}/${jdx + this._yMin}/${props.plane}/Thumbs.png`, true);
+                    const texture = PIXI.Texture.fromImage(`/thumbnail/${props.stageId}/${idx + this._xMin}/${jdx + this._yMin}/${props.plane}/${this.state.thumbnailName}`, true);
                     //texture.update();
                     // const img = new Image();
                     // img.crossOrigin = "";

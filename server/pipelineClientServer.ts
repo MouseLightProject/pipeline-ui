@@ -34,6 +34,10 @@ if (process.env.NODE_ENV !== "production") {
 
     app.post("/graphql", proxy(apiUri + "/graphql"));
 
+    app.use("/thumbnail", proxy(apiUri + "/thumbnail"));
+
+    app.use("/thumbnailData", proxy(apiUri + "/thumbnailData"));
+
     app.use("/", (req, res) => {
         res.sendFile(path.join(rootPath, "index.html"));
     });
@@ -52,6 +56,12 @@ function devServer() {
         },
         proxy: {
             "/graphql": {
+                target: apiUri
+            },
+            "/thumbnail": {
+                target: apiUri
+            },
+            "/thumbnailData": {
                 target: apiUri
             }
         },
