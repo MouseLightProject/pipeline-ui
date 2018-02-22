@@ -1,3 +1,4 @@
+///<reference path="../../util/Toasts.tsx"/>
 import * as React from "react";
 import {Container, Header, Menu, Modal} from "semantic-ui-react";
 import {graphql} from 'react-apollo';
@@ -14,7 +15,7 @@ import {TaskQuery} from "../../graphql/taskDefinition";
 import {DialogMode} from "../helpers/DialogUtils";
 import {themeHighlight} from "../../util/styleDefinitions";
 import {PreferencesManager} from "../../util/preferencesManager";
-import {toastCreateError, toastCreateSuccess} from "../../util/Toasts";
+import {toastError, toastSuccess} from "../../util/Toasts";
 
 interface IPipelineStagesPanelProps {
     projects: IProject[];
@@ -69,12 +70,12 @@ export class __PipelineStagesPanel extends React.Component<IPipelineStagesPanelP
             const result = await this.props.createPipelineStage(stage);
 
             if (!result.data.createPipelineStage.pipelineStage) {
-                toast.error(toastCreateError(result.data.createStage.error), {autoClose: false});
+                toast.error(toastError("Create", result.data.createStage.error), {autoClose: false});
             } else {
-                toast.success(toastCreateSuccess(), {autoClose: 3000});
+                toast.success(toastSuccess("Create"), {autoClose: 3000});
             }
         } catch (error) {
-            toast.error(toastCreateError(error), {autoClose: false});
+            toast.error(toastError("Create", error), {autoClose: false});
         }
     }
 

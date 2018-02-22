@@ -13,9 +13,9 @@ import {
 import {TilePipelineStatusSelect} from "../../helpers/TilePipelineStatusSelect";
 import {PreferencesManager} from "../../../util/preferencesManager";
 import {IPipelineTile} from "../../../models/pipelineTile";
-import {toastUpdateError, toastUpdateSuccess} from "../../../util/Toasts";
 import {toast} from "react-toastify";
 import {TileStatusMutation} from "../../../graphql/pipelineTile";
+import {toastError, toastSuccess} from "../../../util/Toasts";
 
 interface ITilesProps {
     pipelineStage: IPipelineStage;
@@ -89,14 +89,14 @@ class _TilesTablePanel extends React.Component<ITilesTablePanelProps, ITilesTabl
             const result = await this.props.setTileStatus(this.props.pipelineStage.id, this.props.data.tilesForStage.items.map(t => t.relative_path), TilePipelineStatus.Incomplete);
 
             if (!result.data.setTileStatus) {
-                toast.error(toastUpdateError(result.data.setTileStatus.error), {autoClose: false});
+                toast.error(toastError("Update", result.data.setTileStatus.error), {autoClose: false});
             } else {
-                toast.success(toastUpdateSuccess(), {autoClose: 3000});
+                toast.success(toastSuccess("Update"), {autoClose: 3000});
                 this.setState({isRemoved: true});
             }
         } catch (error) {
             console.log(error);
-            toast.error(toastUpdateError({name: "", message: "Tile not found"}), {autoClose: false});
+            toast.error(toastError("Update", {name: "", message: "Tile not found"}), {autoClose: false});
         }
     }
 

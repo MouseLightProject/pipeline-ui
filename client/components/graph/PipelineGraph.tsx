@@ -4,15 +4,14 @@ import {graphql} from "react-apollo";
 import {Menu, Header} from "semantic-ui-react"
 
 import {AllProjectsId, ProjectMenu} from "../helpers/ProjectMenu";
-import {pollingIntervalSeconds} from "../../GraphQLComponents";
 import {IPipelineStage} from "../../models/pipelineStage";
 import {calculateProjectBreadth} from "../../models/modelUtils";
 import {IProject, IProjectInput} from "../../models/project";
-import {PreferencesManager} from "../../util/preferencesManager";
+import {pollingIntervalSeconds, PreferencesManager} from "../../util/preferencesManager";
 import {themeHighlight} from "../../util/styleDefinitions";
-import {toastUpdateError, toastUpdateSuccess} from "../../util/Toasts";
 import {toast} from "react-toastify";
 import {UpdateProjectMutation} from "../../graphql/project";
+import {toastError} from "../../util/Toasts";
 
 let cytoscape = require("cytoscape");
 let cxtmenu = require("../../util/graphMenu")(cytoscape);
@@ -100,10 +99,10 @@ class __PipelineGraph extends React.Component<any, IPipelineGraphState> {
             const result = await this.props.updateProject({id: project.id, is_processing: isProcessing});
 
             if (!result.data.updateProject.project) {
-                toast.error(toastUpdateError(result.data.updateProject.error), {autoClose: false});
+                toast.error(toastError("Update", result.data.updateProject.error), {autoClose: false});
             }
         } catch (error) {
-            toast.error(toastUpdateError(error), {autoClose: false});
+            toast.error(toastError("Update", error), {autoClose: false});
         }
     }
 

@@ -5,12 +5,12 @@ import {toast} from "react-toastify";
 import {graphql} from "react-apollo";
 
 import {IProject, IProjectInput} from "../../models/project";
-import {DeleteProjectMutation, UpdateProjectMutation} from "../../graphql/project";
+import {DeleteProjectMutation, DuplicateProjectMutation, UpdateProjectMutation} from "../../graphql/project";
 import {EditProjectDialog} from "./EditProjectDialog";
 import {DialogMode} from "../helpers/DialogUtils";
 import {PreferencesManager} from "../../util/preferencesManager";
 import {AllProjectsId} from "../helpers/ProjectMenu";
-import {toastDeleteError, toastDeleteSuccess, toastUpdateError, toastUpdateSuccess} from "../../util/Toasts";
+import {toastError, toastSuccess} from "../../util/Toasts";
 
 interface IProjectTableProps {
     style: any;
@@ -18,6 +18,7 @@ interface IProjectTableProps {
     isFiltered: boolean;
 
     updateProject?(project: IProject): any;
+    duplicateProject?(id: string): any;
     deleteProject?(id: string): any;
 }
 
@@ -25,10 +26,11 @@ interface IProjectTableState {
     selectedProject: IProject;
 
     isUpdateDialogShown?: boolean;
+    isDuplicateDialogShown?: boolean;
     isDeleteDialogShown?: boolean;
 }
 
-class __ProjectTable extends React.Component<IProjectTableProps, IProjectTableState> {
+class ___ProjectTable extends React.Component<IProjectTableProps, IProjectTableState> {
     constructor(props) {
         super(props);
 
@@ -81,6 +83,12 @@ class __ProjectTable extends React.Component<IProjectTableProps, IProjectTableSt
         this.setState({isUpdateDialogShown: true});
     }
 
+    private onClickDuplicateProject(evt: any) {
+        evt.stopPropagation();
+
+        this.setState({isDuplicateDialogShown: true});
+    }
+
     private onClickDeleteProject(evt: any) {
         evt.stopPropagation();
 
@@ -101,18 +109,55 @@ class __ProjectTable extends React.Component<IProjectTableProps, IProjectTableSt
             const result = await this.props.updateProject(project);
 
             if (!result.data.updateProject.project) {
-                toast.error(toastUpdateError(result.data.updateProject.error), {autoClose: false});
+                toast.error(toastError("Update", result.data.updateProject.error), {autoClose: false});
             } else {
                 if (showSuccessToast) {
-                    toast.success(toastUpdateSuccess(), {autoClose: 3000});
+                    toast.success(toastSuccess("Update"), {autoClose: 3000});
                 }
                 this.setState({selectedProject: result.data.updateProject.project});
             }
 
         } catch (error) {
-            toast.error(toastUpdateError(error), {autoClose: false});
+            toast.error(toastError("Update", error), {autoClose: false});
         }
 
+    }
+
+    private async onDuplicateProject() {
+        try {
+            const result = await this.props.duplicateProject(this.state.selectedProject.id);
+
+            if (result.data.duplicateProject.error) {
+                toast.error(toastError("Duplciate", result.data.duplicateProject.error), {autoClose: false});
+            } else {
+                toast.success(toastSuccess("Duplciate"), {autoClose: 3000});
+
+                if (PreferencesManager.Instance.PreferredProjectId === this.state.selectedProject.id) {
+                    PreferencesManager.Instance.PreferredProjectId = AllProjectsId;
+                }
+            }
+        } catch (error) {
+            toast.error(toastError("Duplciate", error), {autoClose: false});
+        }
+
+        this.setState({selectedProject: null, isDuplicateDialogShown: false});
+    }
+
+    private onClearDuplicateConfirmation() {
+        this.setState({isDuplicateDialogShown: false});
+    }
+
+    private renderDuplicateProjectConfirmation() {
+        if (!this.state.isDuplicateDialogShown) {
+            return null;
+        }
+
+        return (
+            <Confirm open={this.state.isDuplicateDialogShown} header="Duplicate Pipeline"
+                     content={`Are you sure you want to duplicate ${this.state.selectedProject.name}?`}
+                     confirmButton="Duplicate" onCancel={() => this.onClearDuplicateConfirmation()}
+                     onConfirm={() => this.onDuplicateProject()}/>
+        )
     }
 
     private async onDeleteProject() {
@@ -120,9 +165,9 @@ class __ProjectTable extends React.Component<IProjectTableProps, IProjectTableSt
             const result = await this.props.deleteProject(this.state.selectedProject.id);
 
             if (result.data.deleteProject.error) {
-                toast.error(toastDeleteError(result.data.deleteProject.error), {autoClose: false});
+                toast.error(toastError("Delete", result.data.deleteProject.error), {autoClose: false});
             } else {
-                toast.success(toastDeleteSuccess(), {autoClose: 3000});
+                toast.success(toastSuccess("Delete"), {autoClose: 3000});
 
                 if (PreferencesManager.Instance.PreferredProjectId === this.state.selectedProject.id) {
                     PreferencesManager.Instance.PreferredProjectId = AllProjectsId;
@@ -130,7 +175,7 @@ class __ProjectTable extends React.Component<IProjectTableProps, IProjectTableSt
                 // this.setState({isDeleted: true});
             }
         } catch (error) {
-            toast.error(toastDeleteError(error), {autoClose: false});
+            toast.error(toastError("Delete", error), {autoClose: false});
         }
 
         this.setState({selectedProject: null, isDeleteDialogShown: false});
@@ -170,7 +215,8 @@ class __ProjectTable extends React.Component<IProjectTableProps, IProjectTableSt
                     sourceProject={this.state.selectedProject}
                     onCancel={() => this.setState({isUpdateDialogShown: false})}
                     onAccept={(p: IProjectInput) => this.onAcceptUpdateProject(p)}/>
-                <MenuItem size="mini" content="Duplicate" icon="clone" disabled={disabled}/>
+                <MenuItem size="mini" content="Duplicate" icon="clone" disabled={disabled}
+                          onClick={(evt) => this.onClickDuplicateProject(evt)}/>
                 {this.state.selectedProject ? <Menu.Header>
                     <div style={{
                         height: "100%",
@@ -320,6 +366,7 @@ class __ProjectTable extends React.Component<IProjectTableProps, IProjectTableSt
         return (
             <div style={Object.assign({width: "100%"}, this.props.style || {})}>
                 {this.renderDeleteProjectConfirmation()}
+                {this.renderDuplicateProjectConfirmation()}
                 {this.renderSubMenu()}
                 <ReactTable {...props} className="-highlight"/>
             </div>
@@ -327,17 +374,25 @@ class __ProjectTable extends React.Component<IProjectTableProps, IProjectTableSt
     }
 }
 
-const _ProjectTable = graphql<any, any>(UpdateProjectMutation, {
+const __ProjectTable = graphql<any, any>(UpdateProjectMutation, {
     props: ({mutate}) => ({
         updateProject: (project: IProjectInput) => mutate({
             variables: {project}
         })
     })
-})(__ProjectTable);
+})(___ProjectTable);
 
-export const ProjectTable = graphql<any, any>(DeleteProjectMutation, {
+const _ProjectTable = graphql<any, any>(DeleteProjectMutation, {
     props: ({mutate}) => ({
         deleteProject: (id: string) => mutate({
+            variables: {id}
+        })
+    })
+})(__ProjectTable);
+
+export const ProjectTable = graphql<any, any>(DuplicateProjectMutation, {
+    props: ({mutate}) => ({
+        duplicateProject: (id: string) => mutate({
             variables: {id}
         })
     })

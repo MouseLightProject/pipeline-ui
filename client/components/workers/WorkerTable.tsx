@@ -9,7 +9,7 @@ import {IWorker, PipelineWorkerStatus} from "../../models/worker";
 import {SetWorkerInPoolMutation, UpdateWorkerMutation} from "../../graphql/workers";
 import {DialogMode} from "../helpers/DialogUtils";
 import {EditWorkerDialog} from "./EditWorkerDialog";
-import {toastUpdateError, toastUpdateSuccess} from "../../util/Toasts";
+import {toastError, toastSuccess} from "../../util/Toasts";
 
 interface IWorkerTableProps {
     style: any;
@@ -57,12 +57,12 @@ class __WorkerTable extends React.Component<IWorkerTableProps, IWorkerTableState
             const result = await this.props.updateWorker(worker);
 
             if (!result.data.updateWorker.worker) {
-                toast.error(toastUpdateError(result.data.updateWorker.error), {autoClose: false});
+                toast.error(toastError("Update", result.data.updateWorker.error), {autoClose: false});
             } else if (showSuccessToast) {
-                toast.success(toastUpdateSuccess(), {autoClose: 3000});
+                toast.success(toastSuccess("Update"), {autoClose: 3000});
             }
         } catch (error) {
-            toast.error(toastUpdateError(error), {autoClose: false});
+            toast.error(toastError("Update", error), {autoClose: false});
         }
     }
 

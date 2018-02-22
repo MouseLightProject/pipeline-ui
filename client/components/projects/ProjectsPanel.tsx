@@ -11,7 +11,7 @@ import {IProject, IProjectInput} from "../../models/project";
 import {DialogMode} from "../helpers/DialogUtils";
 import {PreferencesManager} from "../../util/preferencesManager";
 import {themeHighlight} from "../../util/styleDefinitions";
-import {toastCreateError, toastCreateSuccess} from "../../util/Toasts";
+import {toastError, toastSuccess} from "../../util/Toasts";
 
 interface IProjectsPanelProps {
     projects: IProject[];
@@ -53,12 +53,12 @@ export class _ProjectsPanel extends React.Component<IProjectsPanelProps, IProjec
             const result = await this.props.createProject(project);
 
             if (!result.data.createProject.project) {
-                toast.error(toastCreateError(result.data.createProject.error), {autoClose: false});
+                toast.error(toastError("Create", result.data.createProject.error), {autoClose: false});
             } else {
-                toast.success(toastCreateSuccess(), {autoClose: 3000});
+                toast.success(toastSuccess("Create"), {autoClose: 3000});
             }
         } catch (error) {
-            toast.error(toastCreateError(error), {autoClose: false});
+            toast.error(toastError("Create", error), {autoClose: false});
         }
     }
 

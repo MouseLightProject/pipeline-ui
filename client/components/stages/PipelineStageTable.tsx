@@ -12,7 +12,7 @@ import {EditPipelineStageDialog} from "./EditPipelineStageDialog";
 import {DialogMode} from "../helpers/DialogUtils";
 import {DeletePipelineStageMutation, UpdatePipelineStageMutation} from "../../graphql/pipelineStage";
 import {PreferencesManager} from "../../util/preferencesManager";
-import {toastDeleteError, toastDeleteSuccess, toastUpdateError, toastUpdateSuccess} from "../../util/Toasts";
+import {toastError, toastSuccess} from "../../util/Toasts";
 
 const previousStageIsAcquisitionRoot = "(acquisition root)";
 
@@ -78,12 +78,12 @@ class __PipelineStageTable extends React.Component<IPipelineStageTableProps, IPi
             const result = await this.props.updatePipelineStage(pipelineStage);
 
             if (!result.data.updatePipelineStage.pipelineStage) {
-                toast.error(toastUpdateError(result.data.updatePipelineStage.error), {autoClose: false});
+                toast.error(toastError("Update", result.data.updatePipelineStage.error), {autoClose: false});
             } else if (showSuccessToast) {
-                toast.success(toastUpdateSuccess(), {autoClose: 3000});
+                toast.success(toastSuccess("Update"), {autoClose: 3000});
             }
         } catch (error) {
-            toast.error(toastUpdateError(error), {autoClose: false});
+            toast.error(toastError("Update", error), {autoClose: false});
         }
     }
 
@@ -92,14 +92,14 @@ class __PipelineStageTable extends React.Component<IPipelineStageTableProps, IPi
             const result = await this.props.deletePipelineStage(this.state.selectedStage.id);
 
             if (result.data.deletePipelineStage.error) {
-                toast.error(toastDeleteError(result.data.deletePipelineStage.error), {autoClose: false});
+                toast.error(toastError("Delete", result.data.deletePipelineStage.error), {autoClose: false});
             } else {
-                toast.success(toastDeleteSuccess(), {autoClose: 3000});
+                toast.success(toastSuccess("Delete"), {autoClose: 3000});
 
                 // this.setState({isDeleted: true});
             }
         } catch (error) {
-            toast.error(toastDeleteError(error), {autoClose: false});
+            toast.error(toastError("Delete", error), {autoClose: false});
         }
 
         this.setState({isDeleteDialogShown: false});

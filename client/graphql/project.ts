@@ -188,6 +188,15 @@ export const UpdateProjectMutation = gql`
   }
 `;
 
+export const DuplicateProjectMutation = gql`
+  mutation DuplicateProjectMutation($id: String!) {
+    duplicateProject(id: $id) {
+        id
+        error
+    }
+  }
+`;
+
 export const DeleteProjectMutation = gql`
   mutation DeleteProjectMutation($id: String!) {
     deleteProject(id: $id) {

@@ -10,7 +10,7 @@ import {DeleteTaskDefinitionMutation, UpdateTaskDefinitionMutation} from "../../
 import {ViewScriptDialog} from "./ViewScriptDialog";
 import {DialogMode} from "../../helpers/DialogUtils";
 import {EditTaskDefinitionDialog} from "./EditTaskDefinitionDialog";
-import {toastDeleteError, toastDeleteSuccess, toastUpdateError, toastUpdateSuccess} from "../../../util/Toasts";
+import {toastError, toastSuccess} from "../../../util/Toasts";
 
 interface ITaskDefinitionsTableProps {
     style: any;
@@ -70,12 +70,12 @@ class __TaskDefinitionsTable extends React.Component<ITaskDefinitionsTableProps,
             const result = await this.props.updateTaskDefinition(taskDefinition);
 
             if (!result.data.updateTaskDefinition.taskDefinition) {
-                toast.error(toastUpdateError(result.data.updateTaskDefinition.error), {autoClose: false});
+                toast.error(toastError("Update", result.data.updateTaskDefinition.error), {autoClose: false});
             } else {
-                toast.success(toastUpdateSuccess(), {autoClose: 3000});
+                toast.success(toastSuccess("Update"), {autoClose: 3000});
             }
         } catch (error) {
-            toast.error(toastUpdateError(error), {autoClose: false});
+            toast.error(toastError("Update", error), {autoClose: false});
         }
     }
 
@@ -90,12 +90,12 @@ class __TaskDefinitionsTable extends React.Component<ITaskDefinitionsTableProps,
             const result = await this.props.deleteTaskDefinition({id: this.state.selectedTask.id});
 
             if (result.data.deleteTaskDefinition.error) {
-                toast.error(toastDeleteError(result.data.deleteTaskDefinition.error), {autoClose: false});
+                toast.error(toastError("Delete", result.data.deleteTaskDefinition.error), {autoClose: false});
             } else {
-                toast.success(toastDeleteSuccess(), {autoClose: 3000});
+                toast.success(toastSuccess("Delete"), {autoClose: 3000});
             }
         } catch (error) {
-            toast.error(toastDeleteError(error), {autoClose: false});
+            toast.error(toastError("Delete", error), {autoClose: false});
         }
 
         this.setState({isDeleteDialogShown: false});

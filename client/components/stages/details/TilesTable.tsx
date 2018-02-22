@@ -8,7 +8,7 @@ import {IPipelineTile} from "../../../models/pipelineTile";
 import {IPipelineStage} from "../../../models/pipelineStage";
 import {TilePipelineStatus} from "../../../models/tilePipelineStatus";
 import {TileStatusMutation} from "../../../graphql/pipelineTile";
-import {toastUpdateError, toastUpdateSuccess} from "../../../util/Toasts";
+import {toastError, toastSuccess} from "../../../util/Toasts";
 
 
 interface ITilesTableProps {
@@ -32,13 +32,13 @@ class _TilesTable extends React.Component<ITilesTableProps, ITilesTableState> {
             const result = await this.props.setTileStatus(this.props.pipelineStage.id, [tile.relative_path], TilePipelineStatus.Incomplete);
 
             if (!result.data.setTileStatus) {
-                toast.error(toastUpdateError(result.data.setTileStatus.error), {autoClose: false});
+                toast.error(toastError("Update", result.data.setTileStatus.error), {autoClose: false});
             } else {
-                toast.success(toastUpdateSuccess(), {autoClose: 3000});
+                toast.success(toastSuccess("Update"), {autoClose: 3000});
                 this.setState({isRemoved: true});
             }
         } catch (error) {
-            toast.error(toastUpdateError({name: "", message: "Tile not found"}), {autoClose: false});
+            toast.error(toastError("Update", {name: "", message: "Tile not found"}), {autoClose: false});
         }
     }
 

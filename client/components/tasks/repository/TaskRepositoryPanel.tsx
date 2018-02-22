@@ -10,7 +10,7 @@ import {ITaskRepository} from "../../../models/taskRepository";
 import {TaskRepositoryHelpPanel} from "./TaskRepositoryHelp";
 import {DialogMode} from "../../helpers/DialogUtils";
 import {themeHighlight} from "../../../util/styleDefinitions";
-import {toastCreateError, toastCreateSuccess} from "../../../util/Toasts";
+import {toastError, toastSuccess} from "../../../util/Toasts";
 
 interface ITaskRepositoryPanelProps {
     taskRepositories: ITaskRepository[];
@@ -45,12 +45,12 @@ class _TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelProps, IT
             const result = await this.props.createTaskRepository(repository);
 
             if (!result.data.createTaskRepository.taskRepository) {
-                toast.error(toastCreateError(result.data.createTaskRepository.error), {autoClose: false});
+                toast.error(toastError("Create", result.data.createTaskRepository.error), {autoClose: false});
             } else {
-                toast.success(toastCreateSuccess(), {autoClose: 3000});
+                toast.success(toastSuccess("Create"), {autoClose: 3000});
             }
         } catch (error) {
-            toast.error(toastCreateError(error), {autoClose: false});
+            toast.error(toastError("Create", error), {autoClose: false});
         }
     }
 

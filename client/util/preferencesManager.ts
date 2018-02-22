@@ -1,6 +1,8 @@
 import {AllProjectsId} from "../components/helpers/ProjectMenu";
 import {TilePipelineStatus} from "../models/tilePipelineStatus";
 
+export const pollingIntervalSeconds = 10;
+
 export interface INotificationListener {
     preferenceChanged(name: string, value: any);
 }

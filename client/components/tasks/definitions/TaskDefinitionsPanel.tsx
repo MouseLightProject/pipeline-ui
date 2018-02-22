@@ -11,7 +11,7 @@ import {CreateTaskDefinitionMutation} from "../../../graphql/taskDefinition";
 import {TaskDefinitionHelpPanel} from "./TaskDefinitionHelp";
 import {DialogMode} from "../../helpers/DialogUtils";
 import {themeHighlight} from "../../../util/styleDefinitions";
-import {toastCreateError, toastCreateSuccess} from "../../../util/Toasts";
+import {toastError, toastSuccess} from "../../../util/Toasts";
 
 interface ITaskDefinitionPanelProps {
     taskDefinitions: ITaskDefinition[];
@@ -48,12 +48,12 @@ export class _TaskDefinitionsPanel extends React.Component<ITaskDefinitionPanelP
             const result = await this.props.createTaskDefinition(taskDefinition);
 
             if (!result.data.createTaskDefinition.taskDefinition) {
-                toast.error(toastCreateError(result.data.createTaskDefinition.error), {autoClose: false});
+                toast.error(toastError("Create", result.data.createTaskDefinition.error), {autoClose: false});
             } else {
-                toast.success(toastCreateSuccess(), {autoClose: 3000});
+                toast.success(toastSuccess("Create"), {autoClose: 3000});
             }
         } catch (error) {
-            toast.error(toastCreateError(error), {autoClose: false});
+            toast.error(toastError("Create", error), {autoClose: false});
         }
     }
 
