@@ -143,6 +143,7 @@ export class EditPipelineStageDialog extends React.Component<IEditStageProps, IE
             project_id: project ? project.id : null,
             task_id: task ? task.id : null,
             previous_stage_id: previous_stage ? previous_stage.id : null,
+            depth: previous_stage ? previous_stage.depth + 1 : 1,
             dst_path,
         }))(this.state.stage), {
             function_type: this.state.pipelineStageType.option
