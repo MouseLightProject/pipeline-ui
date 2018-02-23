@@ -189,10 +189,59 @@ export const UpdateProjectMutation = gql`
 `;
 
 export const DuplicateProjectMutation = gql`
-  mutation DuplicateProjectMutation($id: String!) {
+  mutation DuplicateProjectMutation($id: String) {
     duplicateProject(id: $id) {
-        id
-        error
+        project {
+            id
+            name
+            description
+            root_path
+            log_root_path
+            dashboard_json_status
+            sample_number
+            sample_x_min
+            sample_x_max
+            sample_y_min
+            sample_y_max
+            sample_z_min
+            sample_z_max
+            region_x_min
+            region_x_max
+            region_y_min
+            region_y_max
+            region_z_min
+            region_z_max
+            is_processing
+          stages {
+              id
+              name
+              description
+              previous_stage_id
+              dst_path
+              depth
+              is_processing
+              function_type
+              project {
+                id
+                name
+                is_processing
+              }
+              task {
+                id
+                name
+              }
+              previous_stage {
+                id
+                name
+              }
+              child_stages {
+                id
+                name
+              }
+          }
+        updated_at
+      }
+      error
     }
   }
 `;
