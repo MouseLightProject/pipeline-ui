@@ -71,6 +71,8 @@ class _TilesTable extends React.Component<ITilesTableProps, ITilesTableState> {
                     accessor: "lat_z"
                 }];
 
+            console.log(PreferencesManager.Instance.StageDetailsPageSize);
+
             const props = {
                 style: {backgroundColor: "white"},
                 data: this.props.tiles,
@@ -85,6 +87,9 @@ class _TilesTable extends React.Component<ITilesTableProps, ITilesTableState> {
                 pages: this.props.pageCount,
                 defaultPageSize: PreferencesManager.Instance.StageDetailsPageSize,
                 onFetchData: (state) => {
+                   if (isNaN(state.pageSize)) {
+                        state.pageSize = PreferencesManager.Instance.StageDetailsPageSize;
+                    }
                     this.props.onCursorChanged(state.page, state.pageSize);
                 }
                 /*

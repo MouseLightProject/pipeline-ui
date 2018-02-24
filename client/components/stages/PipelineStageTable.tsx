@@ -110,8 +110,10 @@ class __PipelineStageTable extends React.Component<IPipelineStageTableProps, IPi
     }
 
     private onSelectStage(stage: IPipelineStage) {
-        this.setState({selectedStage: stage});
-        this.props.onSelectedPipelineStageChanged(stage);
+        if (this.state.selectedStage !== stage) {
+            this.setState({selectedStage: stage});
+            this.props.onSelectedPipelineStageChanged(stage);
+        }
     }
 
     private renderDeleteProjectConfirmation() {

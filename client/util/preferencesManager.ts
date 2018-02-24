@@ -245,6 +245,14 @@ export class PreferencesManager {
                 }]));
             }
 
+            if (!localStorage.getItem(prefix + "preferredStageId")) {
+                localStorage.setItem(prefix + "preferredStageId", "");
+            }
+
+            if (!localStorage.getItem(prefix + "stageDetailsPageSize")) {
+                localStorage.setItem(prefix + "stageDetailsPageSize", "20");
+            }
+
             if (!localStorage.getItem(prefix + "isStageTableFiltered")) {
                 localStorage.setItem(prefix + "isStageTableFiltered", "false");
             }

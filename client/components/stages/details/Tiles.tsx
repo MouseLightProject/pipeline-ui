@@ -45,10 +45,15 @@ export class Tiles extends React.Component<ITilesProps, ITilesState> {
 
     private updateCursor(page: number, pageSize: number) {
         const offset = page * pageSize;
-        if (offset !== this.state.offset || pageSize !== this.state.limit) {
-            PreferencesManager.Instance.StageDetailsPageSize = pageSize;
+
+        if (offset !== this.state.offset) {
             this.setState({
                 offset,
+            });
+        }
+        if (pageSize !== this.state.limit && !isNaN(pageSize)) {
+            PreferencesManager.Instance.StageDetailsPageSize = pageSize;
+            this.setState({
                 limit: pageSize
             });
         }
@@ -66,7 +71,6 @@ export class Tiles extends React.Component<ITilesProps, ITilesState> {
         );
     }
 }
-
 
 interface ITilesTablePanelProps {
     data?: any;
