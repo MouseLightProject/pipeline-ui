@@ -41,6 +41,7 @@ export class __PipelineStagesPanel extends React.Component<IPipelineStagesPanelP
 
         this.state = {
             projectId: PreferencesManager.Instance.PreferredProjectId,
+            isFiltered: PreferencesManager.Instance.IsStageTableFiltered,
             isAddDialogShown: false
         };
     }

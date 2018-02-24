@@ -75,22 +75,6 @@ export class PreferencesManager {
         }
     }
 
-    /*
-    public get TracingSelectionHiddenOpacity() {
-        if (typeof(Storage) !== undefined) {
-            return parseFloat(localStorage.getItem(prefix + "tracingSelectionHiddenOpacity"));
-        } else {
-            return 0.0;
-        }
-    }
-
-    public set TracingSelectionHiddenOpacity(n: number) {
-        if (typeof(Storage) !== undefined) {
-            localStorage.setItem(prefix + "tracingSelectionHiddenOpacity", n.toFixed(2));
-        }
-    }
-    */
-
     public get TilePipelineStatus(): TilePipelineStatus {
         if (typeof(Storage) !== undefined) {
             return parseInt(localStorage.getItem(prefix + "tilePipelineStatus"));
@@ -203,6 +187,20 @@ export class PreferencesManager {
         }
 
         return null;
+    }
+
+    public set StageDetailsPageSize(size: number) {
+        if (typeof(Storage) !== undefined) {
+            localStorage.setItem(prefix + "stageDetailsPageSize", size.toFixed(0));
+        }
+    }
+
+    public get StageDetailsPageSize(): number {
+        if (typeof(Storage) !== undefined) {
+            return parseInt(localStorage.getItem(prefix + "stageDetailsPageSize"));
+        } else {
+            return 20;
+        }
     }
 
     private validateDefaultSettings() {

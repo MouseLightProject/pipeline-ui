@@ -9,6 +9,7 @@ import {IPipelineStage} from "../../../models/pipelineStage";
 import {TilePipelineStatus} from "../../../models/tilePipelineStatus";
 import {TileStatusMutation} from "../../../graphql/pipelineTile";
 import {toastError, toastSuccess} from "../../../util/Toasts";
+import {PreferencesManager} from "../../../util/preferencesManager";
 
 
 interface ITilesTableProps {
@@ -82,6 +83,7 @@ class _TilesTable extends React.Component<ITilesTableProps, ITilesTableState> {
                 // loading: this.props.loading,
                 manual: true,
                 pages: this.props.pageCount,
+                defaultPageSize: PreferencesManager.Instance.StageDetailsPageSize,
                 onFetchData: (state) => {
                     this.props.onCursorChanged(state.page, state.pageSize);
                 }

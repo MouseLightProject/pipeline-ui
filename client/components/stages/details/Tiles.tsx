@@ -12,7 +12,6 @@ import {
 } from "../../../models/tilePipelineStatus";
 import {TilePipelineStatusSelect} from "../../helpers/TilePipelineStatusSelect";
 import {PreferencesManager} from "../../../util/preferencesManager";
-import {IPipelineTile} from "../../../models/pipelineTile";
 import {toast} from "react-toastify";
 import {TileStatusMutation} from "../../../graphql/pipelineTile";
 import {toastError, toastSuccess} from "../../../util/Toasts";
@@ -33,7 +32,7 @@ export class Tiles extends React.Component<ITilesProps, ITilesState> {
 
         this.state = {
             offset: 0,
-            limit: 20,
+            limit: PreferencesManager.Instance.StageDetailsPageSize,
             requestedStatus: TilePipelineStatusType.fromStatus(PreferencesManager.Instance.TilePipelineStatus)
         }
     }
@@ -47,6 +46,7 @@ export class Tiles extends React.Component<ITilesProps, ITilesState> {
     private updateCursor(page: number, pageSize: number) {
         const offset = page * pageSize;
         if (offset !== this.state.offset || pageSize !== this.state.limit) {
+            PreferencesManager.Instance.StageDetailsPageSize = pageSize;
             this.setState({
                 offset,
                 limit: pageSize
