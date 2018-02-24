@@ -7,9 +7,9 @@ import {toast} from "react-toastify";
 import {IPipelineTile} from "../../../models/pipelineTile";
 import {IPipelineStage} from "../../../models/pipelineStage";
 import {TilePipelineStatus} from "../../../models/tilePipelineStatus";
-import {TileStatusMutation} from "../../../graphql/pipelineTile";
 import {toastError, toastSuccess} from "../../../util/Toasts";
 import {PreferencesManager} from "../../../util/preferencesManager";
+import {SetTileStatusMutation} from "../../../graphql/pipelineTile";
 
 
 interface ITilesTableProps {
@@ -127,7 +127,7 @@ class _TilesTable extends React.Component<ITilesTableProps, ITilesTableState> {
     }
 }
 
-export const TilesTable = graphql<any, any>(TileStatusMutation, {
+export const TilesTable = graphql<any, any>(SetTileStatusMutation, {
     props: ({mutate}) => ({
         setTileStatus: (pipelineStageId: string, tileIds: string[], status: TilePipelineStatus) => mutate({
             variables: {pipelineStageId, tileIds, status}

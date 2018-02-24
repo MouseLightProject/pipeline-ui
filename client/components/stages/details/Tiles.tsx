@@ -13,7 +13,7 @@ import {
 import {TilePipelineStatusSelect} from "../../helpers/TilePipelineStatusSelect";
 import {PreferencesManager} from "../../../util/preferencesManager";
 import {toast} from "react-toastify";
-import {TileStatusMutation} from "../../../graphql/pipelineTile";
+import {ConvertTileStatusMutation, SetTileStatusMutation} from "../../../graphql/pipelineTile";
 import {toastError, toastSuccess} from "../../../util/Toasts";
 
 interface ITilesProps {
@@ -78,25 +78,42 @@ interface ITilesTablePanelProps {
     onCursorChanged(page: number, pageSize: number): void;
     onRequestedStatusChanged(t: TilePipelineStatusType): void;
     setTileStatus?(pipelineStageId: string, tileIds: string[], status: TilePipelineStatus): any;
+    convertTileStatus?(pipelineStageId: string, currentStatus: TilePipelineStatus, desiredStatus: TilePipelineStatus): any;
 }
 
 interface ITilesTablePanelState {
 }
 
-class _TilesTablePanel extends React.Component<ITilesTablePanelProps, ITilesTablePanelState> {
+class __TilesTablePanel extends React.Component<ITilesTablePanelProps, ITilesTablePanelState> {
     private async onResubmitTiles() {
         try {
             const result = await this.props.setTileStatus(this.props.pipelineStage.id, this.props.data.tilesForStage.items.map(t => t.relative_path), TilePipelineStatus.Incomplete);
 
             if (!result.data.setTileStatus) {
-                toast.error(toastError("Update", result.data.setTileStatus.error), {autoClose: false});
+                toast.error(toastError("Submit", result.data.setTileStatus.error), {autoClose: false});
             } else {
-                toast.success(toastSuccess("Update"), {autoClose: 3000});
+                toast.success(toastSuccess("Submit"), {autoClose: 3000});
                 this.setState({isRemoved: true});
             }
         } catch (error) {
             console.log(error);
-            toast.error(toastError("Update", {name: "", message: "Tile not found"}), {autoClose: false});
+            toast.error(toastError("Submit", {name: "", message: "One or more tiles not found"}), {autoClose: false});
+        }
+    }
+
+    private async onResubmitAllTiles() {
+        try {
+            const result = await this.props.convertTileStatus(this.props.pipelineStage.id, this.props.requestedStatus.option, TilePipelineStatus.Incomplete);
+
+            if (!result.data.convertTileStatus) {
+                toast.error(toastError("Submit", result.data.convertTileStatus.error), {autoClose: false});
+            } else {
+                toast.success(toastSuccess("Submit"), {autoClose: 3000});
+                this.setState({isRemoved: true});
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error(toastError("Update", {name: "", message: "Could not change tile status"}), {autoClose: false});
         }
     }
 
@@ -124,6 +141,9 @@ class _TilesTablePanel extends React.Component<ITilesTablePanelProps, ITilesTabl
                         <Menu.Item size="mini" content="Resubmit Page" icon="repeat"
                                    disabled={!this.props.requestedStatus.canSubmit || tilesForStage.length === 0}
                                    onClick={() => this.onResubmitTiles()}/>
+                        <Menu.Item size="mini" content="Resubmit All" icon="repeat"
+                                   disabled={!this.props.requestedStatus.canSubmit || tilesForStage.length === 0}
+                                   onClick={() => this.onResubmitAllTiles()}/>
                     </Menu.Menu>
                 </Menu>
                 <TilesTable pipelineStage={this.props.pipelineStage}
@@ -153,10 +173,18 @@ const TileStatusQuery = gql`query($pipelineStageId: String, $status: Int, $offse
     }
 }`;
 
-const TilesTablePanel = graphql<any, any>(TileStatusMutation, {
+const _TilesTablePanel = graphql<any, any>(SetTileStatusMutation, {
     props: ({mutate}) => ({
         setTileStatus: (pipelineStageId: string, tileIds: string[], status: TilePipelineStatus) => mutate({
             variables: {pipelineStageId, tileIds, status}
+        })
+    })
+})(__TilesTablePanel);
+
+const TilesTablePanel = graphql<any, any>(ConvertTileStatusMutation, {
+    props: ({mutate}) => ({
+        convertTileStatus: (pipelineStageId: string, currentStatus: TilePipelineStatus, desiredStatus: TilePipelineStatus) => mutate({
+            variables: {pipelineStageId, currentStatus, desiredStatus}
         })
     })
 })(_TilesTablePanel);
