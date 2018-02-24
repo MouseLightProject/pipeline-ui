@@ -109,6 +109,11 @@ class __PipelineStageTable extends React.Component<IPipelineStageTableProps, IPi
         this.setState({isDeleteDialogShown: false});
     }
 
+    private onSelectStage(stage: IPipelineStage) {
+        this.setState({selectedStage: stage});
+        this.props.onSelectedPipelineStageChanged(stage);
+    }
+
     private renderDeleteProjectConfirmation() {
         if (!this.state.isDeleteDialogShown) {
             return null;
@@ -161,8 +166,34 @@ class __PipelineStageTable extends React.Component<IPipelineStageTableProps, IPi
         );
     }
 
+    private filterStages(props: IPipelineStageTableProps): IPipelineStage[] {
+        let stages = props.pipelineStages.slice();
+
+        if (props.selectedProjectId !== AllProjectsId) {
+            stages = stages.filter((stage) => stage.project.id === props.selectedProjectId);
+        }
+
+        return stages;
+    }
+
+    public componentWillReceiveProps(props: IPipelineStageTableProps) {
+        if (this.state.selectedStage === null) {
+            const id = PreferencesManager.Instance.PreferredStageId;
+
+            const stages = this.filterStages(props).filter(s => s.id === id);
+
+            if (stages.length > 0) {
+                this.onSelectStage(stages[0]);
+            }
+        }
+
+        if (props.selectedProjectId !== this.props.selectedProjectId) {
+            this.onSelectStage(null);
+        }
+    }
+
     public render() {
-        let stages = this.props.pipelineStages.slice();
+        let stages = this.filterStages(this.props);
 
         if (this.props.selectedProjectId !== AllProjectsId) {
             stages = stages.filter((stage) => stage.project.id === this.props.selectedProjectId);
@@ -273,12 +304,9 @@ class __PipelineStageTable extends React.Component<IPipelineStageTableProps, IPi
                 return {
                     onClick: (e, handleOriginal) => {
                         if (!handleOriginal) {
-                            this.setState({selectedStage: rowInfo.original});
-                            this.props.onSelectedPipelineStageChanged(rowInfo.original);
-                        }
-
-                        if (handleOriginal) {
-                            handleOriginal()
+                            this.onSelectStage(rowInfo.original);
+                        } else {
+                            handleOriginal();
                         }
                     },
                     style: this.state.selectedStage && rowInfo.original.id === this.state.selectedStage.id ? {backgroundColor: "rgb(233, 236, 239)"} : {}

@@ -7,6 +7,7 @@ import {PipelineStagesQuery} from "../../graphql/pipelineStage";
 import {ProjectsQuery} from "../../graphql/project";
 import {IPipelineStage} from "../../models/pipelineStage";
 import {PipelineStageDetails} from "./details/PipelineStageDetails";
+import {PreferencesManager} from "../../util/preferencesManager";
 
 interface IPipelineStagesProps {
     projectsData?: any;
@@ -30,6 +31,10 @@ class __PipelineStages extends React.Component<IPipelineStagesProps, IPipelineSt
 
     private onSelectedPipelineStageChanged(stage: IPipelineStage) {
         this.setState({selectedStage: stage});
+
+        if (stage !== null) {
+            PreferencesManager.Instance.PreferredStageId = stage.id;
+        }
     };
 
     public render() {

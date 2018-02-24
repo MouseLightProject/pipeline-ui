@@ -139,6 +139,20 @@ export class PreferencesManager {
         return null;
     }
 
+    public set PreferredStageId(id: string) {
+        if (typeof(Storage) !== undefined) {
+            sessionStorage.setItem(prefix + "preferredStageId", id);
+        }
+    }
+
+    public get PreferredStageId(): string {
+        if (typeof(Storage) !== undefined) {
+            return sessionStorage.getItem(prefix + "preferredStageId");
+        } else {
+            return "";
+        }
+    }
+
     public set IsStageTableFiltered(b: boolean) {
         if (typeof(Storage) !== undefined) {
             localStorage.setItem(prefix + "isStageTableFiltered", b ? "true" : "false");
