@@ -1,9 +1,9 @@
 const configurations = {
     production: {
         host: "pipeline-client",
-        port: 3100,
+        port: 6101,
         graphQLHostname: "pipeline-api",
-        graphQLPort: 3000,
+        graphQLPort: 6001,
         graphQlEndpoint: "/graphql",
     }
 };

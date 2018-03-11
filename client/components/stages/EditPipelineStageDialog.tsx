@@ -11,7 +11,7 @@ import {ITaskDefinition} from "../../models/taskDefinition";
 import {TaskSelect} from "../helpers/TaskSelect";
 import {DialogMode} from "../helpers/DialogUtils";
 import {
-    PIPELINE_STAGE_TYPE_MAP_TILE, PIPELINE_STAGE_TYPES, PipelineStageMethods,
+    PIPELINE_STAGE_TYPE_MAP_TILE, PIPELINE_STAGE_TYPES, PipelineStageMethod,
     PipelineStageType
 } from "../../models/pipelineStageType";
 import {PipelineStageTypeSelect} from "../helpers/PipelineStageTypeSelect";
@@ -34,7 +34,7 @@ function assignStage(stage: IPipelineStage) {
         task: null,
         previous_stage: null,
         dst_path: "",
-        function_type: PipelineStageMethods.MapTile
+        function_type: PipelineStageMethod.MapTile
     }
 }
 
