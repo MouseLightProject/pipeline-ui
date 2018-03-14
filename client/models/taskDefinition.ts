@@ -1,6 +1,28 @@
 import {ITaskRepository} from "./taskRepository";
 import {IPipelineStage} from "./pipelineStage";
 
+export enum TaskArgumentType {
+    Literal = 0,
+    Parameter = 1
+}
+
+export interface ITaskArgument {
+    value: string;
+    type: TaskArgumentType;
+}
+
+export interface ITaskArguments {
+    arguments: ITaskArgument[];
+}
+
+export interface IUITaskArgument extends ITaskArgument {
+    nonce: string;
+}
+
+export interface IUITaskArguments {
+    arguments: IUITaskArgument[];
+}
+
 export interface ITaskDefinition {
     id?: string;
     name?: string;
