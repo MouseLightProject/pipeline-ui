@@ -129,7 +129,7 @@ class __TilesTablePanel extends React.Component<ITilesTablePanelProps, ITilesTab
         if (this.props.data && this.props.data.tilesForStage) {
             tilesForStage = this.props.data.tilesForStage.items;
             loading = this.props.data.loading;
-            if (this.props.data.tilesForStage.limit > 0) {
+            if (this.props.data.tilesForStage.items.length > 0 && this.props.data.tilesForStage.limit > 0) {
                 pageCount = Math.ceil(this.props.data.tilesForStage.totalCount / this.props.data.tilesForStage.limit);
             }
         }
