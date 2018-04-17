@@ -1,12 +1,11 @@
 import * as React from "react";
-import {Button, Modal, Form, List, Input, Label, Icon, Grid} from "semantic-ui-react";
+import {Button, Modal, Form} from "semantic-ui-react";
 import {ChangeEvent} from "react";
 import * as pathIsAbsolute from "path-is-absolute";
-import {IUITaskArguments, ITaskDefinition, TaskArgumentType, ITaskArguments} from "../../../models/taskDefinition";
+import {ITaskDefinition} from "../../../models/taskDefinition";
 import {TaskRepositorySelect} from "../../helpers/TaskRepositorySelect";
 import {ITaskRepository} from "../../../models/taskRepository";
 import {DialogMode} from "../../helpers/DialogUtils";
-import uuid = require("uuid");
 
 interface IEditTaskDefinitionProps {
     element: any;
@@ -21,22 +20,9 @@ interface IEditTaskDefinitionProps {
 
 interface IEditTaskDefinitionState {
     taskDefinition?: ITaskDefinition;
-    script_arguments?: IUITaskArguments;
     work_units?: string;
     cluster_work_units?: string;
     expected_exit_code?: string;
-}
-
-function taskArgsToUI(args: ITaskArguments): IUITaskArguments {
-    return {
-        arguments: args.arguments.map(a => Object.assign({}, a, {nonce: uuid.v4()}))
-    }
-}
-
-function uiTasksArgsToArgs(args: IUITaskArguments): ITaskArguments {
-    return {
-        arguments: args.arguments.filter(a => a.value.length > 0).map(a => Object.assign({},{value: a.value, type: a.type}))
-    }
 }
 
 export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitionProps, IEditTaskDefinitionState> {
@@ -44,13 +30,13 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
         super(props);
 
         this.state = {
-            taskDefinition: props.sourceTaskDefinition ? (({id, name, description, script, interpreter, cluster_args, expected_exit_code, work_units, cluster_work_units, log_prefix, task_repository}) => ({
+            taskDefinition: props.sourceTaskDefinition ? (({id, name, description, script, interpreter, script_args, cluster_args, expected_exit_code, work_units, cluster_work_units, log_prefix, task_repository}) => ({
                 id,
                 name,
                 description,
                 script,
                 interpreter,
-                // script_args: JSON.parse(script_args).arguments,
+                script_args: JSON.parse(script_args).arguments,
                 cluster_args: JSON.parse(cluster_args).arguments[0],
                 expected_exit_code,
                 work_units,
@@ -63,7 +49,7 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                 description: "",
                 script: "",
                 interpreter: "none",
-                // script_args: [],
+                script_args: [],
                 cluster_args: "",
                 expected_exit_code: 0,
                 work_units: 1,
@@ -71,7 +57,6 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                 log_prefix: "",
                 task_repository: null
             },
-            script_arguments: props.sourceTaskDefinition ? taskArgsToUI(JSON.parse(props.sourceTaskDefinition.script_args)) : {arguments: []},
             work_units: props.sourceTaskDefinition ? props.sourceTaskDefinition.work_units.toString() : "1",
             cluster_work_units: props.sourceTaskDefinition ? props.sourceTaskDefinition.cluster_work_units.toString() : "1",
             expected_exit_code: props.sourceTaskDefinition ? props.sourceTaskDefinition.expected_exit_code.toString() : "0"
@@ -85,13 +70,13 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
     private applySourceTaskDefinition(props: IEditTaskDefinitionProps) {
         if (props.sourceTaskDefinition) {
             this.setState({
-                taskDefinition: Object.assign(this.state.taskDefinition, (({id, name, description, script, interpreter, cluster_args, expected_exit_code, work_units, cluster_work_units, log_prefix, task_repository}) => ({
+                taskDefinition: Object.assign(this.state.taskDefinition, (({id, name, description, script, interpreter, script_args, cluster_args, expected_exit_code, work_units, cluster_work_units, log_prefix, task_repository}) => ({
                     id,
                     name,
                     description,
                     script,
                     interpreter,
-                    // script_args: JSON.parse(script_args).arguments,
+                    script_args: JSON.parse(script_args).arguments,
                     cluster_args: JSON.parse(cluster_args).arguments[0],
                     expected_exit_code,
                     work_units,
@@ -99,7 +84,6 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                     log_prefix,
                     task_repository
                 }))(props.sourceTaskDefinition)),
-                script_arguments: props.sourceTaskDefinition ? taskArgsToUI(JSON.parse(props.sourceTaskDefinition.script_args)) : {arguments: []},
                 work_units: props.sourceTaskDefinition ? props.sourceTaskDefinition.work_units.toString() : "1",
                 expected_exit_code: props.sourceTaskDefinition && props.sourceTaskDefinition.expected_exit_code ? props.sourceTaskDefinition.expected_exit_code.toString() : "0"
             });
@@ -170,41 +154,8 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
 
     private onArgumentsChanged(evt: ChangeEvent<any>) {
         this.setState({
-            // taskDefinition: Object.assign(this.state.taskDefinition, {script_args: evt.target.value})
+            taskDefinition: Object.assign(this.state.taskDefinition, {script_args: evt.target.value})
         });
-    }
-
-    private onAddArgument() {
-        const args = this.state.script_arguments;
-        args.arguments = args.arguments.concat([{value: "", type: TaskArgumentType.Literal, nonce: uuid.v4()}]);
-        this.setState({script_arguments: args});
-    }
-
-    private onRemoveArgument(index: number) {
-        const args = this.state.script_arguments;
-        args.arguments.splice(index, 1);
-        args.arguments = args.arguments.slice();
-        this.setState({script_arguments: args});
-    }
-
-    private onMoveArgument(index: number) {
-        console.log(index);
-        const args = this.state.script_arguments;
-        console.log(args.arguments);
-        const arg = args.arguments.splice(Math.abs(index), 1);
-        console.log(args.arguments);
-        args.arguments.splice(index < 0 ? Math.abs(index) - 1 : index + 1, 0, arg[0]);
-        console.log(args.arguments);
-        this.setState({script_arguments: args});
-    }
-
-    private onArgumentChanged(index: number, evt, data: any) {
-        const args = this.state.script_arguments;
-        args.arguments[index].value = data.value;
-        if (data.value.startsWith("${") && data.value.endsWith("}")) {
-            args.arguments[index].type = TaskArgumentType.Parameter;
-        }
-        this.setState({script_arguments: args});
     }
 
     private onClusterArgumentsChanged(evt: ChangeEvent<any>) {
@@ -240,20 +191,19 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
     }
 
     private onCreateOrUpdate() {
-        const taskDefinition = Object.assign((({id, name, description, script, interpreter, cluster_args, work_units, cluster_work_units, log_prefix, task_repository}) => ({
+        const taskDefinition = Object.assign((({id, name, description, script, interpreter, script_args, cluster_args, work_units, cluster_work_units, log_prefix, task_repository}) => ({
             id: this.props.mode == DialogMode.Create ? undefined : id,
             name,
             description,
             script,
             interpreter,
-            // script_args: JSON.stringify({arguments: script_args.map(a => {return {value: a, type: 0};})}),
+            script_args: JSON.stringify({arguments: script_args}),
             cluster_args: JSON.stringify({arguments: [cluster_args]}),
             work_units,
             cluster_work_units,
             log_prefix,
             task_repository_id: task_repository ? task_repository.id : null
         }))(this.state.taskDefinition), {
-            script_args: JSON.stringify(uiTasksArgsToArgs(this.state.script_arguments)),
             work_units: parseFloat(this.state.work_units),
             expected_exit_code: parseFloat(this.state.expected_exit_code)
         });
@@ -263,17 +213,6 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
 
     public render() {
         const title = this.props.mode === DialogMode.Create ? "Add New Task" : "Update Task";
-
-        const taskArgumentListProps = {
-            arguments: this.state.script_arguments.arguments,
-            onAddArgument: () => this.onAddArgument(),
-            onArgumentChanged: (i, e, d) => this.onArgumentChanged(i, e, d),
-            itemModifyProps: {
-                onRemoveArgument: (index) => this.onRemoveArgument(index),
-                onMoveArgument: (index) => this.onMoveArgument(index)
-            },
-            style: {maxHeight: 300, overflowY: "scroll"}
-        };
 
         return (
             <Modal trigger={this.props.element} open={this.props.show}>
@@ -296,11 +235,9 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                                     placeholder="(required)"
                                     onChange={(evt: any) => this.onScriptChanged(evt)}/>
                         {this.renderFeedback()}
-                        <div className="field" style={{maxHeight: 300, overflowY: "auto"}}>
-                            <label>Additional Arguments</label>
-                            <TaskArgumentList {...taskArgumentListProps}/>
-                        </div>
-                        <Form.Input label="Cluster Arguments (for bsub, e.g. -n 4)"
+                        <Form.Input label="Additional Arguments" value={this.state.taskDefinition.script_args}
+                                    placeholder="(optional)" onChange={(evt: any) => this.onArgumentsChanged(evt)}/>
+                        <Form.Input label="Cluster Arguments (for bsub, e.g. '-n 4')"
                                     value={this.state.taskDefinition.cluster_args}
                                     placeholder="(optional)"
                                     onChange={(evt: any) => this.onClusterArgumentsChanged(evt)}/>
@@ -311,7 +248,6 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                         <Form.Input label="Work Units" value={this.state.work_units} error={!this.isWorkUnitsValid}
                                     placeholder="(required)"
                                     onChange={(evt: any) => this.onWorkUnitsChanged(evt)}/>
-
                         {/*
                         <Form.Input label="Cluster Work Units (currently no effect)"
                                     value={this.state.cluster_work_units} error={!this.isClusterWorkUnitsValid}
@@ -343,41 +279,3 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
         );
     }
 }
-
-const TaskArgumentList = (props) => (
-    <List size="mini">
-        <List.Item key="add">
-            <List.Content>
-                <Button size="mini" icon labelPosition="left" onClick={() => props.onAddArgument()}>
-                    <Icon name="add"/>
-                    Add Argument
-                </Button>
-            </List.Content>
-        </List.Item>
-        {props.arguments.map((a, idx) => {
-            return (
-                <List.Item key={a.nonce}>
-                    <List.Content>
-                        <Input fluid defaultValue={a.value} labelPosition="right"
-                               onChange={(e, d) => props.onArgumentChanged(idx, e, d)}>
-                            <Label.Group style={{marginTop: "4px"}}>
-                                <Label content={idx + 1} circular/>
-                                <Label content={TaskArgumentType[a.type].toString()}
-                                       style={{minWidth: 80, textAlign: "center"}}
-                                       color={a.type === TaskArgumentType.Literal ? "green" : "blue"}/>
-                            </Label.Group>
-                            <input/>
-                            <Button.Group size="mini">
-                                <Button icon="long arrow up" disabled={idx === 0}
-                                        onClick={() => props.itemModifyProps.onMoveArgument(-idx)}/>
-                                <Button icon="long arrow down" disabled={idx === (props.arguments.length - 1)}
-                                        onClick={() => props.itemModifyProps.onMoveArgument(idx)}/>
-                                <Button icon="remove" onClick={() => props.itemModifyProps.onRemoveArgument(idx)}/>
-                            </Button.Group>
-                        </Input>
-                    </List.Content>
-                </List.Item>
-            )
-        })}
-    </List>
-);
