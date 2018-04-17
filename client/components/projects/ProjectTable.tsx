@@ -217,7 +217,6 @@ class ___ProjectTable extends React.Component<IProjectTableProps, IProjectTableS
                     onAccept={(p: IProjectInput) => this.onAcceptUpdateProject(p)}/>
                 <MenuItem size="mini" content="Duplicate" icon="clone" disabled={disabled}
                           onClick={(evt) => this.onClickDuplicateProject(evt)}/>
-                <MenuItem size="mini" content="Export" icon="external share" disabled={disabled}/>
                 {this.state.selectedProject ? <Menu.Header>
                     <div style={{
                         height: "100%",

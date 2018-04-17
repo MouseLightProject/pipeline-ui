@@ -89,8 +89,6 @@ export class _ProjectsPanel extends React.Component<IProjectsPanelProps, IProjec
                                        onCancel={() => this.setState({isAddDialogShown: false})}
                                        onAccept={(p: IProject) => this.onAcceptCreateProject(p)}/>
 
-                    <MenuItem size="mini" content="Import Pipeline" icon="add circle"/>
-
                     <MenuItem size="mini" content={content} icon={icon}
                               onClick={() => this.onToggleIsFiltered()}/>
 
