@@ -188,16 +188,20 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
     }
 
     private onMoveArgument(index: number) {
+        console.log(index);
         const args = this.state.script_arguments;
+        console.log(args.arguments);
         const arg = args.arguments.splice(Math.abs(index), 1);
+        console.log(args.arguments);
         args.arguments.splice(index < 0 ? Math.abs(index) - 1 : index + 1, 0, arg[0]);
+        console.log(args.arguments);
         this.setState({script_arguments: args});
     }
 
     private onArgumentChanged(index: number, evt, data: any) {
         const args = this.state.script_arguments;
         args.arguments[index].value = data.value;
-        if (data.value.startsWith("${") && data.value.endsWith("}") && data.value.length > 3) {
+        if (data.value.startsWith("${") && data.value.endsWith("}")) {
             args.arguments[index].type = TaskArgumentType.Parameter;
         }
         this.setState({script_arguments: args});
