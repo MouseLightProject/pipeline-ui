@@ -36,8 +36,8 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                 description,
                 script,
                 interpreter,
-                script_args: JSON.parse(script_args).arguments,
-                cluster_args: JSON.parse(cluster_args).arguments[0],
+                script_args,
+                cluster_args,
                 expected_exit_code,
                 work_units,
                 cluster_work_units,
@@ -49,7 +49,7 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                 description: "",
                 script: "",
                 interpreter: "none",
-                script_args: [],
+                script_args: "",
                 cluster_args: "",
                 expected_exit_code: 0,
                 work_units: 1,
@@ -76,8 +76,8 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                     description,
                     script,
                     interpreter,
-                    script_args: JSON.parse(script_args).arguments,
-                    cluster_args: JSON.parse(cluster_args).arguments[0],
+                    script_args,
+                    cluster_args,
                     expected_exit_code,
                     work_units,
                     cluster_work_units,
@@ -197,8 +197,8 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
             description,
             script,
             interpreter,
-            script_args: JSON.stringify({arguments: script_args}),
-            cluster_args: JSON.stringify({arguments: [cluster_args]}),
+            script_args,
+            cluster_args,
             work_units,
             cluster_work_units,
             log_prefix,
@@ -248,12 +248,10 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                         <Form.Input label="Work Units" value={this.state.work_units} error={!this.isWorkUnitsValid}
                                     placeholder="(required)"
                                     onChange={(evt: any) => this.onWorkUnitsChanged(evt)}/>
-                        {/*
                         <Form.Input label="Cluster Work Units (currently no effect)"
                                     value={this.state.cluster_work_units} error={!this.isClusterWorkUnitsValid}
                                     placeholder="(required)"
                                     onChange={(evt: any) => this.onClusterWorkUnitsChanged(evt)}/>
-                        */}
                         <Form.Input label="Log Prefix" value={this.state.taskDefinition.log_prefix}
                                     placeholder={this.state.taskDefinition.id ? this.state.taskDefinition.id.slice(0, 8) : "(auto-generated)"}
                                     onChange={(evt: any) => this.onLogPrefixChanged(evt)}/>

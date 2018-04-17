@@ -197,7 +197,7 @@ class __TaskDefinitionsTable extends React.Component<ITaskDefinitionsTableProps,
                 Header: "Arguments",
                 accessor: "script_args",
                 Cell: ({value}) => {
-                    const argArray = JSON.parse(value).arguments;
+                    const argArray = value.split(/[\s+]/).filter(Boolean);
 
                     const isExpanded = true; // this.state.isArgumentListExpanded || argArray.length < 3;
 

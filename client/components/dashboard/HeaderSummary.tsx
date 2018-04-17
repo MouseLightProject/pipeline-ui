@@ -149,7 +149,7 @@ class AbstractSummary<P, S> extends React.Component<P, S> {
 
         return {
             title: "Worker Load",
-            count: capacity > 0 ? 100 * load / capacity : 0,
+            count: 100 * load / capacity,
             units: CountUnit.Percent,
             precision: 1,
             message: ``
