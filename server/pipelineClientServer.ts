@@ -3,6 +3,8 @@ import * as proxy from "express-http-proxy";
 
 const express = require("express");
 
+const debug = require("debug")("pipeline-api:server");
+
 let webpackConfig = null;
 let Webpack = null;
 let webpackDevServer = null;
@@ -16,43 +18,84 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 import {Configuration} from "./configuration";
-
-console.log(`Preparing http://${Configuration.host}:${Configuration.port}/`);
-
-const rootPath = path.resolve(path.join(__dirname, "..", "public"));
+import * as http from "http";
 
 const apiUri = `http://${Configuration.graphQLHostname}:${Configuration.graphQLPort}`;
 
-let app = null;
+startExpressServer();
 
-if (process.env.NODE_ENV !== "production") {
-    app = devServer();
-} else {
-    app = express();
+startSocketIOServer();
 
-    app.use(express.static(rootPath));
+function startExpressServer() {
 
-    app.post("/graphql", proxy(apiUri + "/graphql"));
+    debug(`Preparing http://${Configuration.host}:${Configuration.port}/`);
 
-    app.use("/thumbnail", proxy(apiUri + "/thumbnail"));
+    const rootPath = path.resolve(path.join(__dirname, "..", "public"));
 
-    app.use("/thumbnailData", proxy(apiUri + "/thumbnailData"));
+    let app = null;
 
-    app.use("/", (req, res) => {
-        res.sendFile(path.join(rootPath, "index.html"));
+    if (process.env.NODE_ENV !== "production") {
+        app = devServer();
+    } else {
+        app = express();
+
+        app.use(express.static(rootPath));
+
+        app.post("/graphql", proxy(apiUri + "/graphql"));
+
+        app.use("/thumbnail", proxy(apiUri + "/thumbnail"));
+
+        app.use("/thumbnailData", proxy(apiUri + "/thumbnailData"));
+
+        app.use(`${Configuration.internalApiBase}serverConfiguration`, serverConfiguration);
+
+        app.use("/", (req, res) => {
+            res.sendFile(path.join(rootPath, "index.html"));
+        });
+    }
+
+    app.listen(Configuration.port, "0.0.0.0", () => {
+        if (process.env.NODE_ENV !== "production") {
+            debug(`Listening at http://${Configuration.host}:${Configuration.port}/`);
+        }
     });
 }
 
-app.listen(Configuration.port, "0.0.0.0", () => {
-    if (process.env.NODE_ENV !== "production") {
-        console.log(`Listening at http://localhost:${Configuration.port}/`);
-    }
-});
+function startSocketIOServer() {
+    const ipPort = Configuration.port + 1;
+
+    debug(`preparing socketio at http://localhost:${ipPort}/`);
+
+    const server = http.createServer(() => {
+    });
+    const io = require("socket.io")(server);
+
+    io.on("connection", (socket) => {
+        socket.on("stopMicroscopeAcquisition", (location: string) => {
+        });
+        socket.on("restartHubProxy", () => {
+        });
+    });
+
+    server.listen(ipPort, () => {
+        debug(`socketio listening at http://localhost:${ipPort}/`);
+    });
+}
+
+function serverConfiguration(req, resp) {
+    resp.json({
+        buildVersion: Configuration.buildVersion,
+        processId: process.pid
+    });
+}
 
 function devServer() {
     return new webpackDevServer(compiler, {
         stats: {
             colors: true
+        },
+        before: (app) => {
+            app.use(`${Configuration.internalApiBase}serverConfiguration`, serverConfiguration);
         },
         proxy: {
             "/graphql": {

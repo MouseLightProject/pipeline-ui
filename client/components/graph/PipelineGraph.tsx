@@ -506,6 +506,11 @@ class __PipelineGraph extends React.Component<any, IPipelineGraphState> {
             width: "100%"
         };
 
+
+        if (this.props.data.error) {
+            return (<span>{this.props.data.error.message}</span>);
+        }
+
         const loading = !this.props.data || this.props.data.loading;
 
         const projects = !loading ? this.props.data.projects : [];

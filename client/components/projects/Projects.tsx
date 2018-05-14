@@ -9,16 +9,16 @@ export class _Projects extends React.Component<any, any> {
     public render() {
         const loading = !this.props.data || this.props.data.loading;
 
+        if (this.props.data.error) {
+            return (<span>{this.props.data.error.message}</span>);
+        }
+
         if (loading) {
             return (
                 <div style={{display: "flex", height: "100%", alignItems: "center"}}>
                     <Loader active inline="centered">Loading</Loader>
                 </div>
             );
-        }
-
-        if (this.props.data.error) {
-            return (<span>{this.props.data.error}</span>);
         }
 
         return (

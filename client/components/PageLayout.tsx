@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Route, Redirect, Switch, NavLink} from "react-router-dom";
-import {Container, Icon, Menu, SemanticICONS} from "semantic-ui-react"
+import {Container, Icon, Menu, List, SemanticICONS} from "semantic-ui-react"
 import {ToastContainer} from "react-toastify";
 
 import {MenuLayout} from "./header/MenuLayout";
@@ -13,6 +13,8 @@ import {Projects} from "./projects/Projects";
 import {Dashboard} from "./Dashboard";
 import {PreferencesManager} from "../util/preferencesManager";
 import {TileMapPanel} from "./tilemap/Tilemaps";
+import {IInternalApiDelegate, InternalApi, IServerConfigurationMessage} from "../api/internalApi/internalApi";
+import {IRealTimeApiDelegate, RealTimeApi} from "../api/realTimeApi";
 
 const toastStyleOverride = {
     minWidth: "600px",
@@ -53,16 +55,38 @@ interface IPageLayoutProps {
 }
 
 interface IPageLayoutState {
+    buildVersion?: number;
+    loadedBuildVersion?: number;
+    processId?: number;
+    isServerConnected?: boolean;
     isSidebarExpanded?: boolean;
 }
 
-export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutState> {
+export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutState> implements IInternalApiDelegate, IRealTimeApiDelegate {
+    private readonly _internalApi: InternalApi = null;
+    private readonly _realTimeApi: RealTimeApi = null;
+
     public constructor(props) {
         super(props);
 
         this.state = {
+            buildVersion: null,
+            loadedBuildVersion: null,
+            processId: null,
+            isServerConnected: false,
             isSidebarExpanded: PreferencesManager.Instance.IsProjectTableFiltered
-        }
+        };
+
+        this._internalApi = new InternalApi(this);
+        this._realTimeApi = new RealTimeApi(this);
+    }
+
+    public async componentDidMount() {
+        await this._realTimeApi.connect();
+    }
+
+    public componentWillUnmount() {
+        this._realTimeApi.close();
     }
 
     private onToggleSidebar() {
@@ -71,6 +95,10 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
     }
 
     public render() {
+        if (!this.state.isServerConnected) {
+            return "Not connected";
+        }
+
         const width = this.state.isSidebarExpanded ? 199 : 79;
         const icon = this.state.isSidebarExpanded ? "labeled" : true;
 
@@ -104,8 +132,17 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
                               transition: "all 0.3s ease"
                           }}>
                         {menus}
+                        <Menu.Item>
+                            {this.state.isSidebarExpanded ?
+                            <List divided={false} size="tiny" style={{padding: "0px"}}>
+                                <List.Item>Version: {this.state.buildVersion}</List.Item>
+                                <List.Item>PID: {this.state.processId}</List.Item>
+                            </List> : null }
+                        </Menu.Item>
                     </Menu>
-                    <Container style={{order: 1, flex: "1 1 auto", backgroundColor: "rgb(244, 247, 250)", width: "100%"}}>
+
+                    <Container
+                        style={{order: 1, flex: "1 1 auto", backgroundColor: "rgb(244, 247, 250)", width: "100%"}}>
                         <Switch>
                             <Route path="/" exact component={Dashboard}/>
                             <Route path="/projects" component={Projects}/>
@@ -120,5 +157,28 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
                 </div>
             </div>
         )
+    }
+
+    public onServiceConnectionStateChanged(isConnected: boolean) {
+        if (isConnected) {
+            this._internalApi.start();
+            this.setState({isServerConnected: true});
+        } else {
+            this._internalApi.kill();
+            this.setState({isServerConnected: false});
+        }
+    }
+
+    public onServerConfiguration(message: IServerConfigurationMessage) {
+        this.setState({
+            buildVersion: message.buildVersion,
+            processId: message.processId
+        });
+
+        // If this is the first request then it is the version we loaded.  If not, the backend may have restarted
+        // with a new version and we
+        if (!this.state.loadedBuildVersion) {
+            this.setState({loadedBuildVersion: message.buildVersion});
+        }
     }
 }

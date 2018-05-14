@@ -28,6 +28,10 @@ class _Workers extends React.Component<any, any> {
     }
 
     public render() {
+        if (this.props.data.error) {
+            return (<span>{this.props.data.error.message}</span>);
+        }
+
         const isLoading = !this.props.data || this.props.data.loading;
 
         if (isLoading) {
@@ -36,10 +40,6 @@ class _Workers extends React.Component<any, any> {
                     <Loader active inline="centered">Loading</Loader>
                 </div>
             );
-        }
-
-        if (this.props.data.error) {
-            return (<span>{this.props.data.error}</span>);
         }
 
         return (
