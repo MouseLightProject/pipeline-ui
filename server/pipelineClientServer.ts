@@ -64,7 +64,7 @@ function startExpressServer() {
 function startSocketIOServer() {
     const ipPort = Configuration.port + 1;
 
-    debug(`preparing socketio at http://localhost:${ipPort}/`);
+    debug(`preparing socketio at http://${Configuration.host}:${ipPort}/`);
 
     const server = http.createServer(() => {
     });
@@ -78,7 +78,7 @@ function startSocketIOServer() {
     });
 
     server.listen(ipPort, () => {
-        debug(`socketio listening at http://localhost:${ipPort}/`);
+        debug(`socketio listening at http://${Configuration.host}:${ipPort}/`);
     });
 }
 
