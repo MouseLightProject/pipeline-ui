@@ -40,16 +40,16 @@ class __PipelineStages extends React.Component<IPipelineStagesProps, IPipelineSt
     public render() {
         const loading = !this.props.data || this.props.data.loading || !this.props.projectsData || this.props.projectsData.loading;
 
+        if (this.props.data.error) {
+            return (<span>{this.props.data.error.message}</span>);
+        }
+
         if (loading) {
             return (
                 <div style={{display: "flex", height: "100%", alignItems: "center"}}>
                     <Loader active inline="centered">Loading</Loader>
                 </div>
             );
-        }
-
-        if (this.props.data.error) {
-            return this.props.data.error;
         }
 
         if (this.props.projectsData.error) {

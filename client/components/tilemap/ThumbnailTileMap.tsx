@@ -153,7 +153,7 @@ export class ThumbnailTileMap extends React.Component<IThumbnailTileProps, IThum
 
                     this._frameGraphics.drawRect(x, y, this._xDelta, this._yDelta);
 
-                    const texture = PIXI.Texture.fromImage(`/thumbnail/${props.stageId}/${idx + this._xMin}/${jdx + this._yMin}/${props.plane}/${this.state.thumbnailName}`, true);
+                    const texture = PIXI.Texture.fromImage(`http://10.40.4.97:7000/thumbnail/${props.stageId}/${idx + this._xMin}/${jdx + this._yMin}/${props.plane}/${this.state.thumbnailName}`, true);
                     //texture.update();
                     // const img = new Image();
                     // img.crossOrigin = "";

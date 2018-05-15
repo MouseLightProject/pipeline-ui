@@ -5,6 +5,8 @@ const configurations = {
         graphQLHostname: "pipeline-api",
         graphQLPort: 6001,
         graphQlEndpoint: "/graphql",
+        internalApiBase: "/api/v1/internal/",
+        buildVersion: 1
     }
 };
 

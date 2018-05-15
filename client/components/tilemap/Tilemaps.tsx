@@ -123,7 +123,7 @@ export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPSta
 
     public componentDidUpdate() {
         if (this.state.projectId === AllProjectsId) {
-            const projects = (this.props.data && !this.props.data.loading) ? this.props.data.projects : [];
+            const projects = (this.props.data && !this.props.data.loading && !this.props.data.error) ? this.props.data.projects : [];
 
             const processing = projects.filter(project => project.is_processing);
 
@@ -139,7 +139,7 @@ export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPSta
 
     public componentWillUpdate(nextProps) {
         if (this.state.projectId.length > 0) {
-            const allProjects = (nextProps.data && !nextProps.loading) ? nextProps.data.projects : [];
+            const allProjects = (nextProps.data && !nextProps.data.loading && !nextProps.data.error) ? nextProps.data.projects : [];
 
             const projects = allProjects.filter(project => project.id === this.state.projectId);
 
@@ -279,6 +279,12 @@ export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPSta
     }
 
     public render() {
+        if (this.props.data.error) {
+            return (<span>{this.props.data.error.message}</span>);
+        }
+
+        console.log(this.props.data);
+
         const loading = !this.props.data || this.props.data.loading;
 
         if (loading) {

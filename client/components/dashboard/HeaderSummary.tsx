@@ -1,7 +1,7 @@
 import * as React from "react";
 import gql from "graphql-tag";
 import {graphql} from "react-apollo";
-import {Container, Statistic, Icon, Loader, Menu, Header} from "semantic-ui-react";
+import {Container, Statistic, Icon, Loader, Menu, Header, Message} from "semantic-ui-react";
 import * as moment from "moment";
 import pluralize = require("pluralize");
 
@@ -113,7 +113,7 @@ class AbstractSummary<P, S> extends React.Component<P, S> {
         let onlineWorkerCount = workers.filter(worker => {
             const elapsedTime = moment(now).subtract(worker.last_seen).minutes();
 
-            if (worker.status == PipelineWorkerStatus.Unavailable ||  elapsedTime > 2) {
+            if (worker.status == PipelineWorkerStatus.Unavailable || elapsedTime > 2) {
                 if (!lastSeen || elapsedTime < maxElapsed) {
                     lastSeen = worker.last_seen
                 }
@@ -149,7 +149,7 @@ class AbstractSummary<P, S> extends React.Component<P, S> {
 
         return {
             title: "Worker Load",
-            count: capacity > 0 ? 100 * load / capacity : 0,
+            count: capacity !== 0 ? 100 * load / capacity : 0,
             units: CountUnit.Percent,
             precision: 1,
             message: ``
@@ -324,6 +324,8 @@ class _HeaderSummary extends React.Component<any, any> {
     public render() {
         const isLoading = !this.props.data || this.props.data.loading;
 
+        const graphQLError = this.props.data.error;
+
         const isNavTile = this.props.isNavTile || false;
 
         if (isLoading) {
@@ -332,6 +334,16 @@ class _HeaderSummary extends React.Component<any, any> {
                     <Loader active inline="centered">Loading</Loader>
                 </div>
             );
+        } else if (graphQLError) {
+            if (isNavTile) {
+                return (
+                    <Container fluid style={{paddingTop: "4px", paddingRight: "4px"}}>
+                        <Message size="mini" icon="alarm" negative content={graphQLError.message}/>
+                    </Container>
+                );
+            } else {
+                return null;
+            }
         } else if (isNavTile) {
             return (
                 <div style={{color: "white"}}>
