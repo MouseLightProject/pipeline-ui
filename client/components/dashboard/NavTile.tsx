@@ -32,11 +32,13 @@ const position: "initial" | "relative" = "relative";
 
 const fontWeight: "inherit" | 500 = 500;
 
+const whiteSpace: "nowrap" = "nowrap";
+
 const statsContainerStyle = {
     borderBottom: 0,
     padding: "4px",
     position,
-    whiteSpace: "nowrap",
+    whiteSpace,
     overflow,
     margin: 0,
     minWidth: "100px"

@@ -78,10 +78,12 @@ const HeaderSummaryQuery = gql`query {
   }
 }`;
 
+const visibility: "visible" = "visible";
+
 const tileCountStyle = {
     marginBottom: "0px",
     marginTop: "0px",
-    visibility: "visible",
+    visibility,
     maxWidth: "750px"
 };
 
