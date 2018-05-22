@@ -36,8 +36,8 @@
     "@types/geojson" "*"
 
 "@types/history@*":
-  version "4.6.1"
-  resolved "https://registry.yarnpkg.com/@types/history/-/history-4.6.1.tgz#0dbaef4febad5d074d06dbdfae6b027d1d701d25"
+  version "4.6.2"
+  resolved "https://registry.yarnpkg.com/@types/history/-/history-4.6.2.tgz#12cfaba693ba20f114ed5765467ff25fdf67ddb0"
 
 "@types/http-proxy-middleware@*":
   version "0.17.2"
@@ -84,23 +84,23 @@
     "@types/node" "*"
     "@types/react" "*"
 
-"@types/react-responsive@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@types/react-responsive/-/react-responsive-3.0.0.tgz#f874bdf36fba8fcfebf257047098acd41b202106"
+"@types/react-responsive@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@types/react-responsive/-/react-responsive-3.0.1.tgz#6388b32a99c813942790d2a54c9aa3f69d99420b"
   dependencies:
     "@types/react" "*"
 
 "@types/react-router-dom@^4.2.1":
-  version "4.2.1"
-  resolved "https://registry.yarnpkg.com/@types/react-router-dom/-/react-router-dom-4.2.1.tgz#c5583550d7246dea60612cc55a523cf980d56df1"
+  version "4.2.6"
+  resolved "https://registry.yarnpkg.com/@types/react-router-dom/-/react-router-dom-4.2.6.tgz#9f7eb3c0e6661a9607d878ff8675cc4ea95cd276"
   dependencies:
     "@types/history" "*"
     "@types/react" "*"
     "@types/react-router" "*"
 
 "@types/react-router@*":
-  version "4.0.17"
-  resolved "https://registry.yarnpkg.com/@types/react-router/-/react-router-4.0.17.tgz#1032c800ed0da188d8a3bb38fe6afa8c917865d5"
+  version "4.0.25"
+  resolved "https://registry.yarnpkg.com/@types/react-router/-/react-router-4.0.25.tgz#1e25490780b80e0d8f96bf649379cca8638c1e5a"
   dependencies:
     "@types/history" "*"
     "@types/react" "*"
@@ -4962,10 +4962,6 @@ pluralize@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/pluralize/-/pluralize-7.0.0.tgz#298b89df8b93b0221dbf421ad2b1b1ea23fc6777"
 
-popper.js@^1.14.1:
-  version "1.14.3"
-  resolved "https://registry.yarnpkg.com/popper.js/-/popper.js-1.14.3.tgz#1438f98d046acf7b4d78cd502bf418ac64d4f095"
-
 portfinder@^1.0.9:
   version "1.0.13"
   resolved "https://registry.yarnpkg.com/portfinder/-/portfinder-1.0.13.tgz#bb32ecd87c27104ae6ee44b5a3ccbf0ebb1aede9"
@@ -5267,7 +5263,7 @@ prompt-sui@^3.2.1:
     event-stream "~3.0.20"
     inquirer "3.2.x"
 
-prop-types@15.x, prop-types@^15.5.10, prop-types@^15.5.7, prop-types@^15.6.0:
+prop-types@15.x, prop-types@^15.5.10, prop-types@^15.6.0:
   version "15.6.0"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.6.0.tgz#ceaf083022fc46b4a35f69e13ef75aed0d639856"
   dependencies:
@@ -5521,15 +5517,6 @@ react-autowhatever@^10.1.0:
     react-themeable "^1.1.0"
     section-iterator "^2.0.0"
 
-react-datepicker@^1.4.1:
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/react-datepicker/-/react-datepicker-1.4.1.tgz#ee171b71d9853e56f9eece5fc3186402f4648683"
-  dependencies:
-    classnames "^2.2.5"
-    prop-types "^15.6.0"
-    react-onclickoutside "^6.7.1"
-    react-popper "^0.9.1"
-
 react-dom@^16.0.0:
   version "16.1.0"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.1.0.tgz#ab6fd2a285096f388aeba51919a573d06c9bdde4"
@@ -5555,24 +5542,13 @@ react-lifecycles-compat@^1.0.2:
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-1.1.4.tgz#fc005c72849b7ed364de20a0f64ff58ebdc2009a"
 
-react-onclickoutside@^6.7.1:
-  version "6.7.1"
-  resolved "https://registry.yarnpkg.com/react-onclickoutside/-/react-onclickoutside-6.7.1.tgz#6a5b5b8b4eae6b776259712c89c8a2b36b17be93"
-
-react-popper@^0.9.1:
-  version "0.9.5"
-  resolved "https://registry.yarnpkg.com/react-popper/-/react-popper-0.9.5.tgz#02a24ef3eec33af9e54e8358ab70eb0e331edd05"
-  dependencies:
-    popper.js "^1.14.1"
-    prop-types "^15.6.1"
-
-react-responsive@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/react-responsive/-/react-responsive-3.0.0.tgz#26e895dbdf748d4473c76cf46d29cb9d824e02ec"
+react-responsive@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/react-responsive/-/react-responsive-4.1.0.tgz#01d129a35729c8f0373e79871cc8d5ecf6e22765"
   dependencies:
     hyphenate-style-name "^1.0.0"
     matchmediaquery "^0.2.1"
-    prop-types "^15.5.7"
+    prop-types "^15.6.1"
 
 react-router-dom@^4.2.2:
   version "4.2.2"
