@@ -5,7 +5,7 @@ import {graphql} from "react-apollo";
 import {ScriptContentsQuery} from "../../../graphql/taskDefinition";
 import SyntaxHighlighter from "react-syntax-highlighter";
 
-import { docco } from 'react-syntax-highlighter/dist/styles';
+import { docco } from 'react-syntax-highlighter/dist/styles/lowlight';
 
 interface IViewScriptDialogProps {
     element: any;

@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Menu, MenuItem, Icon, Confirm} from "semantic-ui-react";
-import ReactTable from "react-table";
+import ReactTable, {SortingRule} from "react-table";
 import {graphql} from 'react-apollo';
 import {toast} from "react-toastify";
 
@@ -153,13 +153,18 @@ class __TaskRepositoryTable extends React.Component<ITaskRepositoryTableProps, I
                 )
             }];
 
+        const sortRule: SortingRule = {
+            id: "name",
+            desc: true
+        };
+
         const props = {
             style: {backgroundColor: "white"},
             data: this.props.taskRepositories,
             columns: columns,
             showPagination: false,
             minRows: 0,
-            defaultSorted: [{"id": "name", "asc": true}], /*
+            defaultSorted: [sortRule], /*
             defaultFiltered: this.props.isFiltered ? PreferencesManager.Instance.ProjectTableFilter : [],
             filterable: this.props.isFiltered,
             onSortedChange: (newSorted) => {
