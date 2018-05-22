@@ -85,7 +85,10 @@ function startSocketIOServer() {
 function serverConfiguration(req, resp) {
     resp.json({
         buildVersion: Configuration.buildVersion,
-        processId: process.pid
+        processId: process.pid,
+        thumbsHostname: Configuration.thumbsHostname,
+        thumbsPort: Configuration.thumbsPort,
+        thumbsPath: Configuration.thumbsPath
     });
 }
 

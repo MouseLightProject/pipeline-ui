@@ -12,9 +12,10 @@ import {PipelineStages} from "./stages/PipelineStages";
 import {Projects} from "./projects/Projects";
 import {Dashboard} from "./Dashboard";
 import {PreferencesManager} from "../util/preferencesManager";
-import {TileMapPanel} from "./tilemap/Tilemaps";
+import {ITileMapsProps, TileMapPanel} from "./tilemap/Tilemaps";
 import {IInternalApiDelegate, InternalApi, IServerConfigurationMessage} from "../api/internalApi/internalApi";
 import {IRealTimeApiDelegate, RealTimeApi} from "../api/realTimeApi";
+import {Configuration} from "../../server/configuration";
 
 const toastStyleOverride = {
     minWidth: "600px",
@@ -60,6 +61,9 @@ interface IPageLayoutState {
     processId?: number;
     isServerConnected?: boolean;
     isSidebarExpanded?: boolean;
+    thumbsHostname?: string;
+    thumbsPort?: number;
+    thumbsPath?: string;
 }
 
 export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutState> implements IInternalApiDelegate, IRealTimeApiDelegate {
@@ -74,7 +78,10 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
             loadedBuildVersion: null,
             processId: null,
             isServerConnected: false,
-            isSidebarExpanded: PreferencesManager.Instance.IsProjectTableFiltered
+            isSidebarExpanded: PreferencesManager.Instance.IsProjectTableFiltered,
+            thumbsHostname: "",
+            thumbsPort: 80,
+            thumbsPath: "/thumbnail"
         };
 
         this._internalApi = new InternalApi(this);
@@ -134,10 +141,10 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
                         {menus}
                         <Menu.Item>
                             {this.state.isSidebarExpanded ?
-                            <List divided={false} size="tiny" style={{padding: "0px"}}>
-                                <List.Item>Version: {this.state.buildVersion}</List.Item>
-                                <List.Item>PID: {this.state.processId}</List.Item>
-                            </List> : null }
+                                <List divided={false} size="tiny" style={{padding: "0px"}}>
+                                    <List.Item>Version: {this.state.buildVersion}</List.Item>
+                                    <List.Item>PID: {this.state.processId}</List.Item>
+                                </List> : null}
                         </Menu.Item>
                     </Menu>
 
@@ -147,7 +154,7 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
                             <Route path="/" exact component={Dashboard}/>
                             <Route path="/projects" component={Projects}/>
                             <Route path="/graphs" component={PipelineGraph}/>
-                            <Route path="/tilemaps" component={TileMapPanel}/>
+                            <Route path="/tilemaps" render={this.TileMaps}/>
                             <Route path="/stages" component={PipelineStages}/>
                             <Route path="/tasks" component={TasksPanel}/>
                             <Route path="/workers" component={Workers}/>
@@ -172,7 +179,10 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
     public onServerConfiguration(message: IServerConfigurationMessage) {
         this.setState({
             buildVersion: message.buildVersion,
-            processId: message.processId
+            processId: message.processId,
+            thumbsHostname: message.thumbsHostname,
+            thumbsPort: message.thumbsPort,
+            thumbsPath: message.thumbsPath
         });
 
         // If this is the first request then it is the version we loaded.  If not, the backend may have restarted
@@ -180,5 +190,12 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
         if (!this.state.loadedBuildVersion) {
             this.setState({loadedBuildVersion: message.buildVersion});
         }
+    }
+
+    private TileMaps = () => {
+        return (
+            <TileMapPanel thumbsHostname={this.state.thumbsHostname} thumbsPort={this.state.thumbsPort}
+                          thumbsPath={this.state.thumbsPath}/>
+        );
     }
 }

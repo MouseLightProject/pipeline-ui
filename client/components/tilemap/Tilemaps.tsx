@@ -39,6 +39,9 @@ interface _ITileMapsProps {
     plane: number;
     planeQuery?: any;
     format: TileMapFormat;
+    thumbsHostname: string;
+    thumbsPort: number;
+    thumbsPath: string;
 }
 
 interface _ITileMapsPState {
@@ -59,7 +62,9 @@ class _InnerTileMapPanel extends React.Component<_ITileMapsProps, _ITileMapsPSta
                                       projectPlaneTileStatus={this.props.planeQuery.projectPlaneTileStatus}/>)
         } else {
             return (<ThumbnailTileMap project={project} plane={this.props.plane} stageId={this.props.stageId}
-                                      projectPlaneTileStatus={this.props.planeQuery.projectPlaneTileStatus}/>);
+                                      projectPlaneTileStatus={this.props.planeQuery.projectPlaneTileStatus}
+                                      thumbsHostname={this.props.thumbsHostname} thumbsPort={this.props.thumbsPort}
+                                      thumbsPath={this.props.thumbsPath}/>);
         }
     }
 
@@ -80,8 +85,11 @@ const InnerTileMapPanel = graphql<any, any>(PipelinePlaneQuery, {
     })
 })(_InnerTileMapPanel);
 
-interface ITileMapsProps {
+export interface ITileMapsProps {
     data?: any;
+    thumbsHostname: string;
+    thumbsPort: number;
+    thumbsPath: string;
 }
 
 interface ITileMapsPState {
@@ -311,7 +319,10 @@ export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPSta
             plane: this.state.plane,
             format: this.state.format,
             onProjectSelectionChange: (id: string, b: boolean) => this.onProjectSelectionChange(id, b),
-            onPlaneChanged: (plane: number) => this.onPlaneChanged(plane)
+            onPlaneChanged: (plane: number) => this.onPlaneChanged(plane),
+            thumbsHostname: this.props.thumbsHostname,
+            thumbsPort: this.props.thumbsPort,
+            thumbsPath: this.props.thumbsPath
         };
 
         return (

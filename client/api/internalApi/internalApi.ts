@@ -3,6 +3,9 @@ import {ApiQueue, ApiRequest} from "../apiQueue";
 export interface IServerConfigurationMessage {
     buildVersion: number;
     processId: number;
+    thumbsHostname: string;
+    thumbsPort: number;
+    thumbsPath: string;
 }
 
 export interface IInternalApiDelegate {
