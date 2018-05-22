@@ -47,7 +47,7 @@
     "apollo-cache-inmemory": "^1.1.0",
     "apollo-client": "^2.0.2",
     "apollo-link-http": "^1.1.0",
-    "cytoscape": "^3.2.12",
+    "cytoscape": "^2.7.13",
     "cytoscape-cxtmenu": "^2.10.3",
     "express": "^4.16.3",
     "express-http-proxy": "^1.2.0",
