@@ -24,7 +24,7 @@ interface IProjectsPanelState {
     isFiltered?: boolean;
 }
 
-export class _ProjectsPanel extends React.Component<IProjectsPanelProps, IProjectsPanelState> {
+export class ProjectsPanel extends React.Component<IProjectsPanelProps, IProjectsPanelState> {
     public constructor(props: IProjectsPanelProps) {
         super(props);
 
@@ -117,7 +117,7 @@ export class _ProjectsPanel extends React.Component<IProjectsPanelProps, IProjec
         );
     }
 }
-
+/* TODO
 export const ProjectsPanel = graphql<any, any>(CreateProjectMutation, {
     props: ({mutate}) => ({
         createProject: (project: IProject) => mutate({
@@ -125,3 +125,4 @@ export const ProjectsPanel = graphql<any, any>(CreateProjectMutation, {
         })
     })
 })(_ProjectsPanel);
+*/

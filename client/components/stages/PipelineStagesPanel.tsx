@@ -35,7 +35,7 @@ interface IPipelineStagesPanelState {
     isFiltered?: boolean;
 }
 
-export class __PipelineStagesPanel extends React.Component<IPipelineStagesPanelProps, IPipelineStagesPanelState> {
+export class PipelineStagesPanel extends React.Component<IPipelineStagesPanelProps, IPipelineStagesPanelState> {
     constructor(props) {
         super(props);
 
@@ -147,7 +147,7 @@ export class __PipelineStagesPanel extends React.Component<IPipelineStagesPanelP
         );
     }
 }
-
+/* TODO
 const _PipelineStagesPanel = graphql<any, any>(TaskQuery, {
     options: {
         pollInterval: 5 * 1000
@@ -161,3 +161,4 @@ export const PipelineStagesPanel = graphql<any, any>(CreateStageMutation, {
         })
     })
 })(_PipelineStagesPanel);
+*/

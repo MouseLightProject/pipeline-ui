@@ -75,4 +75,15 @@ export const BaseQuery = gql`query {
           created_at
       }
     }
+    pipelineWorkers {
+      id
+      name
+      worker_id
+      work_unit_capacity
+      last_seen
+      task_load
+      status
+      is_in_scheduler_pool
+      is_cluster_proxy
+    }
 }`;

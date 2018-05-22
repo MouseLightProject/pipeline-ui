@@ -1,15 +1,16 @@
 import * as React from "react";
 import {Menu, MenuItem, Button, Icon} from "semantic-ui-react";
+import {Mutation} from "react-apollo";
 import ReactTable from "react-table";
 import {toast} from "react-toastify";
 import * as moment from "moment";
 
-import {graphql} from "react-apollo";
 import {IWorker, PipelineWorkerStatus} from "../../models/worker";
-import {SetWorkerInPoolMutation, UpdateWorkerMutation} from "../../graphql/workers";
 import {DialogMode} from "../helpers/DialogUtils";
 import {EditWorkerDialog} from "./EditWorkerDialog";
 import {toastError, toastSuccess} from "../../util/Toasts";
+import {SetWorkerInPoolMutation, UpdateWorkerMutation} from "../../graphql/workers";
+import {PreferencesManager} from "../../util/preferencesManager";
 
 interface IWorkerTableProps {
     style: any;
@@ -24,7 +25,7 @@ interface IWorkerTableState {
     isUpdateDialogShown: boolean;
 }
 
-class __WorkerTable extends React.Component<IWorkerTableProps, IWorkerTableState> {
+export class WorkerTable extends React.Component<IWorkerTableProps, IWorkerTableState> {
     public constructor(props) {
         super(props);
 
@@ -33,16 +34,10 @@ class __WorkerTable extends React.Component<IWorkerTableProps, IWorkerTableState
             isUpdateDialogShown: false
         }
     }
+
     getActivateText = isActive => isActive ? "remove" : "add";
 
-    getActivateGlyph = isActive => isActive ? "minus" : "plus";
-
-    public setWorkerAvailability(id: string, shouldBeInSchedulerPool: boolean) {
-        this.props.setWorkerAvailability(id, shouldBeInSchedulerPool).then(() => {
-        }).catch(err => {
-            console.log(err);
-        });
-    }
+    getActivateGlyph = (isActive, loading) => <Icon name={isActive ? "minus" : "plus"} loading={loading}/>;
 
     private onClickUpdateWorker(evt: any) {
         evt.stopPropagation();
@@ -50,7 +45,7 @@ class __WorkerTable extends React.Component<IWorkerTableProps, IWorkerTableState
         this.setState({isUpdateDialogShown: true});
     }
 
-    private async onAcceptUpdateWorker(worker: IWorker, showSuccessToast: boolean = true) {
+    private async onAcceptUpdateWorker3(worker: IWorker, updateWorker, showSuccessToast: boolean = true) {
         this.setState({isUpdateDialogShown: false});
 
         try {
@@ -70,28 +65,47 @@ class __WorkerTable extends React.Component<IWorkerTableProps, IWorkerTableState
         const disabled = this.state.selectedWorker === null;
 
         return (
-            <Menu size="mini" style={{borderBottom: "none"}}>
-                <EditWorkerDialog element={<MenuItem size="mini" content="Edit" icon="pencil" disabled={disabled}
-                                                     onClick={(evt) => this.onClickUpdateWorker(evt)}/>}
-                                  show={this.state.isUpdateDialogShown}
-                                  mode={DialogMode.Update}
-                                  sourceWorker={this.state.selectedWorker}
-                                  onCancel={() => this.setState({isUpdateDialogShown: false})}
-                                  onAccept={(w: IWorker) => this.onAcceptUpdateWorker(w)}/>
-                {this.state.selectedWorker ? <Menu.Header>
-                    <div style={{
-                        height: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        paddingLeft: "10px",
-                    }}>
-                        <h5>
-                            {this.state.selectedWorker.name}&nbsp;
-                            <Icon name="remove" onClick={() => this.setState({selectedWorker: null})}/>
-                        </h5>
-                    </div>
-                </Menu.Header> : null}
-            </Menu>
+            <Mutation mutation={UpdateWorkerMutation} onCompleted={(data) => {if (!data.updateWorker.worker) {
+                toast.error(toastError("Update", data.updateWorker.error), {autoClose: false});
+            } else {
+                toast.success(toastSuccess("Update"), {autoClose: 3000});
+            }}} onError={(error) => {
+                toast.error(toastError("Update", error), {autoClose: false});
+            }}>
+                {(updateWorker, response) => {
+                    console.log(response);
+                    return (
+                        <Menu size="mini" style={{borderBottom: "none"}}>
+                            <EditWorkerDialog
+                                element={<MenuItem size="mini" content="Edit" icon="pencil" disabled={disabled}
+                                                   onClick={(evt) => this.onClickUpdateWorker(evt)}/>}
+                                show={this.state.isUpdateDialogShown}
+                                mode={DialogMode.Update}
+                                sourceWorker={this.state.selectedWorker}
+                                onCancel={() => this.setState({isUpdateDialogShown: false})}
+                                onAccept={(w: IWorker) => {
+                                    this.setState({isUpdateDialogShown: false});
+                                    updateWorker({variables: {worker: w}});
+                                }
+                                }/>
+                            {this.state.selectedWorker ? <Menu.Header>
+                                <div style={{
+                                    height: "100%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    paddingLeft: "10px",
+                                }}>
+                                    <h5>
+                                        {this.state.selectedWorker.name}&nbsp;
+                                        <Icon name="remove" onClick={() => this.setState({selectedWorker: null})}/>
+                                    </h5>
+                                </div>
+                            </Menu.Header> : null}
+                        </Menu>
+                    )
+                }
+                }
+            </Mutation>
         );
     }
 
@@ -107,13 +121,25 @@ class __WorkerTable extends React.Component<IWorkerTableProps, IWorkerTableState
                     const worker = row.original;
                     const color = row.original.is_in_scheduler_pool ? "orange" : "green";
                     return (
-                        <Button size="mini" compact color={color}
-                                disabled={worker.status === PipelineWorkerStatus.Unavailable}
-                                className="active-button"
-                                icon={this.getActivateGlyph(worker.is_in_scheduler_pool)}
-                                content={this.getActivateText(worker.is_in_scheduler_pool)}
-                                onClick={() => this.setWorkerAvailability(worker.id, !worker.is_in_scheduler_pool)}>
-                        </Button>
+                        <Mutation mutation={SetWorkerInPoolMutation}>
+                            {(setWorkerAvailability, {loading}) => {
+                                return (
+                                    <Button size="mini" compact color={color}
+                                            disabled={worker.status === PipelineWorkerStatus.Unavailable}
+                                            className="active-button"
+                                            icon={this.getActivateGlyph(worker.is_in_scheduler_pool, loading)}
+                                            content={this.getActivateText(worker.is_in_scheduler_pool)}
+                                            onClick={() => setWorkerAvailability({
+                                                variables: {
+                                                    id: worker.id,
+                                                    shouldBeInSchedulerPool: !worker.is_in_scheduler_pool
+                                                }
+                                            })}>
+                                    </Button>
+                                )
+                            }
+                            }
+                        </Mutation>
                     )
                 }
             }, {
@@ -168,16 +194,11 @@ class __WorkerTable extends React.Component<IWorkerTableProps, IWorkerTableState
             data: this.props.workers,
             columns: columns,
             showPagination: false,
-            minRows: 0, /*
-            defaultSorted: PreferencesManager.Instance.ProjectTableSort,
-            defaultFiltered: this.props.isFiltered ? PreferencesManager.Instance.ProjectTableFilter : [],
-            filterable: this.props.isFiltered,
+            minRows: 0,
+            defaultSorted: PreferencesManager.Instance.WorkerTableSort,
             onSortedChange: (newSorted) => {
-                PreferencesManager.Instance.ProjectTableSort = newSorted;
+                PreferencesManager.Instance.WorkerTableSort = newSorted;
             },
-            onFilteredChange: (newFiltered) => {
-                PreferencesManager.Instance.ProjectTableFilter = newFiltered;
-            },*/
             getTrProps: (state, rowInfo) => {
                 return {
                     onClick: (e, handleOriginal) => {
@@ -202,22 +223,3 @@ class __WorkerTable extends React.Component<IWorkerTableProps, IWorkerTableState
         )
     }
 }
-
-const _WorkerTable = graphql<IWorkerTableProps, any>(UpdateWorkerMutation, {
-    props: ({mutate}) => ({
-        updateWorker: (worker: IWorker) => mutate({
-            variables: {worker}
-        })
-    })
-})(__WorkerTable);
-
-export const WorkerTable = graphql<IWorkerTableProps, any>(SetWorkerInPoolMutation, {
-    props: ({mutate}) => ({
-        setWorkerAvailability: (id: string, shouldBeInSchedulerPool: boolean) => mutate({
-            variables: {
-                id: id,
-                shouldBeInSchedulerPool: shouldBeInSchedulerPool
-            }
-        })
-    })
-})(_WorkerTable);

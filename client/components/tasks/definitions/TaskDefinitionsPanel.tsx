@@ -25,7 +25,7 @@ interface ITaskDefinitionPanelState {
     isHelpDialogShown: boolean;
 }
 
-export class _TaskDefinitionsPanel extends React.Component<ITaskDefinitionPanelProps, ITaskDefinitionPanelState> {
+export class TaskDefinitionsPanel extends React.Component<ITaskDefinitionPanelProps, ITaskDefinitionPanelState> {
     public constructor(props: ITaskDefinitionPanelProps) {
         super(props);
 
@@ -105,7 +105,7 @@ export class _TaskDefinitionsPanel extends React.Component<ITaskDefinitionPanelP
         );
     }
 }
-
+/* TODO
 export const TaskDefinitionsPanel = graphql<ITaskDefinitionPanelProps, any>(CreateTaskDefinitionMutation, {
     props: ({mutate}) => ({
         createTaskDefinition: (taskDefinition: ITaskDefinition) => mutate({
@@ -113,3 +113,4 @@ export const TaskDefinitionsPanel = graphql<ITaskDefinitionPanelProps, any>(Crea
         })
     })
 })(_TaskDefinitionsPanel);
+*/

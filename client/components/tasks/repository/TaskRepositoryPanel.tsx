@@ -23,7 +23,7 @@ interface ITaskRepositoryPanelState {
     isAddDialogShown?: boolean;
 }
 
-class _TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelProps, ITaskRepositoryPanelState> {
+export class TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelProps, ITaskRepositoryPanelState> {
     public constructor(props: ITaskRepositoryPanelProps) {
         super(props);
 
@@ -113,6 +113,7 @@ class _TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelProps, IT
     }
 }
 
+/* TODO
 export const TaskRepositoryPanel = graphql<any, any>(CreateTaskRepositoryMutation, {
     props: ({mutate}) => ({
         createTaskRepository: (taskRepository: ITaskRepository) => mutate({
@@ -120,3 +121,4 @@ export const TaskRepositoryPanel = graphql<any, any>(CreateTaskRepositoryMutatio
         })
     })
 })(_TaskRepositoryPanel);
+*/

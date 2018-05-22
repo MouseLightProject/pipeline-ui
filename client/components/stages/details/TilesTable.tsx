@@ -27,7 +27,7 @@ interface ITilesTableProps {
 interface ITilesTableState {
 }
 
-class _TilesTable extends React.Component<ITilesTableProps, ITilesTableState> {
+export class TilesTable extends React.Component<ITilesTableProps, ITilesTableState> {
     private async onResubmitTile(tile: IPipelineTile) {
         try {
             const result = await this.props.setTileStatus(this.props.pipelineStage.id, [tile.relative_path], TilePipelineStatus.Incomplete);
@@ -129,7 +129,7 @@ class _TilesTable extends React.Component<ITilesTableProps, ITilesTableState> {
         }
     }
 }
-
+/* TODO
 export const TilesTable = graphql<any, any>(SetTileStatusMutation, {
     props: ({mutate}) => ({
         setTileStatus: (pipelineStageId: string, tileIds: string[], status: TilePipelineStatus) => mutate({
@@ -137,3 +137,4 @@ export const TilesTable = graphql<any, any>(SetTileStatusMutation, {
         })
     })
 })(_TilesTable);
+*/

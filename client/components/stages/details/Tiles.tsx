@@ -62,7 +62,7 @@ export class Tiles extends React.Component<ITilesProps, ITilesState> {
     public render() {
 
         return (
-            <TablePanelWithQuery pipelineStage={this.props.pipelineStage}
+            <TilesTablePanel pipelineStage={this.props.pipelineStage}
                                  requestedStatus={this.state.requestedStatus}
                                  offset={this.state.offset}
                                  limit={this.state.limit}
@@ -88,7 +88,7 @@ interface ITilesTablePanelProps {
 interface ITilesTablePanelState {
 }
 
-class __TilesTablePanel extends React.Component<ITilesTablePanelProps, ITilesTablePanelState> {
+class TilesTablePanel extends React.Component<ITilesTablePanelProps, ITilesTablePanelState> {
     private async onResubmitTiles() {
         try {
             const result = await this.props.setTileStatus(this.props.pipelineStage.id, this.props.data.tilesForStage.items.map(t => t.relative_path), TilePipelineStatus.Incomplete);
@@ -176,7 +176,7 @@ const TileStatusQuery = gql`query($pipelineStageId: String, $status: Int, $offse
         }
     }
 }`;
-
+/* TODO
 const _TilesTablePanel = graphql<any, any>(SetTileStatusMutation, {
     props: ({mutate}) => ({
         setTileStatus: (pipelineStageId: string, tileIds: string[], status: TilePipelineStatus) => mutate({
@@ -200,3 +200,4 @@ const TablePanelWithQuery = graphql<any, any>(TileStatusQuery, {
         fetchPolicy: "cache-and-network"
     })
 })(TilesTablePanel);
+*/

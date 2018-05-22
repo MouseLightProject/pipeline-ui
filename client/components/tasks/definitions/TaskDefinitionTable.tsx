@@ -28,7 +28,7 @@ interface ITaskDefinitionsTableState {
     isScriptDialogShown?: boolean
 }
 
-class __TaskDefinitionsTable extends React.Component<ITaskDefinitionsTableProps, ITaskDefinitionsTableState> {
+export class TaskDefinitionsTable extends React.Component<ITaskDefinitionsTableProps, ITaskDefinitionsTableState> {
     public constructor(props) {
         super(props);
 
@@ -292,7 +292,7 @@ class __TaskDefinitionsTable extends React.Component<ITaskDefinitionsTableProps,
         )
     }
 }
-
+/* TODO
 const _TaskDefinitionsTable = graphql<any, any>(UpdateTaskDefinitionMutation, {
     props: ({mutate}) => ({
         updateTaskDefinition: (taskDefinition: ITaskDefinition) => mutate({
@@ -308,7 +308,7 @@ export const TaskDefinitionsTable = graphql<any, any>(DeleteTaskDefinitionMutati
         })
     })
 })(_TaskDefinitionsTable);
-
+*/
 /*
     public render() {
         let rows = [];

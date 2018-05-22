@@ -30,7 +30,7 @@ interface IProjectTableState {
     isDeleteDialogShown?: boolean;
 }
 
-class ___ProjectTable extends React.Component<IProjectTableProps, IProjectTableState> {
+export class ProjectTable extends React.Component<IProjectTableProps, IProjectTableState> {
     constructor(props) {
         super(props);
 
@@ -374,7 +374,7 @@ class ___ProjectTable extends React.Component<IProjectTableProps, IProjectTableS
         )
     }
 }
-
+/* TODO
 const __ProjectTable = graphql<any, any>(UpdateProjectMutation, {
     props: ({mutate}) => ({
         updateProject: (project: IProjectInput) => mutate({
@@ -398,3 +398,4 @@ export const ProjectTable = graphql<any, any>(DuplicateProjectMutation, {
         })
     })
 })(_ProjectTable);
+*/

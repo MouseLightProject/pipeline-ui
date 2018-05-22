@@ -1,21 +1,23 @@
 import * as React from "react";
 import {Route, Redirect, Switch, NavLink} from "react-router-dom";
-import {Container, Icon, Menu, List, SemanticICONS} from "semantic-ui-react"
+import {Container, Icon, Menu, List, Loader, SemanticICONS} from "semantic-ui-react"
+import {Query} from "react-apollo";
 import {ToastContainer} from "react-toastify";
 
 import {MenuLayout} from "./header/MenuLayout";
 
 import {PipelineGraph} from "./graph/PipelineGraph";
-import {Workers} from "./workers/Workers";
+import {WorkersPanel} from "./workers/Workers";
 import {TasksPanel} from "./tasks/Tasks";
 import {PipelineStages} from "./stages/PipelineStages";
 import {Projects} from "./projects/Projects";
 import {Dashboard} from "./Dashboard";
 import {PreferencesManager} from "../util/preferencesManager";
-import {ITileMapsProps, TileMapPanel} from "./tilemap/Tilemaps";
+import {TileMapPanel} from "./tilemap/Tilemaps";
 import {IInternalApiDelegate, InternalApi, IServerConfigurationMessage} from "../api/internalApi/internalApi";
 import {IRealTimeApiDelegate, RealTimeApi} from "../api/realTimeApi";
-import {Configuration} from "../../server/configuration";
+import {BaseQuery} from "../graphql/baseQuery";
+import {IWorker} from "../models/worker";
 
 const toastStyleOverride = {
     minWidth: "600px",
@@ -119,50 +121,75 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
         });
 
         return (
-            <div style={{height: "100%"}}>
-                <ToastContainer autoClose={6000} position="bottom-center" style={toastStyleOverride}/>
-                <MenuLayout isSidebarExpanded={this.state.isSidebarExpanded}
-                            onToggleSidebar={() => this.onToggleSidebar()}/>
-                <div style={{
-                    display: "flex",
-                    minHeight: "calc(100% - 62px)",
-                    margin: 0,
-                    overflow: "hidden",
+            <Query query={BaseQuery}>
+                {
+                    ({loading, error, data}) => {
+                        if (error) {
+                            return (<span>{error.message}</span>);
+                        }
 
-                }}>
-                    <Menu vertical inverted icon={icon}
-                          style={{
-                              order: 0,
-                              flex: "0 0 auto",
-                              width: width + "px",
-                              minHeight: "100%",
-                              transition: "all 0.3s ease"
-                          }}>
-                        {menus}
-                        <Menu.Item>
-                            {this.state.isSidebarExpanded ?
-                                <List divided={false} size="tiny" style={{padding: "0px"}}>
-                                    <List.Item>Version: {this.state.buildVersion}</List.Item>
-                                    <List.Item>PID: {this.state.processId}</List.Item>
-                                </List> : null}
-                        </Menu.Item>
-                    </Menu>
+                        if (loading || !data) {
+                            return (
+                                <div style={{display: "flex", height: "100%", alignItems: "center"}}>
+                                    <Loader active inline="centered">Loading</Loader>
+                                </div>
+                            );
+                        }
 
-                    <Container
-                        style={{order: 1, flex: "1 1 auto", backgroundColor: "rgb(244, 247, 250)", width: "100%"}}>
-                        <Switch>
-                            <Route path="/" exact component={Dashboard}/>
-                            <Route path="/projects" component={Projects}/>
-                            <Route path="/graphs" component={PipelineGraph}/>
-                            <Route path="/tilemaps" render={this.TileMaps}/>
-                            <Route path="/stages" component={PipelineStages}/>
-                            <Route path="/tasks" component={TasksPanel}/>
-                            <Route path="/workers" component={Workers}/>
-                            <Redirect to="/"/>
-                        </Switch>
-                    </Container>
-                </div>
-            </div>
+                        return (
+                            <div style={{height: "100%"}}>
+                                <ToastContainer autoClose={6000} position="bottom-center" style={toastStyleOverride}/>
+                                <MenuLayout isSidebarExpanded={this.state.isSidebarExpanded}
+                                            onToggleSidebar={() => this.onToggleSidebar()}/>
+                                <div style={{
+                                    display: "flex",
+                                    minHeight: "calc(100% - 62px)",
+                                    margin: 0,
+                                    overflow: "hidden",
+
+                                }}>
+                                    <Menu vertical inverted icon={icon}
+                                          style={{
+                                              order: 0,
+                                              flex: "0 0 auto",
+                                              width: width + "px",
+                                              minHeight: "100%",
+                                              transition: "all 0.3s ease"
+                                          }}>
+                                        {menus}
+                                        <Menu.Item>
+                                            {this.state.isSidebarExpanded ?
+                                                <List divided={false} size="tiny" style={{padding: "0px"}}>
+                                                    <List.Item>Version: {this.state.buildVersion}</List.Item>
+                                                    <List.Item>PID: {this.state.processId}</List.Item>
+                                                </List> : null}
+                                        </Menu.Item>
+                                    </Menu>
+
+                                    <Container
+                                        style={{
+                                            order: 1,
+                                            flex: "1 1 auto",
+                                            backgroundColor: "rgb(244, 247, 250)",
+                                            width: "100%"
+                                        }}>
+                                        <Switch>
+                                            <Route path="/" exact component={Dashboard}/>
+                                            <Route path="/projects" component={Projects}/>
+                                            <Route path="/graphs" component={PipelineGraph}/>
+                                            <Route path="/tilemaps" render={this.tileMaps}/>
+                                            <Route path="/stages" component={PipelineStages}/>
+                                            <Route path="/tasks" component={TasksPanel}/>
+                                            <Route path="/workers" render={() => this.workers(data.pipelineWorkers)}/>
+                                            <Redirect to="/"/>
+                                        </Switch>
+                                    </Container>
+                                </div>
+                            </div>
+                        );
+                    }
+                    }
+            </Query>
         )
     }
 
@@ -192,10 +219,16 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
         }
     }
 
-    private TileMaps = () => {
+    private tileMaps = () => {
         return (
             <TileMapPanel thumbsHostname={this.state.thumbsHostname} thumbsPort={this.state.thumbsPort}
                           thumbsPath={this.state.thumbsPath}/>
         );
+    }
+
+    private workers = (workers: IWorker[]) => {
+        return (
+            <WorkersPanel workers={workers}/>
+        )
     }
 }

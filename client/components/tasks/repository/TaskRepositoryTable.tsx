@@ -24,7 +24,7 @@ interface ITaskRepositoryTableState {
     isDeleteDialogShown?: boolean;
 }
 
-class __TaskRepositoryTable extends React.Component<ITaskRepositoryTableProps, ITaskRepositoryTableState> {
+export class TaskRepositoryTable extends React.Component<ITaskRepositoryTableProps, ITaskRepositoryTableState> {
     public constructor(props) {
         super(props);
 
@@ -198,7 +198,7 @@ class __TaskRepositoryTable extends React.Component<ITaskRepositoryTableProps, I
         )
     }
 }
-
+/* TODO
 const _TaskRepositoryTable = graphql<any, any>(UpdateTaskRepositoryMutation, {
     props: ({mutate}) => ({
         updateTaskRepository: (taskRepository: ITaskRepository) => mutate({
@@ -214,3 +214,4 @@ export const TaskRepositoryTable = graphql<any, any>(DeleteTaskRepositoryMutatio
         })
     })
 })(_TaskRepositoryTable);
+*/

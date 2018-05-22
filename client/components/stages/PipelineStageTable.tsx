@@ -36,7 +36,7 @@ interface IPipelineStageTableState {
     isDeleteDialogShown?: boolean;
 }
 
-class __PipelineStageTable extends React.Component<IPipelineStageTableProps, IPipelineStageTableState> {
+export class PipelineStageTable extends React.Component<IPipelineStageTableProps, IPipelineStageTableState> {
     constructor(props) {
         super(props);
 
@@ -325,7 +325,7 @@ class __PipelineStageTable extends React.Component<IPipelineStageTableProps, IPi
         );
     }
 }
-
+/* TODO
 const _PipelineStageTable = graphql<any, any>(UpdatePipelineStageMutation, {
     props: ({mutate}) => ({
         updatePipelineStage: (pipelineStage: IPipelineStage) => mutate({
@@ -341,7 +341,7 @@ export const PipelineStageTable = graphql<any, any>(DeletePipelineStageMutation,
         })
     })
 })(_PipelineStageTable);
-
+*/
 const renderPerformance = (performance) => {
     if (performance === null) {
         return "";

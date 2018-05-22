@@ -17,6 +17,7 @@ interface IEditWorkerProps {
 interface IEditWorkerState {
     worker?: IWorker;
     work_units?: string;
+    units_initialized?: boolean;
 }
 
 export class EditWorkerDialog extends React.Component<IEditWorkerProps, IEditWorkerState> {
@@ -35,7 +36,8 @@ export class EditWorkerDialog extends React.Component<IEditWorkerProps, IEditWor
                 work_unit_capacity: 0,
                 is_cluster_proxy: false
             },
-            work_units: props.sourceWorker ? props.sourceWorker.work_unit_capacity.toString() : "0"
+            work_units: props.sourceWorker ? props.sourceWorker.work_unit_capacity.toString() : "0",
+            units_initialized: props.sourceWorker !== null
         };
     }
 
@@ -44,7 +46,7 @@ export class EditWorkerDialog extends React.Component<IEditWorkerProps, IEditWor
     }
 
     private applySourceWorker(props: IEditWorkerProps) {
-        if (props.sourceWorker) {
+        if (props.sourceWorker && !this.state.units_initialized) {
             this.setState({
                 worker: Object.assign(this.state.worker, (({id, name, work_unit_capacity, is_cluster_proxy}) => ({
                     id,
@@ -52,7 +54,8 @@ export class EditWorkerDialog extends React.Component<IEditWorkerProps, IEditWor
                     work_unit_capacity,
                     is_cluster_proxy
                 }))(props.sourceWorker)),
-                work_units: props.sourceWorker ? props.sourceWorker.work_unit_capacity.toString() : "0"
+                work_units: props.sourceWorker ? props.sourceWorker.work_unit_capacity.toString() : "0",
+                units_initialized: true
             });
         }
     }
@@ -83,7 +86,6 @@ export class EditWorkerDialog extends React.Component<IEditWorkerProps, IEditWor
             work_unit_capacity: parseFloat(this.state.work_units)
         });
 
-        console.log(worker);
         this.props.onAccept(worker)
     }
 

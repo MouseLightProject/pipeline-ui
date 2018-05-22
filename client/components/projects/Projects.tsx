@@ -5,7 +5,7 @@ import {graphql} from "react-apollo";
 import {ProjectsQuery} from "../../graphql/project";
 import {ProjectsPanel} from "./ProjectsPanel";
 
-export class _Projects extends React.Component<any, any> {
+export class Projects extends React.Component<any, any> {
     public render() {
         const loading = !this.props.data || this.props.data.loading;
 
@@ -26,9 +26,10 @@ export class _Projects extends React.Component<any, any> {
         );
     }
 }
-
+/*
 export const Projects = graphql<any, any>(ProjectsQuery, {
     options: {
         pollInterval: 5 * 1000
     }
 })(_Projects);
+*/

@@ -19,7 +19,7 @@ interface IPipelineStagesState {
     selectedStage?: IPipelineStage;
 }
 
-class __PipelineStages extends React.Component<IPipelineStagesProps, IPipelineStagesState> {
+export class PipelineStages extends React.Component<IPipelineStagesProps, IPipelineStagesState> {
     constructor(props) {
         super(props);
         this.state = {pipelinesForProjectId: "", selectedStage: null};
@@ -61,7 +61,6 @@ class __PipelineStages extends React.Component<IPipelineStagesProps, IPipelineSt
                 <PipelineStagesPanel projects={this.props.projectsData.projects}
                                      pipelineStages={this.props.data.pipelineStages}
                                      pipelinesForProjectId={this.state.pipelinesForProjectId}
-                                     selectedPipelineStage={this.state.selectedStage}
                                      onPipelinesForProjectIdChanged={(id: string) => this.onPipelinesForProjectIdChanged(id)}
                                      onSelectedPipelineStageChanged={(s: IPipelineStage) => this.onSelectedPipelineStageChanged(s)}/>
                 <PipelineStageDetails selectedPipelineStage={this.state.selectedStage}/>
@@ -69,7 +68,7 @@ class __PipelineStages extends React.Component<IPipelineStagesProps, IPipelineSt
         );
     }
 }
-
+/*
 const _PipelineStages = graphql<any, any>(ProjectsQuery, {
     name: "projectsData",
     options: {
@@ -82,3 +81,4 @@ export const PipelineStages = graphql<any, any>(PipelineStagesQuery, {
         pollInterval: 5 * 1000
     }
 })(_PipelineStages);
+*/

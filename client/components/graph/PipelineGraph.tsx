@@ -83,7 +83,7 @@ const pipelineGraphQuery = gql`query {
   }
 }`;
 
-class __PipelineGraph extends React.Component<any, IPipelineGraphState> {
+export class PipelineGraph extends React.Component<any, IPipelineGraphState> {
     protected cy = null;
 
     constructor(props) {
@@ -550,7 +550,7 @@ class __PipelineGraph extends React.Component<any, IPipelineGraphState> {
         );
     }
 }
-
+/*
 const _PipelineGraph = graphql<any, any>(pipelineGraphQuery, {
     options: {
         pollInterval: pollingIntervalSeconds * 1000
@@ -564,7 +564,7 @@ export const PipelineGraph = graphql<any, any>(UpdateProjectMutation, {
         })
     })
 })(_PipelineGraph);
-
+*/
 const pieStyle = {
     "width": "mapData(queueWeight, 0, 1, 50, 250)",
     "height": "mapData(queueWeight, 0, 1, 50, 250)",

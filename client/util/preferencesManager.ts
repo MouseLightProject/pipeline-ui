@@ -217,6 +217,24 @@ export class PreferencesManager {
         }
     }
 
+    public set WorkerTableSort(obj: any) {
+        if (typeof(Storage) !== undefined) {
+            localStorage.setItem(prefix + "workerTableSort", JSON.stringify(obj));
+        }
+    }
+
+    public get WorkerTableSort(): any {
+        if (typeof(Storage) !== undefined) {
+            const str = localStorage.getItem(prefix + "workerTableSort");
+
+            if (str) {
+                return JSON.parse(str);
+            }
+        }
+
+        return null;
+    }
+
     private validateDefaultSettings() {
         if (typeof(Storage) !== undefined) {
             if (!localStorage.getItem(prefix + "isSidebarCollapsed")) {
@@ -259,6 +277,13 @@ export class PreferencesManager {
 
             if (!localStorage.getItem(prefix + "stageTableFilter")) {
                 localStorage.setItem(prefix + "stageTableFilter", JSON.stringify([]));
+            }
+
+            if (!localStorage.getItem(prefix + "workerTableSort")) {
+                localStorage.setItem(prefix + "workerTableSort", JSON.stringify([{
+                    id: "name",
+                    sort: "asc"
+                }]));
             }
 
             if (!sessionStorage.getItem(prefix + "preferredProjectId")) {
