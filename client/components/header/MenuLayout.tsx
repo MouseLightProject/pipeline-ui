@@ -1,6 +1,8 @@
 import * as React from "react";
 import {Image, Menu} from "semantic-ui-react";
 import {HeaderSummary} from "../dashboard/HeaderSummary";
+import {IProject} from "../../models/project";
+import {IWorker} from "../../models/worker";
 
 const logoImage = require("../../assets/mouselight-pipeline.svg");
 const logoImageSmall = require("../../assets/mouselight-pipeline-sm.svg");
@@ -8,6 +10,8 @@ const logoImageSmall = require("../../assets/mouselight-pipeline-sm.svg");
 const ChevronCushion = 30;
 
 interface IMenuLayoutProps {
+    projects: IProject[];
+    workers: IWorker[];
     isSidebarExpanded: boolean;
 
     onToggleSidebar(): void;
@@ -41,7 +45,7 @@ export class MenuLayout extends React.Component<IMenuLayoutProps, IMenuLayoutSta
                     <Image size="small" src={logo} style={{height: "100%", width: width + "px"}}/>
                 </Menu.Item>
                 <Menu.Menu position="right">
-                    <HeaderSummary isNavTile={true}/>
+                    <HeaderSummary projects={this.props.projects} workers={this.props.workers} isNavTile={true}/>
                 </Menu.Menu>
             </Menu>
         );

@@ -1,7 +1,5 @@
-///<reference path="../../util/Toasts.tsx"/>
 import * as React from "react";
 import {Container, Header, Menu, Modal} from "semantic-ui-react";
-import {graphql} from 'react-apollo';
 import {toast} from "react-toastify";
 
 import {PipelineStageTable} from "./PipelineStageTable";
@@ -15,12 +13,13 @@ import {DialogMode} from "../helpers/DialogUtils";
 import {themeHighlight} from "../../util/styleDefinitions";
 import {PreferencesManager} from "../../util/preferencesManager";
 import {toastError, toastSuccess} from "../../util/Toasts";
+import {ITaskDefinition} from "../../models/taskDefinition";
 
 interface IPipelineStagesPanelProps {
     projects: IProject[];
     pipelineStages: IPipelineStage[];
+    taskDefinitions: ITaskDefinition[];
     pipelinesForProjectId: string;
-    data?: any;
 
     onPipelinesForProjectIdChanged(id: string);
     onSelectedPipelineStageChanged(stage: IPipelineStage);
@@ -111,7 +110,7 @@ export class PipelineStagesPanel extends React.Component<IPipelineStagesPanelPro
                                              show={this.state.isAddDialogShown}
                                              mode={DialogMode.Create}
                                              projects={this.props.projects}
-                                             tasks={this.props.data.taskDefinitions}
+                                             tasks={this.props.taskDefinitions}
                                              onCancel={() => this.setState({isAddDialogShown: false})}
                                              onAccept={(s: IPipelineStage) => this.onAcceptCreateStage(s)}/>
 
@@ -139,7 +138,7 @@ export class PipelineStagesPanel extends React.Component<IPipelineStagesPanelPro
                                     isFiltered={this.state.isFiltered}
                                     selectedProjectId={this.state.projectId}
                                     pipelineStages={this.props.pipelineStages}
-                                    tasks={this.props.data.taskDefinitions}
+                                    tasks={this.props.taskDefinitions}
                                     projects={this.props.projects}
                                     onSelectedPipelineStageChanged={this.props.onSelectedPipelineStageChanged}/>
             </Container>
@@ -147,12 +146,6 @@ export class PipelineStagesPanel extends React.Component<IPipelineStagesPanelPro
     }
 }
 /* TODO
-const _PipelineStagesPanel = graphql<any, any>(TaskQuery, {
-    options: {
-        pollInterval: 5 * 1000
-    }
-})(__PipelineStagesPanel);
-
 export const PipelineStagesPanel = graphql<any, any>(CreateStageMutation, {
     props: ({mutate}) => ({
         createPipelineStage: (pipelineStage: IPipelineStage) => mutate({

@@ -1,6 +1,6 @@
 import * as React from "react";
 import {graphql} from "react-apollo";
-import {Container, Loader, Menu, Header, Dropdown} from "semantic-ui-react"
+import {Container, Menu, Header, Dropdown} from "semantic-ui-react"
 
 const HighCharts = require("highcharts");
 require("highcharts/modules/heatmap")(HighCharts);
@@ -9,7 +9,7 @@ require("highcharts/modules/map")(HighCharts);
 import {AllProjectsId, ProjectMenu} from "../helpers/ProjectMenu";
 import {PreferencesManager} from "../../util/preferencesManager";
 import {themeHighlight} from "../../util/styleDefinitions";
-import {PipelinePlaneQuery, ProjectsQuery} from "../../graphql/project";
+import {PipelinePlaneQuery} from "../../graphql/project";
 import {TileMapPlotPanel} from "./StageTileMap";
 import {ThumbnailTileMap} from "./ThumbnailTileMap";
 import {IProject} from "../../models/project";
@@ -86,7 +86,7 @@ const InnerTileMapPanel = graphql<any, any>(PipelinePlaneQuery, {
 })(_InnerTileMapPanel);
 
 export interface ITileMapsProps {
-    data?: any;
+    projects: IProject[];
     thumbsHostname: string;
     thumbsPort: number;
     thumbsPath: string;
@@ -101,7 +101,7 @@ interface ITileMapsPState {
     format?: TileMapFormat;
 }
 
-export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPState> {
+export class TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPState> {
     public constructor(props) {
         super(props);
 
@@ -117,9 +117,7 @@ export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPSta
 
     public componentDidMount() {
         if (this.state.projectId === AllProjectsId) {
-            const projects = (this.props.data && !this.props.data.loading) ? this.props.data.projects : [];
-
-            const processing = projects.filter(project => project.is_processing);
+            const processing = this.props.projects.filter(project => project.is_processing);
 
             if (processing.length > 0) {
                 this.onProjectSelectionChange(processing[0].id);
@@ -131,23 +129,21 @@ export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPSta
 
     public componentDidUpdate() {
         if (this.state.projectId === AllProjectsId) {
-            const projects = (this.props.data && !this.props.data.loading && !this.props.data.error) ? this.props.data.projects : [];
-
-            const processing = projects.filter(project => project.is_processing);
+            const processing = this.props.projects.filter(project => project.is_processing);
 
             if (processing.length > 0) {
                 this.onProjectSelectionChange(processing[0].id);
-            } else if (projects.length > 0) {
-                this.onProjectSelectionChange(projects[0].id);
+            } else if (this.props.projects.length > 0) {
+                this.onProjectSelectionChange(this.props.projects[0].id);
             }
         } else {
             this.onProjectSelectionChange(this.state.projectId);
         }
     };
 
-    public componentWillUpdate(nextProps) {
+    public componentWillUpdate(nextProps: ITileMapsProps) {
         if (this.state.projectId.length > 0) {
-            const allProjects = (nextProps.data && !nextProps.data.loading && !nextProps.data.error) ? nextProps.data.projects : [];
+            const allProjects = nextProps.projects;
 
             const projects = allProjects.filter(project => project.id === this.state.projectId);
 
@@ -189,9 +185,8 @@ export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPSta
     }
 
     private onProjectSelectionChange(eventKey, savePreferences = false) {
-        let projects = (this.props.data && !this.props.data.loading) ? this.props.data.projects : [];
 
-        projects = projects.filter(x => x.id === eventKey);
+        let projects = this.props.projects.filter(x => x.id === eventKey);
 
         let minZ = 0;
         let maxZ = 1e6;
@@ -287,23 +282,9 @@ export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPSta
     }
 
     public render() {
-        if (this.props.data.error) {
-            return (<span>{this.props.data.error.message}</span>);
-        }
-
-        const loading = !this.props.data || this.props.data.loading;
-
-        if (loading) {
-            return (
-                <div style={{display: "flex", height: "100%", alignItems: "center"}}>
-                    <Loader active inline="centered">Loading</Loader>
-                </div>
-            );
-        }
-
         let project = null;
 
-        const projects = this.props.data.projects.filter(project => project.id === this.state.projectId);
+        const projects = this.props.projects.filter(project => project.id === this.state.projectId);
 
         if (projects.length > 0) {
             project = projects[0];
@@ -341,7 +322,7 @@ export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPSta
                         </div>
                     </Menu.Header>
                     <Menu.Item style={{padding: 0}}/>
-                    <ProjectMenu style={{width: "200px"}} keyPrefix="tileMap" projects={this.props.data.projects}
+                    <ProjectMenu style={{width: "200px"}} keyPrefix="tileMap" projects={this.props.projects}
                                  selectedProjectId={this.state.projectId}
                                  onProjectSelectionChange={(project) => this.onProjectSelectionChange(project, true)}
                                  includeAllProjects={false}>
@@ -375,10 +356,3 @@ export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPSta
         this.setState({plane});
     };
 }
-
-export const TileMapPanel = graphql<any, any>(ProjectsQuery, {
-    options: {
-        pollInterval: 10 * 1000
-    }
-})(_TileMapPanel);
-

@@ -41,4 +41,6 @@ export interface IPipelineStage {
     depth?: number;
     is_processing?: boolean;
     function_type?: number;
+    created_at?: number;
+    updated_at?: number;
 }

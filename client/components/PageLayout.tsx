@@ -21,6 +21,7 @@ import {IWorker} from "../models/worker";
 import {ITaskDefinition} from "../models/taskDefinition";
 import {ITaskRepository} from "../models/taskRepository";
 import {IProject} from "../models/project";
+import {IPipelineStage} from "../models/pipelineStage";
 
 const toastStyleOverride = {
     minWidth: "600px",
@@ -142,7 +143,7 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
                         return (
                             <div style={{height: "100%"}}>
                                 <ToastContainer autoClose={6000} position="bottom-center" style={toastStyleOverride}/>
-                                <MenuLayout isSidebarExpanded={this.state.isSidebarExpanded}
+                                <MenuLayout projects={data.projects} workers={data.pipelineWorkers} isSidebarExpanded={this.state.isSidebarExpanded}
                                             onToggleSidebar={() => this.onToggleSidebar()}/>
                                 <div style={{
                                     display: "flex",
@@ -177,12 +178,13 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
                                             width: "100%"
                                         }}>
                                         <Switch>
-                                            <Route path="/" exact component={Dashboard}/>
-                                            <Route path="/projects" component={Projects}/>
+                                            <Route path="/" exact render={() => this.dashboard(data.projects, data.pipelineWorkers)}/>
+                                            <Route path="/projects" render={() => this.projects(data.projects)}/>
                                             <Route path="/graphs" render={() => this.pipelineGraphs(data.projects)}/>
-                                            <Route path="/tilemaps" render={this.tileMaps}/>
-                                            <Route path="/stages" component={PipelineStages}/>
-                                            <Route path="/tasks" render={() => this.tasks(data.taskRepositories, data.taskDefinitions, data.pipelineVolume)}/>
+                                            <Route path="/tilemaps" render={() => this.tileMaps(data.projects)}/>
+                                            <Route path="/stages" render={() => this.pipelineStages(data.projects, data.pipelineStages, data.taskDefinitions)}/>
+                                            <Route path="/tasks"
+                                                   render={() => this.tasks(data.taskRepositories, data.taskDefinitions, data.pipelineVolume)}/>
                                             <Route path="/workers" render={() => this.workers(data.pipelineWorkers)}/>
                                             <Redirect to="/"/>
                                         </Switch>
@@ -222,13 +224,25 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
         }
     }
 
+    private dashboard = (projects: IProject[], workers: IWorker[]) => (
+        <Dashboard projects={projects} workers={workers}/>
+    );
+
+    private projects = (projects: IProject[]) => (
+        <Projects projects={projects}/>
+    );
+
     private pipelineGraphs = (projects: IProject[]) => (
         <PipelineGraph projects={projects}/>
     );
 
-    private tileMaps = () => (
-        <TileMapPanel thumbsHostname={this.state.thumbsHostname} thumbsPort={this.state.thumbsPort}
+    private tileMaps = (projects: IProject[]) => (
+        <TileMapPanel projects={projects} thumbsHostname={this.state.thumbsHostname} thumbsPort={this.state.thumbsPort}
                       thumbsPath={this.state.thumbsPath}/>
+    );
+
+    private pipelineStages = (projects: IProject[], pipelineStages: IPipelineStage[], taskDefinitions: ITaskDefinition[]) => (
+        <PipelineStages projects={projects} pipelineStages={pipelineStages} taskDefinitions={taskDefinitions}/>
     );
 
     private tasks = (taskRepositories: ITaskRepository[], taskDefinitions: ITaskDefinition[], pipelineVolume: string) => (

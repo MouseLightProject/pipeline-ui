@@ -1,7 +1,6 @@
 import * as React from "react";
-import gql from "graphql-tag";
-import {graphql} from "react-apollo";
-import {Container, Statistic, Icon, Loader, Menu, Header, Message} from "semantic-ui-react";
+
+import {Container, Statistic, Icon, Loader, Menu, Header, Message, SemanticWIDTHS} from "semantic-ui-react";
 import * as moment from "moment";
 import pluralize = require("pluralize");
 
@@ -13,70 +12,7 @@ import {IProject} from "../../models/project";
 import {IWorker, PipelineWorkerStatus} from "../../models/worker";
 import {themeHighlight} from "../../util/styleDefinitions";
 import {IPipelineStageTileStatus} from "../../models/pipelineStage";
-
-const HeaderSummaryQuery = gql`query {
-  projects {
-    id
-    name
-    description
-    root_path
-    sample_number
-    sample_x_min
-    sample_x_max
-    sample_y_min
-    sample_y_max
-    sample_z_min
-    sample_z_max
-    region_x_min
-    region_x_max
-    region_y_min
-    region_y_max
-    region_z_min
-    region_z_max
-    is_processing
-    stages {
-      id
-      name
-      depth
-      is_processing
-      previous_stage_id
-      task_id
-      task {
-        id
-        name
-      }
-      tile_status {
-        incomplete
-        queued
-        processing
-        complete
-        failed
-        canceled
-      }
-      performance {
-        id
-        cpu_average
-        cpu_high
-        cpu_low
-        memory_average
-        memory_high
-        memory_low
-        duration_average
-        duration_high
-        duration_low
-      }
-    }
-  }
-  pipelineWorkers {
-    id
-    name
-    worker_id
-    work_unit_capacity
-    last_seen
-    task_load
-    status
-  }
-}`;
+import {StatisticSizeProp} from "semantic-ui-react/dist/commonjs/views/Statistic/Statistic";
 
 const visibility: "visible" = "visible";
 
@@ -223,17 +159,16 @@ class AbstractSummary<P, S> extends React.Component<P, S> {
 
 class AbbreviatedTextSummary extends AbstractSummary<any, ITextSummaryState> {
     public render() {
-
         let Component = this.props.isNavTile ? NavTile : CountTile;
 
-        const cumulativeStats = this.buildStageStats(this.props.data.projects);
+        const cumulativeStats = this.buildStageStats(this.props.projects);
 
         return (
             <table style={tileCountStyle}>
                 <tbody>
                 <tr>
                     <td className="tile_stat">
-                        <Component {...this.buildWorkerLoadProps(this.props.data.pipelineWorkers)}/>
+                        <Component {...this.buildWorkerLoadProps(this.props.workers)}/>
                     </td>
                     <td className="tile_stat">
                         <Component {...this.buildStageInProcessProps(cumulativeStats)}/>
@@ -248,7 +183,20 @@ class AbbreviatedTextSummary extends AbstractSummary<any, ITextSummaryState> {
     }
 }
 
-class FullTextSummary extends AbstractSummary<any, ITextSummaryState> {
+interface IFullTextSummaryProps {
+    projects: IProject[];
+    workers: IWorker[];
+    isNavTile: boolean;
+    size: StatisticSizeProp;
+    width: SemanticWIDTHS;
+    inverted: boolean;
+}
+
+interface IFullTextSummaryState {
+    columnLayout: any;
+}
+
+class FullTextSummary extends AbstractSummary<IFullTextSummaryProps, IFullTextSummaryState> {
     public constructor(props) {
         super(props);
 
@@ -262,9 +210,9 @@ class FullTextSummary extends AbstractSummary<any, ITextSummaryState> {
     }
 
     public render() {
-        const workers = this.buildWorkersProps(this.props.data.pipelineWorkers);
-        const pipelineProps = this.buildPipelineProps(this.props.data.projects);
-        const cumulativeStats = this.buildStageStats(this.props.data.projects);
+        const workers = this.buildWorkersProps(this.props.workers);
+        const pipelineProps = this.buildPipelineProps(this.props.projects);
+        const cumulativeStats = this.buildStageStats(this.props.projects);
 
         return (
             <Statistic.Group widths={this.props.width} size={this.props.size} inverted={this.props.inverted}>
@@ -277,7 +225,7 @@ class FullTextSummary extends AbstractSummary<any, ITextSummaryState> {
                 </Statistic>
                 <Statistic>
                     <Statistic.Value>
-                        {this.buildWorkerLoadProps(this.props.data.pipelineWorkers).count.toFixed(1) + "%"}
+                        {this.buildWorkerLoadProps(this.props.workers).count.toFixed(1) + "%"}
                     </Statistic.Value>
                     <Statistic.Label>Load</Statistic.Label>
                 </Statistic>
@@ -314,39 +262,28 @@ class FullTextSummary extends AbstractSummary<any, ITextSummaryState> {
     }
 }
 
-class _HeaderSummary extends React.Component<any, any> {
+interface IHeaderSummaryProps {
+    projects: IProject[];
+    workers: IWorker[];
+    isNavTile: boolean;
+}
+
+interface IHeaderSummaryState {
+}
+
+export class HeaderSummary extends React.Component<IHeaderSummaryProps, IHeaderSummaryState> {
     private getAbbreviatedComponent(isNavTile: boolean) {
         return (
             <div>
-                <AbbreviatedTextSummary data={this.props.data} isNavTile={isNavTile}/>
+                <AbbreviatedTextSummary {...this.props} isNavTile={isNavTile}/>
             </div>
         );
     }
 
     public render() {
-        const isLoading = !this.props.data || this.props.data.loading;
-
-        const graphQLError = this.props.data.error;
-
         const isNavTile = this.props.isNavTile || false;
 
-        if (isLoading) {
-            return (
-                <div style={{display: "flex", height: "100%", alignItems: "center"}}>
-                    <Loader active inline="centered">Loading</Loader>
-                </div>
-            );
-        } else if (graphQLError) {
-            if (isNavTile) {
-                return (
-                    <Container fluid style={{paddingTop: "4px", paddingRight: "4px"}}>
-                        <Message size="mini" icon="alarm" negative content={graphQLError.message}/>
-                    </Container>
-                );
-            } else {
-                return null;
-            }
-        } else if (isNavTile) {
+        if (isNavTile) {
             return (
                 <div style={{color: "white"}}>
                     {this.getAbbreviatedComponent(isNavTile)}
@@ -372,16 +309,10 @@ class _HeaderSummary extends React.Component<any, any> {
                         </Menu.Header>
                     </Menu>
                     <Container fluid style={{padding: "20px"}}>
-                        <FullTextSummary data={this.props.data} size="small" width={3} inverted={false}/>
+                        <FullTextSummary {...this.props} size="small" width={3} inverted={false}/>
                     </Container>
                 </Container>
             );
         }
     }
 }
-
-export const HeaderSummary = graphql<any, any>(HeaderSummaryQuery, {
-    options: {
-        pollInterval: 5 * 1000
-    }
-})(_HeaderSummary);
