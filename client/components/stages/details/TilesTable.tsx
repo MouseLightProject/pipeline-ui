@@ -1,7 +1,6 @@
 import * as React from "react";
 import {Button} from "semantic-ui-react";
 import ReactTable from "react-table";
-import {graphql} from "react-apollo";
 import {toast} from "react-toastify";
 
 import {IPipelineTile} from "../../../models/pipelineTile";
@@ -25,9 +24,22 @@ interface ITilesTableProps {
 }
 
 interface ITilesTableState {
+    cachedTiles?: IPipelineTile[];
+    cachedPageCount?: number;
+    isRemoved: boolean;
 }
 
 export class TilesTable extends React.Component<ITilesTableProps, ITilesTableState> {
+    public constructor(props: ITilesTableProps) {
+        super(props);
+
+        this.state = {
+            cachedTiles: [],
+            cachedPageCount: -1,
+            isRemoved: false
+        }
+    }
+
     private async onResubmitTile(tile: IPipelineTile) {
         try {
             const result = await this.props.setTileStatus(this.props.pipelineStage.id, [tile.relative_path], TilePipelineStatus.Incomplete);
@@ -43,8 +55,14 @@ export class TilesTable extends React.Component<ITilesTableProps, ITilesTableSta
         }
     }
 
+    public componentWillReceiveProps(props: ITilesTableProps) {
+        if (!props.loading) {
+            this.setState({cachedTiles: props.tiles, cachedPageCount: props.pageCount});
+        }
+    }
+
     public render() {
-        if (this.props.tiles.length > 0) {
+        if (this.state.cachedTiles.length > 0) {
             const columns = [
                 {
                     id: "resubmit",
@@ -73,7 +91,7 @@ export class TilesTable extends React.Component<ITilesTableProps, ITilesTableSta
 
             const props = {
                 style: {backgroundColor: "white"},
-                data: this.props.tiles,
+                data: this.state.cachedTiles,
                 columns: columns,
                 showPaginationTop: true,
                 showPaginationBottom: false,
@@ -82,44 +100,19 @@ export class TilesTable extends React.Component<ITilesTableProps, ITilesTableSta
                 minRows: 0,
                 // loading: this.props.loading,
                 manual: true,
-                pages: this.props.pageCount,
+                pages: this.state.cachedPageCount,
                 defaultPageSize: PreferencesManager.Instance.StageDetailsPageSize,
                 onFetchData: (state) => {
-                   if (isNaN(state.pageSize)) {
+                    if (isNaN(state.pageSize)) {
                         state.pageSize = PreferencesManager.Instance.StageDetailsPageSize;
                     }
                     this.props.onCursorChanged(state.page, state.pageSize);
                 }
-                /*
-                defaultSorted: PreferencesManager.Instance.StageTableSort,
-                defaultFiltered: this.props.isFiltered ? PreferencesManager.Instance.StageTableFilter : [],
-                filterable: this.props.isFiltered,
-                onSortedChange: (newSorted) => {
-                    PreferencesManager.Instance.StageTableSort = newSorted;
-                },
-                onFilteredChange: (newFiltered) => {
-                    PreferencesManager.Instance.StageTableFilter = newFiltered;
-                },
-                getTrProps: (state, rowInfo) => {
-                    return {
-                        onClick: (e, handleOriginal) => {
-                            if (!handleOriginal) {
-                                this.setState({selectedStage: rowInfo.original});
-                                this.props.onSelectedPipelineStageChanged(rowInfo.original);
-                            }
-
-                            if (handleOriginal) {
-                                handleOriginal()
-                            }
-                        },
-                        style: this.state.selectedStage && rowInfo.original.id === this.state.selectedStage.id ? {backgroundColor: "rgb(233, 236, 239)"} : {}
-                    }
-                }*/
             };
 
             return (
                 <div style={Object.assign({width: "100%"}, this.props.style || {})}>
-                    <ReactTable {...props} className="-highlight"/>
+                    <ReactTable {...props} className="-highlight" style={{borderTop: "none"}}/>
                 </div>
             );
         } else {
@@ -129,6 +122,7 @@ export class TilesTable extends React.Component<ITilesTableProps, ITilesTableSta
         }
     }
 }
+
 /* TODO
 export const TilesTable = graphql<any, any>(SetTileStatusMutation, {
     props: ({mutate}) => ({

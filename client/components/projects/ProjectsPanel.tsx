@@ -1,5 +1,4 @@
 import * as React from "react";
-import {graphql} from 'react-apollo';
 import {Container, Header, Menu, MenuItem, Modal} from "semantic-ui-react";
 import {toast} from "react-toastify";
 

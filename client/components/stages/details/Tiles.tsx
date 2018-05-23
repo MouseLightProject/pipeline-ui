@@ -1,8 +1,6 @@
 import * as React from "react";
 import {Container, Menu} from "semantic-ui-react";
-
-import {graphql} from "react-apollo";
-import gql from "graphql-tag";
+import {Query} from "react-apollo";
 
 import {IPipelineStage} from "../../../models/pipelineStage";
 import {TilesTable} from "./TilesTable";
@@ -13,7 +11,7 @@ import {
 import {TilePipelineStatusSelect} from "../../helpers/TilePipelineStatusSelect";
 import {PreferencesManager} from "../../../util/preferencesManager";
 import {toast} from "react-toastify";
-import {ConvertTileStatusMutation, SetTileStatusMutation} from "../../../graphql/pipelineTile";
+import {ConvertTileStatusMutation, SetTileStatusMutation, TilesForStageQuery} from "../../../graphql/pipelineTile";
 import {toastError, toastSuccess} from "../../../util/Toasts";
 
 interface ITilesProps {
@@ -60,14 +58,13 @@ export class Tiles extends React.Component<ITilesProps, ITilesState> {
     }
 
     public render() {
-
         return (
             <TilesTablePanel pipelineStage={this.props.pipelineStage}
-                                 requestedStatus={this.state.requestedStatus}
-                                 offset={this.state.offset}
-                                 limit={this.state.limit}
-                                 onCursorChanged={(page: number, pageSize: number) => this.updateCursor(page, pageSize)}
-                                 onRequestedStatusChanged={(t: TilePipelineStatusType) => this.onTilePipelineStatusTypeChanged(t)}/>
+                             requestedStatus={this.state.requestedStatus}
+                             offset={this.state.offset}
+                             limit={this.state.limit}
+                             onCursorChanged={(page: number, pageSize: number) => this.updateCursor(page, pageSize)}
+                             onRequestedStatusChanged={(t: TilePipelineStatusType) => this.onTilePipelineStatusTypeChanged(t)}/>
         );
     }
 }
@@ -86,9 +83,18 @@ interface ITilesTablePanelProps {
 }
 
 interface ITilesTablePanelState {
+    isRemoved?: boolean;
 }
 
 class TilesTablePanel extends React.Component<ITilesTablePanelProps, ITilesTablePanelState> {
+    public constructor(props: ITilesTablePanelProps) {
+        super(props);
+
+        this.state = {
+            isRemoved: false
+        }
+    }
+
     private async onResubmitTiles() {
         try {
             const result = await this.props.setTileStatus(this.props.pipelineStage.id, this.props.data.tilesForStage.items.map(t => t.relative_path), TilePipelineStatus.Incomplete);
@@ -122,60 +128,57 @@ class TilesTablePanel extends React.Component<ITilesTablePanelProps, ITilesTable
     }
 
     public render() {
-        let tilesForStage = [];
-        let pageCount = -1;
-        let loading = true;
-
-        if (this.props.data && this.props.data.tilesForStage) {
-            tilesForStage = this.props.data.tilesForStage.items;
-            loading = this.props.data.loading;
-            if (this.props.data.tilesForStage.items.length > 0 && this.props.data.tilesForStage.limit > 0) {
-                pageCount = Math.ceil(this.props.data.tilesForStage.totalCount / this.props.data.tilesForStage.limit);
-            }
-        }
-
         return (
-            <Container fluid style={{padding: "20px"}}>
-                <Menu size="mini" style={{borderBottomWidth: pageCount > 0 ? "0" : "1px"}}>
-                    <TilePipelineStatusSelect
-                        statusTypes={TILE_PIPELINE_STATUS_TYPES}
-                        selectedStatus={this.props.requestedStatus}
-                        onSelectStatus={(t) => this.props.onRequestedStatusChanged(t)}/>
-                    <Menu.Menu position="right">
-                        <Menu.Item size="mini" content="Resubmit Page" icon="repeat"
-                                   disabled={!this.props.requestedStatus.canSubmit || tilesForStage.length === 0}
-                                   onClick={() => this.onResubmitTiles()}/>
-                        <Menu.Item size="mini" content="Resubmit All" icon="repeat"
-                                   disabled={!this.props.requestedStatus.canSubmit || tilesForStage.length === 0}
-                                   onClick={() => this.onResubmitAllTiles()}/>
-                    </Menu.Menu>
-                </Menu>
-                <TilesTable pipelineStage={this.props.pipelineStage}
-                            tiles={tilesForStage}
-                            canSubmit={this.props.requestedStatus.canSubmit}
-                            loading={loading}
-                            pageCount={pageCount}
-                            onCursorChanged={this.props.onCursorChanged}
-                />
-            </Container>
+            <Query query={TilesForStageQuery} fetchPolicy="cache-and-network" pollInterval={5000} variables={{
+                pipelineStageId: this.props.pipelineStage.id,
+                status: this.props.requestedStatus.option,
+                offset: this.props.offset,
+                limit: this.props.limit
+            }}>
+                {({loading, error, data}) => {
+                    let tilesForStage = null;
+                    let pageCount = -1;
+
+                    if (!loading && !error) {
+                        tilesForStage = data.tilesForStage.items;
+                        if (data.tilesForStage.totalCount > 0 && data.tilesForStage.limit > 0) {
+                            pageCount = Math.ceil(data.tilesForStage.totalCount / data.tilesForStage.limit);
+                        }
+                    }
+
+                    return (
+                        <Container fluid style={{padding: "20px"}}>
+                            <Menu size="mini" style={{borderBottomWidth: "1px"}}>
+                                <TilePipelineStatusSelect
+                                    statusTypes={TILE_PIPELINE_STATUS_TYPES}
+                                    selectedStatus={this.props.requestedStatus}
+                                    onSelectStatus={(t) => this.props.onRequestedStatusChanged(t)}/>
+                                <Menu.Menu position="right">
+                                    <Menu.Item size="mini" content="Resubmit Page" icon="repeat"
+                                               disabled={!this.props.requestedStatus.canSubmit || (!loading && data.tilesForStage.length === 0)}
+                                               onClick={() => this.onResubmitTiles()}/>
+                                    <Menu.Item size="mini" content="Resubmit All" icon="repeat"
+                                               disabled={!this.props.requestedStatus.canSubmit || (!loading && data.tilesForStage.length === 0)}
+                                               onClick={() => this.onResubmitAllTiles()}/>
+                                </Menu.Menu>
+                            </Menu>
+                            <TilesTable pipelineStage={this.props.pipelineStage}
+                                        tiles={tilesForStage}
+                                        canSubmit={this.props.requestedStatus.canSubmit}
+                                        loading={loading}
+                                        pageCount={pageCount}
+                                        onCursorChanged={this.props.onCursorChanged}
+                            />
+
+                        </Container>
+                    );
+                }
+                }
+            </Query>
         );
     }
 }
 
-const TileStatusQuery = gql`query($pipelineStageId: String, $status: Int, $offset: Int, $limit: Int) {
-    tilesForStage(pipelineStageId: $pipelineStageId, status: $status, offset: $offset, limit: $limit) {
-        offset
-        limit
-        totalCount
-        hasNextPage
-        items {
-            relative_path
-            lat_x
-            lat_y
-            lat_z
-        }
-    }
-}`;
 /* TODO
 const _TilesTablePanel = graphql<any, any>(SetTileStatusMutation, {
     props: ({mutate}) => ({
@@ -192,12 +195,4 @@ const TilesTablePanel = graphql<any, any>(ConvertTileStatusMutation, {
         })
     })
 })(_TilesTablePanel);
-
-const TablePanelWithQuery = graphql<any, any>(TileStatusQuery, {
-    options: ({pipelineStage, requestedStatus, offset, limit}) => ({
-        pollInterval: 5 * 1000,
-        variables: {pipelineStageId: pipelineStage.id, status: requestedStatus.option, offset, limit},
-        fetchPolicy: "cache-and-network"
-    })
-})(TilesTablePanel);
 */
