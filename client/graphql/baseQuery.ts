@@ -57,6 +57,14 @@ export const BaseQuery = gql`query {
         id
         name
       }
+      tile_status {
+        incomplete
+        queued
+        processing
+        complete
+        failed
+        canceled
+      }
       performance {
         id
         num_in_process

@@ -1,21 +1,19 @@
 import * as React from "react";
-import gql from "graphql-tag";
-import {graphql} from "react-apollo";
 import {Menu, Header} from "semantic-ui-react"
+import {Mutation} from "react-apollo";
+import {toast} from "react-toastify";
 
 import {AllProjectsId, ProjectMenu} from "../helpers/ProjectMenu";
 import {IPipelineStage} from "../../models/pipelineStage";
 import {calculateProjectBreadth} from "../../models/modelUtils";
 import {IProject, IProjectInput} from "../../models/project";
-import {pollingIntervalSeconds, PreferencesManager} from "../../util/preferencesManager";
+import {PreferencesManager} from "../../util/preferencesManager";
 import {themeHighlight} from "../../util/styleDefinitions";
-import {toast} from "react-toastify";
 import {UpdateProjectMutation} from "../../graphql/project";
 import {toastError} from "../../util/Toasts";
 
-let cytoscape = require("cytoscape");
-let cxtmenu = require("../../util/graphMenu")(cytoscape);
-
+const cytoscape = require("cytoscape");
+require("../../util/graphMenu")(cytoscape);
 
 function SetDifference<T>(setA: Set<T>, setB: Set<T>): Set<T> {
     let difference: Set<T> = new Set<T>(setA);
@@ -25,76 +23,28 @@ function SetDifference<T>(setA: Set<T>, setB: Set<T>): Set<T> {
     return difference;
 }
 
+interface IPipelineGraphProps {
+    projects: IProject[];
+}
+
 interface IPipelineGraphState {
     projectId?: string;
 }
 
-const pipelineGraphQuery = gql`query {
-  projects {
-    id
-    name
-    description
-    root_path
-    sample_number
-    sample_x_min
-    sample_x_max
-    sample_y_min
-    sample_y_max
-    sample_z_min
-    sample_z_max
-    region_x_min
-    region_x_max
-    region_y_min
-    region_y_max
-    region_z_min
-    region_z_max
-    is_processing
-    stages {
-      id
-      name
-      depth
-      previous_stage_id
-      task_id
-      task {
-        id
-        name
-      }
-      tile_status {
-        incomplete
-        queued
-        processing
-        complete
-        failed
-        canceled
-      }
-      performance {
-        id
-        cpu_average
-        cpu_high
-        cpu_low
-        memory_average
-        memory_high
-        memory_low
-        duration_average
-        duration_high
-        duration_low
-      }
-    }
-  }
-}`;
-
-export class PipelineGraph extends React.Component<any, IPipelineGraphState> {
-    protected cy = null;
+export class PipelineGraph extends React.Component<IPipelineGraphProps, IPipelineGraphState> {
+    private cy = null;
+    private _updateProject = null;
 
     constructor(props) {
         super(props);
 
         this.state = {
-            projectId: PreferencesManager.Instance.PreferredProjectId
+            projectId: null
         };
     }
 
     private async onToggleIsProcessing(project: IProjectInput, isProcessing: boolean) {
+        /*
         try {
             const result = await this.props.updateProject({id: project.id, is_processing: isProcessing});
 
@@ -103,6 +53,10 @@ export class PipelineGraph extends React.Component<any, IPipelineGraphState> {
             }
         } catch (error) {
             toast.error(toastError("Update", error), {autoClose: false});
+        }*/
+
+        if (this._updateProject) {
+            this._updateProject({variables: {project: {id: project.id, is_processing: isProcessing}}});
         }
     }
 
@@ -115,15 +69,8 @@ export class PipelineGraph extends React.Component<any, IPipelineGraphState> {
     };
 
     private onResetView = () => {
-        if (this.props.data.refetch) {
-            this.props.data.refetch().then(() => {
-                this.cy.fit([], 30);
-                this.cy.center();
-            });
-        } else {
-            this.cy.fit([], 30);
-            this.cy.center();
-        }
+        this.cy.fit([], 30);
+        this.cy.center();
     };
 
     private calculateWaiting(project: IProject): number {
@@ -312,7 +259,7 @@ export class PipelineGraph extends React.Component<any, IPipelineGraphState> {
         let nodes = [];
         let edges = [];
 
-        projects.forEach((project, index) => {
+        projects.forEach(project => {
             if (this.state.projectId !== AllProjectsId && this.state.projectId !== project.id) {
                 return;
             }
@@ -421,41 +368,41 @@ export class PipelineGraph extends React.Component<any, IPipelineGraphState> {
                     roots: []
                 }
             });
-/*
-        this.cy.cxtmenu({
-            menuRadius: 120,
-            selector: "node[isProject = 0]",
-            commands: [
-                {
-                    content: "Pause/Resume",
-                    select: function () {
-                        console.log("bg1");
-                    },
-                    enabled: (ele) => {
-                        return false;
-                    }
-                },
-                {
-                    content: "Resubmit Canceled",
-                    select: function () {
-                        console.log("bg2");
-                    }
-                },
-                {
-                    content: "Resubmit Failed",
-                    select: function () {
-                        console.log("bg2");
-                    }
-                },
-                {
-                    content: "Resubmit All",
-                    select: function () {
-                        console.log("bg2");
-                    }
-                }
-            ]
-        });
-*/
+        /*
+                this.cy.cxtmenu({
+                    menuRadius: 120,
+                    selector: "node[isProject = 0]",
+                    commands: [
+                        {
+                            content: "Pause/Resume",
+                            select: function () {
+                                console.log("bg1");
+                            },
+                            enabled: (ele) => {
+                                return false;
+                            }
+                        },
+                        {
+                            content: "Resubmit Canceled",
+                            select: function () {
+                                console.log("bg2");
+                            }
+                        },
+                        {
+                            content: "Resubmit Failed",
+                            select: function () {
+                                console.log("bg2");
+                            }
+                        },
+                        {
+                            content: "Resubmit All",
+                            select: function () {
+                                console.log("bg2");
+                            }
+                        }
+                    ]
+                });
+        */
         this.cy.cxtmenu({
             menuRadius: 100,
             selector: "node[isProject = 1]",
@@ -487,7 +434,10 @@ export class PipelineGraph extends React.Component<any, IPipelineGraphState> {
             node.data("isPie", node.data("isPie") === 1 ? 0 : 1);
         });
 
-        setTimeout(() => this.onResetView(), 250);
+        // Force a render now that cy is mounted.
+        this.setState({
+            projectId: PreferencesManager.Instance.PreferredProjectId
+        });
     };
 
     public componentWillUnmount() {
@@ -496,26 +446,7 @@ export class PipelineGraph extends React.Component<any, IPipelineGraphState> {
     };
 
     public render() {
-        const divStyle = {
-            height: "100%",
-            width: "100%"
-        };
-
-        const test = {
-            height: "100%",
-            width: "100%"
-        };
-
-
-        if (this.props.data.error) {
-            return (<span>{this.props.data.error.message}</span>);
-        }
-
-        const loading = !this.props.data || this.props.data.loading;
-
-        const projects = !loading ? this.props.data.projects : [];
-
-        this.update(projects);
+        this.update(this.props.projects);
 
         return (
             <div style={test}>
@@ -536,7 +467,7 @@ export class PipelineGraph extends React.Component<any, IPipelineGraphState> {
                     </Menu.Header>
                     <Menu.Item style={{padding: 0}}/>
                     <ProjectMenu keyPrefix="pipelineGraph"
-                                 projects={projects}
+                                 projects={this.props.projects}
                                  selectedProjectId={this.state.projectId}
                                  onProjectSelectionChange={this.onProjectSelectionChange}
                                  includeAllProjects={true}>
@@ -545,18 +476,21 @@ export class PipelineGraph extends React.Component<any, IPipelineGraphState> {
                         <Menu.Item onClick={this.onResetView}>Reset view</Menu.Item>
                     </Menu.Menu>
                 </Menu>
-                <div id="cy" style={divStyle}/>
+                <Mutation mutation={UpdateProjectMutation}>
+                    {(updateProject: Function) => {
+                        this._updateProject = updateProject;
+                        return (
+                            <div id="cy" style={divStyle}/>
+                        )
+                    }
+                    }
+                </Mutation>
             </div>
         );
     }
 }
-/*
-const _PipelineGraph = graphql<any, any>(pipelineGraphQuery, {
-    options: {
-        pollInterval: pollingIntervalSeconds * 1000
-    }
-})(__PipelineGraph);
 
+/*
 export const PipelineGraph = graphql<any, any>(UpdateProjectMutation, {
     props: ({mutate}) => ({
         updateProject: (project: IProjectInput) => mutate({
@@ -565,6 +499,16 @@ export const PipelineGraph = graphql<any, any>(UpdateProjectMutation, {
     })
 })(_PipelineGraph);
 */
+const divStyle = {
+    height: "100%",
+    width: "100%"
+};
+
+const test = {
+    height: "100%",
+    width: "100%"
+};
+
 const pieStyle = {
     "width": "mapData(queueWeight, 0, 1, 50, 250)",
     "height": "mapData(queueWeight, 0, 1, 50, 250)",

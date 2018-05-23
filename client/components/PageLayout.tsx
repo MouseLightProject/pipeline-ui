@@ -20,6 +20,7 @@ import {BaseQuery} from "../graphql/baseQuery";
 import {IWorker} from "../models/worker";
 import {ITaskDefinition} from "../models/taskDefinition";
 import {ITaskRepository} from "../models/taskRepository";
+import {IProject} from "../models/project";
 
 const toastStyleOverride = {
     minWidth: "600px",
@@ -178,7 +179,7 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
                                         <Switch>
                                             <Route path="/" exact component={Dashboard}/>
                                             <Route path="/projects" component={Projects}/>
-                                            <Route path="/graphs" component={PipelineGraph}/>
+                                            <Route path="/graphs" render={() => this.pipelineGraphs(data.projects)}/>
                                             <Route path="/tilemaps" render={this.tileMaps}/>
                                             <Route path="/stages" component={PipelineStages}/>
                                             <Route path="/tasks" render={() => this.tasks(data.taskRepositories, data.taskDefinitions, data.pipelineVolume)}/>
@@ -220,6 +221,10 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
             this.setState({loadedBuildVersion: message.buildVersion});
         }
     }
+
+    private pipelineGraphs = (projects: IProject[]) => (
+        <PipelineGraph projects={projects}/>
+    );
 
     private tileMaps = () => (
         <TileMapPanel thumbsHostname={this.state.thumbsHostname} thumbsPort={this.state.thumbsPort}

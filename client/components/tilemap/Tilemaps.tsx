@@ -291,8 +291,6 @@ export class _TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPSta
             return (<span>{this.props.data.error.message}</span>);
         }
 
-        console.log(this.props.data);
-
         const loading = !this.props.data || this.props.data.loading;
 
         if (loading) {
