@@ -45,35 +45,30 @@ export class WorkerTable extends React.Component<IWorkerTableProps, IWorkerTable
         this.setState({isUpdateDialogShown: true});
     }
 
-    private async onAcceptUpdateWorker3(worker: IWorker, updateWorker, showSuccessToast: boolean = true) {
-        this.setState({isUpdateDialogShown: false});
-
-        try {
-            const result = await this.props.updateWorker(worker);
-
-            if (!result.data.updateWorker.worker) {
-                toast.error(toastError("Update", result.data.updateWorker.error), {autoClose: false});
-            } else if (showSuccessToast) {
-                toast.success(toastSuccess("Update"), {autoClose: 3000});
-            }
-        } catch (error) {
-            toast.error(toastError("Update", error), {autoClose: false});
+    private onCompleteUpdateWorker = (data) => {
+        if (!data.updateWorker.worker) {
+            toast.error(toastError("Update", data.updateWorker.error), {autoClose: false});
+        } else {
+            toast.success(toastSuccess("Update"), {autoClose: 3000});
         }
-    }
+    };
+
+    private onUpdateWorkerError = (error) => {
+        toast.error(toastError("Update", error), {autoClose: false});
+    };
+
+    private onAcceptEditDialog = (w: IWorker, updateWorker: Function) => {
+        this.setState({isUpdateDialogShown: false});
+        updateWorker({variables: {worker: w}});
+    };
 
     private renderMenu() {
         const disabled = this.state.selectedWorker === null;
 
         return (
-            <Mutation mutation={UpdateWorkerMutation} onCompleted={(data) => {if (!data.updateWorker.worker) {
-                toast.error(toastError("Update", data.updateWorker.error), {autoClose: false});
-            } else {
-                toast.success(toastSuccess("Update"), {autoClose: 3000});
-            }}} onError={(error) => {
-                toast.error(toastError("Update", error), {autoClose: false});
-            }}>
-                {(updateWorker, response) => {
-                    console.log(response);
+            <Mutation mutation={UpdateWorkerMutation} onCompleted={this.onCompleteUpdateWorker}
+                      onError={this.onUpdateWorkerError}>
+                {(updateWorker: Function) => {
                     return (
                         <Menu size="mini" style={{borderBottom: "none"}}>
                             <EditWorkerDialog
@@ -83,11 +78,7 @@ export class WorkerTable extends React.Component<IWorkerTableProps, IWorkerTable
                                 mode={DialogMode.Update}
                                 sourceWorker={this.state.selectedWorker}
                                 onCancel={() => this.setState({isUpdateDialogShown: false})}
-                                onAccept={(w: IWorker) => {
-                                    this.setState({isUpdateDialogShown: false});
-                                    updateWorker({variables: {worker: w}});
-                                }
-                                }/>
+                                onAccept={(w: IWorker) => this.onAcceptEditDialog(w, updateWorker)}/>
                             {this.state.selectedWorker ? <Menu.Header>
                                 <div style={{
                                     height: "100%",

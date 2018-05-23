@@ -7,7 +7,7 @@ import {ToastContainer} from "react-toastify";
 import {MenuLayout} from "./header/MenuLayout";
 
 import {PipelineGraph} from "./graph/PipelineGraph";
-import {WorkersPanel} from "./workers/Workers";
+import {WorkersPanel} from "./workers/WorkersPanel";
 import {TasksPanel} from "./tasks/Tasks";
 import {PipelineStages} from "./stages/PipelineStages";
 import {Projects} from "./projects/Projects";
@@ -18,6 +18,8 @@ import {IInternalApiDelegate, InternalApi, IServerConfigurationMessage} from "..
 import {IRealTimeApiDelegate, RealTimeApi} from "../api/realTimeApi";
 import {BaseQuery} from "../graphql/baseQuery";
 import {IWorker} from "../models/worker";
+import {ITaskDefinition} from "../models/taskDefinition";
+import {ITaskRepository} from "../models/taskRepository";
 
 const toastStyleOverride = {
     minWidth: "600px",
@@ -121,7 +123,7 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
         });
 
         return (
-            <Query query={BaseQuery}>
+            <Query query={BaseQuery} pollInterval={5000}>
                 {
                     ({loading, error, data}) => {
                         if (error) {
@@ -179,7 +181,7 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
                                             <Route path="/graphs" component={PipelineGraph}/>
                                             <Route path="/tilemaps" render={this.tileMaps}/>
                                             <Route path="/stages" component={PipelineStages}/>
-                                            <Route path="/tasks" component={TasksPanel}/>
+                                            <Route path="/tasks" render={() => this.tasks(data.taskRepositories, data.taskDefinitions, data.pipelineVolume)}/>
                                             <Route path="/workers" render={() => this.workers(data.pipelineWorkers)}/>
                                             <Redirect to="/"/>
                                         </Switch>
@@ -188,7 +190,7 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
                             </div>
                         );
                     }
-                    }
+                }
             </Query>
         )
     }
@@ -219,16 +221,17 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
         }
     }
 
-    private tileMaps = () => {
-        return (
-            <TileMapPanel thumbsHostname={this.state.thumbsHostname} thumbsPort={this.state.thumbsPort}
-                          thumbsPath={this.state.thumbsPath}/>
-        );
-    }
+    private tileMaps = () => (
+        <TileMapPanel thumbsHostname={this.state.thumbsHostname} thumbsPort={this.state.thumbsPort}
+                      thumbsPath={this.state.thumbsPath}/>
+    );
 
-    private workers = (workers: IWorker[]) => {
-        return (
-            <WorkersPanel workers={workers}/>
-        )
-    }
+    private tasks = (taskRepositories: ITaskRepository[], taskDefinitions: ITaskDefinition[], pipelineVolume: string) => (
+        <TasksPanel taskDefinitions={taskDefinitions} taskRepositories={taskRepositories}
+                    pipelineVolume={pipelineVolume}/>
+    );
+
+    private workers = (workers: IWorker[]) => (
+        <WorkersPanel workers={workers}/>
+    );
 }

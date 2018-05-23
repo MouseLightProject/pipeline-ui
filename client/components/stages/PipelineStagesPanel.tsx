@@ -11,7 +11,6 @@ import {IProject} from "../../models/project";
 import {StagesHelpPanel} from "./PipelineStagesHelp";
 import {EditPipelineStageDialog} from "./EditPipelineStageDialog";
 import {CreateStageMutation} from "../../graphql/pipelineStage";
-import {TaskQuery} from "../../graphql/taskDefinition";
 import {DialogMode} from "../helpers/DialogUtils";
 import {themeHighlight} from "../../util/styleDefinitions";
 import {PreferencesManager} from "../../util/preferencesManager";

@@ -6,9 +6,9 @@ import {ITaskRepository} from "../../../models/taskRepository";
 import {DialogMode} from "../../helpers/DialogUtils";
 
 interface IEditRepositoryProps {
-    element: any;
+    trigger: React.ReactNode;
     mode: DialogMode;
-    show: boolean;
+    isOpen: boolean;
     sourceRepository?: ITaskRepository;
 
     onCancel(): void;
@@ -38,21 +38,20 @@ export class EditRepositoryDialog extends React.Component<IEditRepositoryProps, 
         };
     }
 
-    public componentWillReceiveProps(props: IEditRepositoryProps) {
-        this.applySourceRepository();
-    }
-
     private applySourceRepository() {
-        if (this.props.sourceRepository) {
-            this.setState({
-                repository: Object.assign(this.state.repository, (({id, name, description, location}) => ({
-                    id,
-                    name,
-                    description,
-                    location
-                }))(this.props.sourceRepository))
-            });
-        }
+        this.setState({
+            repository: this.props.sourceRepository ? (({id, name, description, location}) => ({
+                id,
+                name,
+                description,
+                location
+            }))(this.props.sourceRepository) : {
+                id: null,
+                name: "",
+                description: "",
+                location: ""
+            }
+        });
     }
 
     private get isNameValid(): boolean {
@@ -104,7 +103,7 @@ export class EditRepositoryDialog extends React.Component<IEditRepositoryProps, 
         const title = this.props.mode === DialogMode.Create ? "Add New Repository" : "Update Repository";
 
         return (
-            <Modal trigger={this.props.element} open={this.props.show}>
+            <Modal trigger={this.props.trigger} open={this.props.isOpen} onOpen={() => this.applySourceRepository()}>
                 <Modal.Header style={{backgroundColor: "#5bc0de", color: "white"}}>
                     {title}
                 </Modal.Header>

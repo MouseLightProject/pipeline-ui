@@ -5,5 +5,5 @@ export const toastSuccess = (action: string) => {
 };
 
 export const toastError = (action: string, error: Error) => {
-    return (<div><h3>{`${action} failed`}</h3>{error ? error.message : "(no additional details available)"}</div>);
+    return (<div><h3>{`${action} failed`}</h3>{error ? (error.message ? error.message : error) : "(no additional details available)"}</div>);
 };

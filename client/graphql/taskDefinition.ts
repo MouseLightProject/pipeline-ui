@@ -1,22 +1,6 @@
 import gql from "graphql-tag";
 
-export const TaskQuery = gql`query {
-  taskRepositories {
-    id
-    name
-    description
-    location
-    task_definitions {
-      id
-      name
-      description
-      pipeline_stages {
-        id
-        name
-      }
-    }
-  }
-  taskDefinitions {
+export const TaskDefinitionFragment = gql`fragment TaskDefinitionFields on TaskDefinition {
     id
     name
     description
@@ -30,71 +14,43 @@ export const TaskQuery = gql`query {
     log_prefix
     script_status
     task_repository {
-      id
-      name
-      description
-      location
+        id
+        name
+        description
+        location
     }
     pipeline_stages {
-      id
-      name
+        id
+        name
     }
-  }
-  pipelineVolume
+    created_at
+    updated_at
 }`;
 
 export const CreateTaskDefinitionMutation = gql`mutation CreateTaskDefinition($taskDefinition: TaskDefinitionInput) {
     createTaskDefinition(taskDefinition: $taskDefinition) {
         taskDefinition {
-            id
-            name
-            description
-            script
-            interpreter
-            script_args
-            cluster_args
-            expected_exit_code
-            work_units
-            cluster_work_units
-            log_prefix
-            task_repository {
-              id
-              name
-            }
-            created_at
-            updated_at
+            ...TaskDefinitionFields
         }   
         error
     }
-}`;
+}
+${TaskDefinitionFragment}
+`;
 
 export const UpdateTaskDefinitionMutation = gql`mutation UpdateTaskDefinition($taskDefinition: TaskDefinitionInput) {
     updateTaskDefinition(taskDefinition: $taskDefinition) {
         taskDefinition {
-            id
-            name
-            description
-            script
-            interpreter
-            script_args
-            cluster_args
-            expected_exit_code
-            work_units
-            cluster_work_units
-            log_prefix
-            task_repository {
-              id
-              name
-            }
-            created_at
-            updated_at
+            ...TaskDefinitionFields
         }   
         error
     }
-}`;
+}
+${TaskDefinitionFragment}
+`;
 
-export const DeleteTaskDefinitionMutation = gql`mutation DeleteTaskDefinition($taskDefinition: TaskDefinitionInput) {
-    deleteTaskDefinition(taskDefinition: $taskDefinition) {
+export const DeleteTaskDefinitionMutation = gql`mutation DeleteTaskDefinition($id: String!) {
+    deleteTaskDefinition(id: $id) {
         id
         error
     }

@@ -6,7 +6,7 @@ import {ApolloProvider} from "react-apollo";
 import {PageLayout} from "./components/PageLayout";
 
 const client = new ApolloClient({
-    uri: "/graphql"
+    uri: "/graphql",
 });
 
 export class ApolloApp extends React.Component<any, any> {

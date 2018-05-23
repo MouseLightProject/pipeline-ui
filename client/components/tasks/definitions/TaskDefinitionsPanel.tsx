@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Container, Header, Menu, MenuItem, Modal} from "semantic-ui-react";
-import {graphql} from 'react-apollo';
+import {Mutation} from "react-apollo";
 import {toast} from "react-toastify";
 
 import {ITaskDefinition} from "../../../models/taskDefinition";
@@ -12,6 +12,7 @@ import {TaskDefinitionHelpPanel} from "./TaskDefinitionHelp";
 import {DialogMode} from "../../helpers/DialogUtils";
 import {themeHighlight} from "../../../util/styleDefinitions";
 import {toastError, toastSuccess} from "../../../util/Toasts";
+import {BaseQuery} from "../../../graphql/baseQuery";
 
 interface ITaskDefinitionPanelProps {
     taskDefinitions: ITaskDefinition[];
@@ -37,60 +38,74 @@ export class TaskDefinitionsPanel extends React.Component<ITaskDefinitionPanelPr
 
     private onClickAddTaskDefinition(evt: any) {
         evt.stopPropagation();
-
         this.setState({isAddDialogShown: true});
     }
 
-    private async onAcceptCreateTaskDefinition(taskDefinition: ITaskDefinition) {
-        this.setState({isAddDialogShown: false});
-
-        try {
-            const result = await this.props.createTaskDefinition(taskDefinition);
-
-            if (!result.data.createTaskDefinition.taskDefinition) {
-                toast.error(toastError("Create", result.data.createTaskDefinition.error), {autoClose: false});
-            } else {
-                toast.success(toastSuccess("Create"), {autoClose: 3000});
-            }
-        } catch (error) {
-            toast.error(toastError("Create", error), {autoClose: false});
+    private onCompleteAddDefinition = (data) => {
+        if (!data.createTaskDefinition.taskDefinition) {
+            toast.error(toastError("Create", data.createTaskDefinition.error), {autoClose: false});
+        } else {
+            toast.success(toastSuccess("Create"), {autoClose: 3000});
         }
-    }
+    };
+
+    private onAddTaskDefinitionError = (error) => {
+        toast.error(toastError("Create", error), {autoClose: false});
+    };
 
     private renderMainMenu() {
         return (
-            <Menu style={{borderLeft: "none", borderRight: "none"}}>
-                <Menu.Header>
-                    <div style={{
-                        height: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        paddingLeft: "10px",
-                        paddingTop: "4px"
-                    }}>
-                        <Header style={{color: themeHighlight}}>
-                            Tasks
-                        </Header>
-                    </div>
-                </Menu.Header>
-                <Menu.Menu position="right">
-                    <EditTaskDefinitionDialog element={<MenuItem size="small" content="Add Task" icon="plus"
-                                                             onClick={(evt: any) => this.onClickAddTaskDefinition(evt)}/>}
-                                              show={this.state.isAddDialogShown}
-                                              mode={DialogMode.Create}
-                                              taskRepositories={this.props.taskRepositories}
-                                              onCancel={() => this.setState({isAddDialogShown: false})}
-                                              onAccept={(r: ITaskDefinition) => this.onAcceptCreateTaskDefinition(r)}/>
-                    <Modal closeIcon={true} trigger={<MenuItem size="small" content="Help" icon="question"/>}>
-                        <Modal.Header>Tasks</Modal.Header>
-                        <Modal.Content image>
-                            <Modal.Description>
-                                <TaskDefinitionHelpPanel/>
-                            </Modal.Description>
-                        </Modal.Content>
-                    </Modal>
-                </Menu.Menu>
-            </Menu>
+            <Mutation mutation={CreateTaskDefinitionMutation} onCompleted={this.onCompleteAddDefinition}
+                      onError={this.onAddTaskDefinitionError}
+                      update={(cache, {data: {createTaskDefinition: {taskDefinition}}}) => {
+                          const data: any = cache.readQuery({query: BaseQuery});
+                          cache.writeQuery({
+                              query: BaseQuery,
+                              data: Object.assign(data, {taskDefinitions: data.taskDefinitions.concat([taskDefinition])})
+                          });
+                      }}>
+                {(createTaskDefinition) => {
+                    return (
+                        <Menu style={{borderLeft: "none", borderRight: "none"}}>
+                            <Menu.Header>
+                                <div style={{
+                                    height: "100%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    paddingLeft: "10px",
+                                    paddingTop: "4px"
+                                }}>
+                                    <Header style={{color: themeHighlight}}>
+                                        Tasks
+                                    </Header>
+                                </div>
+                            </Menu.Header>
+                            <Menu.Menu position="right">
+                                <EditTaskDefinitionDialog element={<MenuItem size="small" content="Add Task" icon="plus"
+                                                                             onClick={(evt: any) => this.onClickAddTaskDefinition(evt)}/>}
+                                                          show={this.state.isAddDialogShown}
+                                                          mode={DialogMode.Create}
+                                                          taskRepositories={this.props.taskRepositories}
+                                                          onCancel={() => this.setState({isAddDialogShown: false})}
+                                                          onAccept={(t: ITaskDefinition) => {
+                                                              this.setState({isAddDialogShown: false});
+                                                              createTaskDefinition({variables: {taskDefinition: t}});
+                                                          }}/>
+                                <Modal closeIcon={true}
+                                       trigger={<MenuItem size="small" content="Help" icon="question"/>}>
+                                    <Modal.Header>Tasks</Modal.Header>
+                                    <Modal.Content image>
+                                        <Modal.Description>
+                                            <TaskDefinitionHelpPanel/>
+                                        </Modal.Description>
+                                    </Modal.Content>
+                                </Modal>
+                            </Menu.Menu>
+                        </Menu>
+                    );
+                }
+                }
+            </Mutation>
         );
     }
 
@@ -105,12 +120,3 @@ export class TaskDefinitionsPanel extends React.Component<ITaskDefinitionPanelPr
         );
     }
 }
-/* TODO
-export const TaskDefinitionsPanel = graphql<ITaskDefinitionPanelProps, any>(CreateTaskDefinitionMutation, {
-    props: ({mutate}) => ({
-        createTaskDefinition: (taskDefinition: ITaskDefinition) => mutate({
-            variables: {taskDefinition}
-        })
-    })
-})(_TaskDefinitionsPanel);
-*/
