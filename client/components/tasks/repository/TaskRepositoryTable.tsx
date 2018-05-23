@@ -42,11 +42,6 @@ export class TaskRepositoryTable extends React.Component<ITaskRepositoryTablePro
         this.setState({isUpdateDialogShown: true});
     }
 
-    private async onUpdateRepository(repository: ITaskRepository, updateRepository: Function) {
-        this.setState({isUpdateDialogShown: false});
-        updateRepository({variables: {taskRepository: repository}});
-    }
-
     private onCompleteUpdateRepository = (data) => {
         if (data.updateTaskRepository.error) {
             toast.error(toastError("Update", data.updateTaskRepository.error), {autoClose: false});
@@ -129,7 +124,10 @@ export class TaskRepositoryTable extends React.Component<ITaskRepositoryTablePro
                             mode={DialogMode.Update}
                             sourceRepository={this.state.selectedRepository}
                             onCancel={() => this.setState({isUpdateDialogShown: false})}
-                            onAccept={(r: ITaskRepository) => this.onUpdateRepository(r, updateTaskRepository)}/>
+                            onAccept={(r: ITaskRepository) => {
+                                this.setState({isUpdateDialogShown: false});
+                                updateTaskRepository({variables: {taskRepository: r}});
+                            }}/>
                         {this.state.selectedRepository ? <Menu.Header>
                             <div style={{
                                 height: "100%",
@@ -154,12 +152,22 @@ export class TaskRepositoryTable extends React.Component<ITaskRepositoryTablePro
         );
     }
 
-    public render() {
-        const sortRule: SortingRule = {
-            id: "name",
-            sort: "desc"
-        };
+    private getTrProps = (state, rowInfo) => {
+        return {
+            onClick: (e, handleOriginal) => {
+                if (!handleOriginal) {
+                    this.setState({selectedRepository: rowInfo.original});
+                }
 
+                if (handleOriginal) {
+                    handleOriginal()
+                }
+            },
+            style: this.state.selectedRepository && rowInfo.original.id === this.state.selectedRepository.id ? {backgroundColor: "rgb(233, 236, 239)"} : {}
+        }
+    };
+
+    public render() {
         const tableProps = {
             style: {backgroundColor: "white"},
             data: this.props.taskRepositories,
@@ -167,20 +175,7 @@ export class TaskRepositoryTable extends React.Component<ITaskRepositoryTablePro
             showPagination: false,
             minRows: 0,
             defaultSorted: [sortRule],
-            getTrProps: (state, rowInfo) => {
-                return {
-                    onClick: (e, handleOriginal) => {
-                        if (!handleOriginal) {
-                            this.setState({selectedRepository: rowInfo.original});
-                        }
-
-                        if (handleOriginal) {
-                            handleOriginal()
-                        }
-                    },
-                    style: this.state.selectedRepository && rowInfo.original.id === this.state.selectedRepository.id ? {backgroundColor: "rgb(233, 236, 239)"} : {}
-                }
-            }
+            getTrProps: this.getTrProps
         };
 
         return (
@@ -192,6 +187,11 @@ export class TaskRepositoryTable extends React.Component<ITaskRepositoryTablePro
         )
     }
 }
+
+const sortRule: SortingRule = {
+    id: "name",
+    sort: "desc"
+};
 
 const tableColumns = [
     {

@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Button, Modal, Form, List, Input, Label, Icon, Grid} from "semantic-ui-react";
+import {Button, Modal, Form, List, Input, Label, Icon} from "semantic-ui-react";
 import {ChangeEvent} from "react";
 import * as pathIsAbsolute from "path-is-absolute";
 import {IUITaskArguments, ITaskDefinition, TaskArgumentType, ITaskArguments} from "../../../models/taskDefinition";
@@ -9,9 +9,9 @@ import {DialogMode} from "../../helpers/DialogUtils";
 import uuid = require("uuid");
 
 interface IEditTaskDefinitionProps {
-    element: any;
+    trigger: React.ReactNode;
     mode: DialogMode;
-    show: boolean;
+    isOpen: boolean;
     taskRepositories: ITaskRepository[];
     sourceTaskDefinition?: ITaskDefinition;
 
@@ -50,7 +50,6 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                 description,
                 script,
                 interpreter,
-                // script_args: JSON.parse(script_args).arguments,
                 cluster_args: JSON.parse(cluster_args).arguments[0],
                 expected_exit_code,
                 work_units,
@@ -63,7 +62,6 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                 description: "",
                 script: "",
                 interpreter: "none",
-                // script_args: [],
                 cluster_args: "",
                 expected_exit_code: 0,
                 work_units: 1,
@@ -78,12 +76,8 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
         };
     }
 
-    public componentWillReceiveProps(props: IEditTaskDefinitionProps) {
-        this.applySourceTaskDefinition(props);
-    }
-
-    private applySourceTaskDefinition(props: IEditTaskDefinitionProps) {
-        if (props.sourceTaskDefinition) {
+    private applySourceTaskDefinition() {
+        if (this.props.sourceTaskDefinition) {
             this.setState({
                 taskDefinition: Object.assign(this.state.taskDefinition, (({id, name, description, script, interpreter, cluster_args, expected_exit_code, work_units, cluster_work_units, log_prefix, task_repository}) => ({
                     id,
@@ -91,17 +85,16 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                     description,
                     script,
                     interpreter,
-                    // script_args: JSON.parse(script_args).arguments,
                     cluster_args: JSON.parse(cluster_args).arguments[0],
                     expected_exit_code,
                     work_units,
                     cluster_work_units,
                     log_prefix,
                     task_repository
-                }))(props.sourceTaskDefinition)),
-                script_arguments: props.sourceTaskDefinition ? taskArgsToUI(JSON.parse(props.sourceTaskDefinition.script_args)) : {arguments: []},
-                work_units: props.sourceTaskDefinition ? props.sourceTaskDefinition.work_units.toString() : "1",
-                expected_exit_code: props.sourceTaskDefinition && props.sourceTaskDefinition.expected_exit_code ? props.sourceTaskDefinition.expected_exit_code.toString() : "0"
+                }))(this.props.sourceTaskDefinition)),
+                script_arguments: this.props.sourceTaskDefinition ? taskArgsToUI(JSON.parse(this.props.sourceTaskDefinition.script_args)) : {arguments: []},
+                work_units: this.props.sourceTaskDefinition ? this.props.sourceTaskDefinition.work_units.toString() : "1",
+                expected_exit_code: this.props.sourceTaskDefinition && this.props.sourceTaskDefinition.expected_exit_code ? this.props.sourceTaskDefinition.expected_exit_code.toString() : "0"
             });
         }
     }
@@ -156,6 +149,7 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
         });
     }
 
+    /*
     private get isClusterWorkUnitsValid(): boolean {
         const wu = parseFloat(this.state.cluster_work_units);
 
@@ -167,12 +161,7 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
             cluster_work_units: evt.target.value
         });
     }
-
-    private onArgumentsChanged(evt: ChangeEvent<any>) {
-        this.setState({
-            // taskDefinition: Object.assign(this.state.taskDefinition, {script_args: evt.target.value})
-        });
-    }
+    */
 
     private onAddArgument() {
         const args = this.state.script_arguments;
@@ -242,7 +231,6 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
             description,
             script,
             interpreter,
-            // script_args: JSON.stringify({arguments: script_args.map(a => {return {value: a, type: 0};})}),
             cluster_args: JSON.stringify({arguments: [cluster_args]}),
             work_units,
             cluster_work_units,
@@ -272,7 +260,7 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
         };
 
         return (
-            <Modal trigger={this.props.element} open={this.props.show}>
+            <Modal trigger={this.props.trigger} open={this.props.isOpen} onOpen={() => this.applySourceTaskDefinition()}>
                 <Modal.Header style={{backgroundColor: "#5bc0de", color: "white"}}>
                     {title}
                 </Modal.Header>
@@ -329,7 +317,7 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                 <Modal.Actions>
                     <Button onClick={() => this.props.onCancel()}>Cancel</Button>
                     {(this.props.mode === DialogMode.Update && this.props.sourceTaskDefinition) ?
-                        <Button onClick={() => this.applySourceTaskDefinition(this.props)}>Revert</Button> : null}
+                        <Button onClick={() => this.applySourceTaskDefinition()}>Revert</Button> : null}
                     <Button onClick={() => this.onCreateOrUpdate()}
                             disabled={!this.canCreateOrUpdate()} style={{marginLeft: "30px"}}>
                         {this.props.mode === DialogMode.Update ? "Update" : "Create"}

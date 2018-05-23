@@ -81,9 +81,9 @@ export class TaskDefinitionsPanel extends React.Component<ITaskDefinitionPanelPr
                                 </div>
                             </Menu.Header>
                             <Menu.Menu position="right">
-                                <EditTaskDefinitionDialog element={<MenuItem size="small" content="Add Task" icon="plus"
+                                <EditTaskDefinitionDialog trigger={<MenuItem size="small" content="Add Task" icon="plus"
                                                                              onClick={(evt: any) => this.onClickAddTaskDefinition(evt)}/>}
-                                                          show={this.state.isAddDialogShown}
+                                                          isOpen={this.state.isAddDialogShown}
                                                           mode={DialogMode.Create}
                                                           taskRepositories={this.props.taskRepositories}
                                                           onCancel={() => this.setState({isAddDialogShown: false})}
