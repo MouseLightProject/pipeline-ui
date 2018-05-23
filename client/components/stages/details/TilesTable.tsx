@@ -1,5 +1,6 @@
 import * as React from "react";
 import {Button} from "semantic-ui-react";
+import {Mutation} from "react-apollo";
 import ReactTable from "react-table";
 import {toast} from "react-toastify";
 
@@ -71,7 +72,19 @@ export class TilesTable extends React.Component<ITilesTableProps, ITilesTableSta
                     Cell: row => {
                         return this.props.canSubmit ?
                             (
-                                <Button size="mini" icon="repeat" onClick={() => this.onResubmitTile(row.original)}/>
+                                <Mutation mutation={SetTileStatusMutation}>
+                                    {(setTileStatus) => (
+                                        <Button size="mini" icon="repeat"
+                                                onClick={() => setTileStatus({
+                                                    variables: {
+                                                        pipelineStageId: this.props.pipelineStage.id,
+                                                        tileIds: [row.original.relative_path],
+                                                        status: TilePipelineStatus.Incomplete
+                                                    }
+                                                })}/>
+                                    )
+                                    }
+                                </Mutation>
                             ) : null;
                     },
                     maxWidth: 60
@@ -122,13 +135,3 @@ export class TilesTable extends React.Component<ITilesTableProps, ITilesTableSta
         }
     }
 }
-
-/* TODO
-export const TilesTable = graphql<any, any>(SetTileStatusMutation, {
-    props: ({mutate}) => ({
-        setTileStatus: (pipelineStageId: string, tileIds: string[], status: TilePipelineStatus) => mutate({
-            variables: {pipelineStageId, tileIds, status}
-        })
-    })
-})(_TilesTable);
-*/
