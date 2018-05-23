@@ -38,7 +38,6 @@ export class TaskRepositoryTable extends React.Component<ITaskRepositoryTablePro
 
     private onClickUpdateRepository(evt: any) {
         evt.stopPropagation();
-
         this.setState({isUpdateDialogShown: true});
     }
 

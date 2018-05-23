@@ -1,5 +1,6 @@
 import * as React from "react";
 import {Container, Header, Menu, MenuItem, Modal} from "semantic-ui-react";
+import {Mutation} from "react-apollo";
 import {toast} from "react-toastify";
 
 import {ProjectTable} from "./ProjectTable";
@@ -11,6 +12,7 @@ import {DialogMode} from "../helpers/DialogUtils";
 import {PreferencesManager} from "../../util/preferencesManager";
 import {themeHighlight} from "../../util/styleDefinitions";
 import {toastError, toastSuccess} from "../../util/Toasts";
+import {BaseQuery} from "../../graphql/baseQuery";
 
 interface IProjectsPanelProps {
     projects: IProject[];
@@ -35,30 +37,26 @@ export class ProjectsPanel extends React.Component<IProjectsPanelProps, IProject
 
     private onClickAddProject(evt: any) {
         evt.stopPropagation();
-
         this.setState({isAddDialogShown: true});
     }
+
+    private onCompleteAddProject = (data) => {
+        if (data.createProject.error) {
+            toast.error(toastError("Create", data.createProject.error), {autoClose: false});
+        } else {
+            toast.success(toastSuccess("Create"), {autoClose: 3000});
+        }
+    };
+
+    private onAddProjectError = (error) => {
+        toast.error(toastError("Create", error), {autoClose: false});
+    };
+
 
     private onToggleIsFiltered() {
         PreferencesManager.Instance.IsProjectTableFiltered = !this.state.isFiltered;
 
         this.setState({isFiltered: !this.state.isFiltered})
-    }
-
-    private async onAcceptCreateProject(project: IProjectInput) {
-        this.setState({isAddDialogShown: false});
-
-        try {
-            const result = await this.props.createProject(project);
-
-            if (!result.data.createProject.project) {
-                toast.error(toastError("Create", result.data.createProject.error), {autoClose: false});
-            } else {
-                toast.success(toastSuccess("Create"), {autoClose: 3000});
-            }
-        } catch (error) {
-            toast.error(toastError("Create", error), {autoClose: false});
-        }
     }
 
     private renderMainMenu() {
@@ -81,17 +79,31 @@ export class ProjectsPanel extends React.Component<IProjectsPanelProps, IProject
                     </div>
                 </Menu.Header>
                 <Menu.Menu position="right">
-                    <EditProjectDialog element={<MenuItem size="small" content="Add Pipeline" icon="plus"
-                                                          onClick={(evt: any) => this.onClickAddProject(evt)}/>}
-                                       show={this.state.isAddDialogShown}
-                                       mode={DialogMode.Create}
-                                       onCancel={() => this.setState({isAddDialogShown: false})}
-                                       onAccept={(p: IProject) => this.onAcceptCreateProject(p)}/>
+                    <Mutation mutation={CreateProjectMutation} onCompleted={this.onCompleteAddProject}
+                              onError={this.onAddProjectError}
+                              update={(cache, {data: {createProject: {project}}}) => {
+                                  const data: any = cache.readQuery({query: BaseQuery});
+                                  cache.writeQuery({
+                                      query: BaseQuery,
+                                      data: Object.assign(data, {projects: data.projects.concat([project])})
+                                  });
+                              }}>
+                        {(createProject) => (
+                            <EditProjectDialog trigger={<MenuItem size="small" content="Add Pipeline" icon="plus"
+                                                                  onClick={(evt: any) => this.onClickAddProject(evt)}/>}
+                                               isOpen={this.state.isAddDialogShown}
+                                               mode={DialogMode.Create}
+                                               onCancel={() => this.setState({isAddDialogShown: false})}
+                                               onAccept={(p: IProject) => {
+                                                   this.setState({isAddDialogShown: false});
+                                                   createProject({variables: {project: p}});
+                                               }}/>
+                        )
+                        }
+                    </Mutation>
 
-                    <MenuItem size="mini" content="Import Pipeline" icon="add circle"/>
-
-                    <MenuItem size="mini" content={content} icon={icon}
-                              onClick={() => this.onToggleIsFiltered()}/>
+                    <MenuItem size="mini" content="Import Pipeline" icon="add circle" disabled={true}/>
+                    <MenuItem size="mini" content={content} icon={icon} onClick={() => this.onToggleIsFiltered()}/>
 
                     <Modal closeIcon={true} trigger={<MenuItem size="small" content="Help" icon="question"/>}>
                         <Modal.Header>Pipeline Projects</Modal.Header>
@@ -116,6 +128,7 @@ export class ProjectsPanel extends React.Component<IProjectsPanelProps, IProject
         );
     }
 }
+
 /* TODO
 export const ProjectsPanel = graphql<any, any>(CreateProjectMutation, {
     props: ({mutate}) => ({

@@ -9,10 +9,10 @@ import {DialogMode} from "../helpers/DialogUtils";
 
 
 interface IEditProjectProps {
-    show: boolean;
+    trigger: any;
+    isOpen: boolean;
     mode: DialogMode;
     sourceProject?: IProject;
-    element: any;
 
     onCancel(): void;
 
@@ -60,10 +60,6 @@ export class EditProjectDialog extends React.Component<IEditProjectProps, IEditP
 
             }
         };
-    }
-
-    public componentWillReceiveProps(props: IEditProjectProps) {
-        this.applySourceProject();
     }
 
     private applySourceProject() {
@@ -196,7 +192,7 @@ export class EditProjectDialog extends React.Component<IEditProjectProps, IEditP
         const title = this.props.mode === DialogMode.Create ? "Add New Pipeline" : "Update Pipeline";
 
         return (
-            <Modal trigger={this.props.element} open={this.props.show}>
+            <Modal trigger={this.props.trigger} open={this.props.isOpen} onOpen={() => this.applySourceProject()}>
                 <Modal.Header style={{backgroundColor: "#5bc0de", color: "white"}}>
                     {title}
                 </Modal.Header>
