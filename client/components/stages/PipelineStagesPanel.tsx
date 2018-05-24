@@ -1,9 +1,10 @@
 import * as React from "react";
 import {Container, Header, Menu, Modal} from "semantic-ui-react";
+import {Mutation} from "react-apollo";
 import {toast} from "react-toastify";
 
 import {PipelineStageTable} from "./PipelineStageTable";
-import { ProjectMenu} from "../helpers/ProjectMenu";
+import {ProjectMenu} from "../helpers/ProjectMenu";
 import {IPipelineStage} from "../../models/pipelineStage";
 import {IProject} from "../../models/project";
 import {StagesHelpPanel} from "./PipelineStagesHelp";
@@ -14,6 +15,7 @@ import {themeHighlight} from "../../util/styleDefinitions";
 import {PreferencesManager} from "../../util/preferencesManager";
 import {toastError, toastSuccess} from "../../util/Toasts";
 import {ITaskDefinition} from "../../models/taskDefinition";
+import {BaseQuery} from "../../graphql/baseQuery";
 
 interface IPipelineStagesPanelProps {
     projects: IProject[];
@@ -50,33 +52,28 @@ export class PipelineStagesPanel extends React.Component<IPipelineStagesPanelPro
         this.setState({isFiltered: !this.state.isFiltered})
     }
 
-    private onClickAddStage(evt: any) {
-        evt.stopPropagation();
-
-        this.setState({isAddDialogShown: true});
-    }
-
     private onProjectSelectionChange(eventKey) {
         PreferencesManager.Instance.PreferredProjectId = eventKey;
 
         this.setState({projectId: eventKey}, null);
     }
 
-    private async onAcceptCreateStage(stage: IPipelineStage) {
-        this.setState({isAddDialogShown: false});
-
-        try {
-            const result = await this.props.createPipelineStage(stage);
-
-            if (!result.data.createPipelineStage.pipelineStage) {
-                toast.error(toastError("Create", result.data.createStage.error), {autoClose: false});
-            } else {
-                toast.success(toastSuccess("Create"), {autoClose: 3000});
-            }
-        } catch (error) {
-            toast.error(toastError("Create", error), {autoClose: false});
-        }
+    private onClickAddStage(evt: any) {
+        evt.stopPropagation();
+        this.setState({isAddDialogShown: true});
     }
+
+    private onCompleteAddStage = (data) => {
+        if (data.createPipelineStage.error) {
+            toast.error(toastError("Create", data.createPipelineStage.error), {autoClose: false});
+        } else {
+            toast.success(toastSuccess("Create"), {autoClose: 3000});
+        }
+    };
+
+    private onAddStageError = (error) => {
+        toast.error(toastError("Create", error), {autoClose: false});
+    };
 
     private renderMainMenu() {
         const icon = this.state.isFiltered ? "remove" : "filter";
@@ -105,17 +102,34 @@ export class PipelineStagesPanel extends React.Component<IPipelineStagesPanelPro
                              includeAllProjects={true}>
                 </ProjectMenu>
                 <Menu.Menu position="right">
-                    <EditPipelineStageDialog element={<Menu.Item size="small" content="Add Stage" icon="plus"
-                                                                onClick={(evt: any) => this.onClickAddStage(evt)}/>}
-                                             show={this.state.isAddDialogShown}
-                                             mode={DialogMode.Create}
-                                             projects={this.props.projects}
-                                             tasks={this.props.taskDefinitions}
-                                             onCancel={() => this.setState({isAddDialogShown: false})}
-                                             onAccept={(s: IPipelineStage) => this.onAcceptCreateStage(s)}/>
+                    <Mutation mutation={CreateStageMutation} onCompleted={this.onCompleteAddStage}
+                              onError={this.onAddStageError}
+                              update={(cache, {data: {createPipelineStage: {pipelineStage}}}) => {
+                                  const data: any = cache.readQuery({query: BaseQuery});
+                                  cache.writeQuery({
+                                      query: BaseQuery,
+                                      data: Object.assign(data, {pipelineStages: data.pipelineStages.concat([pipelineStage])})
+                                  });
+                              }}>
+                        {(createStage) => (
+                            <EditPipelineStageDialog trigger={<Menu.Item size="small" content="Add Stage" icon="plus"
+                                                                         onClick={(evt: any) => this.onClickAddStage(evt)}/>}
+                                                     isOpen={this.state.isAddDialogShown}
+                                                     mode={DialogMode.Create}
+                                                     projects={this.props.projects}
+                                                     selectedProjectId={this.state.projectId}
+                                                     tasks={this.props.taskDefinitions}
+                                                     onCancel={() => this.setState({isAddDialogShown: false})}
+                                                     onAccept={(s: IPipelineStage) => {
+                                                         this.setState({isAddDialogShown: false});
+                                                         createStage({variables: {pipelineStage: s}});
+                                                     }}/>
+                        )
+                        }
+                    </Mutation>
 
                     <Menu.Item size="mini" content={content} icon={icon}
-                              onClick={() => this.onToggleIsFiltered()}/>
+                               onClick={() => this.onToggleIsFiltered()}/>
 
                     <Modal closeIcon={true} trigger={<Menu.Item size="small" content="Help" icon="question"/>}>
                         <Modal.Header>Pipeline Projects</Modal.Header>
@@ -145,12 +159,3 @@ export class PipelineStagesPanel extends React.Component<IPipelineStagesPanelPro
         );
     }
 }
-/* TODO
-export const PipelineStagesPanel = graphql<any, any>(CreateStageMutation, {
-    props: ({mutate}) => ({
-        createPipelineStage: (pipelineStage: IPipelineStage) => mutate({
-            variables: {pipelineStage}
-        })
-    })
-})(_PipelineStagesPanel);
-*/

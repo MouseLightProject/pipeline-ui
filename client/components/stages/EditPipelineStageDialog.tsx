@@ -16,8 +16,8 @@ import {
 } from "../../models/pipelineStageType";
 import {PipelineStageTypeSelect} from "../helpers/PipelineStageTypeSelect";
 
-function assignStage(stage: IPipelineStage) {
-    return stage ? (({id, name, description, project, task, previous_stage, dst_path, function_type}) => ({
+function assignStage(props: IEditStageProps) {
+    return props.sourceStage ? (({id, name, description, project, task, previous_stage, dst_path, function_type}) => ({
         id,
         name,
         description,
@@ -26,11 +26,11 @@ function assignStage(stage: IPipelineStage) {
         previous_stage,
         dst_path,
         function_type
-    }))(stage) : {
+    }))(props.sourceStage) : {
         id: null,
         name: "",
         description: "",
-        project: null,
+        project: props.projects.find(p => p.id === props.selectedProjectId) || null,
         task: null,
         previous_stage: null,
         dst_path: "",
@@ -39,12 +39,13 @@ function assignStage(stage: IPipelineStage) {
 }
 
 interface IEditStageProps {
+    trigger: any;
+    isOpen: boolean;
     mode: DialogMode;
-    show: boolean;
     projects: IProject[];
+    selectedProjectId: string;
     tasks: ITaskDefinition[];
     sourceStage?: IPipelineStage;
-    element: any;
 
     onCancel(): void;
     onAccept(stage: IPipelineStage): void;
@@ -58,19 +59,11 @@ interface IEditStageState {
 export class EditPipelineStageDialog extends React.Component<IEditStageProps, IEditStageState> {
     public constructor(props: IEditStageProps) {
         super(props);
+
         this.state = {
-            stage: assignStage(props.sourceStage),
+            stage: assignStage(props),
             pipelineStageType: props.sourceStage ? PipelineStageType.fromMethodId(props.sourceStage.function_type) : PIPELINE_STAGE_TYPE_MAP_TILE
         };
-    }
-
-    public componentWillReceiveProps(props: IEditStageProps) {
-        if (props.sourceStage) {
-            this.setState({
-                stage: assignStage(props.sourceStage),
-                pipelineStageType: props.sourceStage ? PipelineStageType.fromMethodId(props.sourceStage.function_type) : PIPELINE_STAGE_TYPE_MAP_TILE
-            })
-        }
     }
 
     private get isNameValid(): boolean {
@@ -158,7 +151,7 @@ export class EditPipelineStageDialog extends React.Component<IEditStageProps, IE
         const stages = (this.state.stage.project && this.state.stage.project.stages) ? this.state.stage.project.stages.filter(s => s.id !== this.state.stage.id) : [];
 
         return (
-            <Modal trigger={this.props.element} open={this.props.show}>
+            <Modal trigger={this.props.trigger} open={this.props.isOpen} onOpen={() => this.setState({stage: assignStage(this.props)})}>
                 <Modal.Header style={{backgroundColor: "#5bc0de", color: "white"}}>
                     {title}
                 </Modal.Header>
@@ -205,7 +198,7 @@ export class EditPipelineStageDialog extends React.Component<IEditStageProps, IE
                     <Button onClick={() => this.props.onCancel()}>Cancel</Button>
                     {(this.props.mode === DialogMode.Update && this.props.sourceStage) ?
                         <Button
-                            onClick={() => this.setState({stage: assignStage(this.props.sourceStage)})}>Revert</Button> : null}
+                            onClick={() => this.setState({stage: assignStage(this.props)})}>Revert</Button> : null}
                     <Button onClick={() => this.onCreateOrUpdate()}
                             disabled={!this.canCreateOrUpdate()} style={{marginLeft: "30px"}}>
                         {this.props.mode === DialogMode.Update ? "Update" : "Create"}

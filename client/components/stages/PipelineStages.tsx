@@ -21,6 +21,7 @@ interface IPipelineStagesState {
 export class PipelineStages extends React.Component<IPipelineStagesProps, IPipelineStagesState> {
     constructor(props) {
         super(props);
+
         this.state = {pipelinesForProjectId: "", selectedStage: null};
     }
 

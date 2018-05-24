@@ -1,7 +1,7 @@
 import * as React from "react";
-import {Button, Menu, MenuItem, Icon, Confirm} from "semantic-ui-react";
+import {Button, Menu, MenuItem, Confirm} from "semantic-ui-react";
+import {Mutation} from "react-apollo";
 import ReactTable from "react-table";
-import {graphql} from "react-apollo";
 import {toast} from "react-toastify";
 
 import {IPipelineStage} from "../../models/pipelineStage";
@@ -13,6 +13,8 @@ import {DialogMode} from "../helpers/DialogUtils";
 import {DeletePipelineStageMutation, UpdatePipelineStageMutation} from "../../graphql/pipelineStage";
 import {PreferencesManager} from "../../util/preferencesManager";
 import {toastError, toastSuccess} from "../../util/Toasts";
+import {TableSelectionHeader} from "../helpers/TableSelectionHeader";
+import {BaseQuery} from "../../graphql/baseQuery";
 
 const previousStageIsAcquisitionRoot = "(acquisition root)";
 
@@ -51,64 +53,6 @@ export class PipelineStageTable extends React.Component<IPipelineStageTableProps
 
     getActivateGlyph = isActive => isActive ? "stop" : "play";
 
-    public async onActiveClick(pipelineStage: IPipelineStage) {
-        await this.onAcceptUpdatePipelineStage({
-            id: pipelineStage.id,
-            is_processing: !pipelineStage.is_processing
-        }, false);
-    };
-
-
-    private onClickUpdatePipelineStage(evt: any) {
-        evt.stopPropagation();
-
-        this.setState({isUpdateDialogShown: true});
-    }
-
-    private onClickDeletePipelineStage(evt: any) {
-        evt.stopPropagation();
-
-        this.setState({isDeleteDialogShown: true});
-    }
-
-    private async onAcceptUpdatePipelineStage(pipelineStage: IPipelineStage, showSuccessToast: boolean = true) {
-        this.setState({isUpdateDialogShown: false});
-
-        try {
-            const result = await this.props.updatePipelineStage(pipelineStage);
-
-            if (!result.data.updatePipelineStage.pipelineStage) {
-                toast.error(toastError("Update", result.data.updatePipelineStage.error), {autoClose: false});
-            } else if (showSuccessToast) {
-                toast.success(toastSuccess("Update"), {autoClose: 3000});
-            }
-        } catch (error) {
-            toast.error(toastError("Update", error), {autoClose: false});
-        }
-    }
-
-    private async onDeletePipelineStage() {
-        try {
-            const result = await this.props.deletePipelineStage(this.state.selectedStage.id);
-
-            if (result.data.deletePipelineStage.error) {
-                toast.error(toastError("Delete", result.data.deletePipelineStage.error), {autoClose: false});
-            } else {
-                toast.success(toastSuccess("Delete"), {autoClose: 3000});
-
-                // this.setState({isDeleted: true});
-            }
-        } catch (error) {
-            toast.error(toastError("Delete", error), {autoClose: false});
-        }
-
-        this.setState({isDeleteDialogShown: false});
-    }
-
-    private onClearDeleteConfirmation() {
-        this.setState({isDeleteDialogShown: false});
-    }
-
     private onSelectStage(stage: IPipelineStage) {
         if (this.state.selectedStage !== stage) {
             this.setState({selectedStage: stage});
@@ -116,16 +60,75 @@ export class PipelineStageTable extends React.Component<IPipelineStageTableProps
         }
     }
 
-    private renderDeleteProjectConfirmation() {
-        if (!this.state.isDeleteDialogShown) {
-            return null;
-        }
+    private onClickUpdatePipelineStage(evt: any) {
+        evt.stopPropagation();
+        this.setState({isUpdateDialogShown: true});
+    }
 
+    private onCompleteUpdatePipelineStage = (data) => {
+        if (data.updatePipelineStage.error) {
+            toast.error(toastError("Update", data.updatePipelineStage.error), {autoClose: false});
+        } else {
+            toast.success(toastSuccess("Update"), {autoClose: 3000});
+        }
+    };
+
+    private onUpdatePipelineStageError = (error) => {
+        toast.error(toastError("Update", error), {autoClose: false});
+    };
+
+    private onClickDeletePipelineStage(evt: any) {
+        evt.stopPropagation();
+        this.setState({isDeleteDialogShown: true});
+    }
+
+    private onCompleteDeletePipelineStage = (data) => {
+        if (data.deletePipelineStage.error) {
+            toast.error(toastError("Delete", data.deletePipelineStage.error), {autoClose: false});
+        } else {
+            if (PreferencesManager.Instance.PreferredProjectId === this.state.selectedStage.id) {
+                this.setState({selectedStage: null});
+            }
+
+            toast.success(toastSuccess("Delete"), {autoClose: 3000});
+        }
+    };
+
+    private onDeletePipelineStageError = (error) => {
+        toast.error(toastError("Delete", error), {autoClose: false});
+    };
+
+    private onClearDeleteConfirmation() {
+        this.setState({isDeleteDialogShown: false});
+    }
+
+    private renderDeleteProjectConfirmation() {
         return (
-            <Confirm open={this.state.isDeleteDialogShown} header="Delete Stage"
-                     content={`Are you sure you want to delete ${this.state.selectedStage.name} as a stage?`}
-                     confirmButton="Delete" onCancel={() => this.onClearDeleteConfirmation()}
-                     onConfirm={() => this.onDeletePipelineStage()}/>
+            <Mutation mutation={DeletePipelineStageMutation} onCompleted={this.onCompleteDeletePipelineStage}
+                      onError={this.onDeletePipelineStageError}
+                      update={(cache, {data: {deletePipelineStage: {id}}}) => {
+                          const data: any = cache.readQuery({query: BaseQuery});
+                          cache.writeQuery({
+                              query: BaseQuery,
+                              data: Object.assign(data, {pipelineStages: data.pipelineStages.filter(t => t.id !== id)})
+                          });
+                      }}>
+                {(deletePipelineStage) => {
+                    if (!this.state.isDeleteDialogShown) {
+                        return null;
+                    }
+
+                    return (<Confirm open={this.state.isDeleteDialogShown} header="Delete Stage"
+                                     content={`Are you sure you want to delete ${this.state.selectedStage.name} as a stage?`}
+                                     confirmButton="Delete" onCancel={() => this.onClearDeleteConfirmation()}
+                                     onConfirm={() => {
+                                         deletePipelineStage({variables: {id: this.state.selectedStage.id}});
+                                         this.setState({isDeleteDialogShown: false});
+                                     }}/>
+                    )
+                }
+                }
+            </Mutation>
         )
     }
 
@@ -136,30 +139,29 @@ export class PipelineStageTable extends React.Component<IPipelineStageTableProps
 
         return (
             <Menu size="mini" style={{borderBottom: "none"}}>
-                <EditPipelineStageDialog
-                    element={<MenuItem size="small" content="Edit Stage" icon="plus" disabled={disabled_active}
-                                       onClick={(evt: any) => this.onClickUpdatePipelineStage(evt)}/>}
-                    show={this.state.isUpdateDialogShown}
-                    mode={DialogMode.Update}
-                    sourceStage={this.state.selectedStage}
-                    projects={this.props.projects}
-                    tasks={this.props.tasks}
-                    onCancel={() => this.setState({isUpdateDialogShown: false})}
-                    onAccept={(s: IPipelineStage) => this.onAcceptUpdatePipelineStage(s)}/>
-                <MenuItem size="mini" content="Duplicate" icon="clone" disabled={disabled}/>
-                {this.state.selectedStage ? <Menu.Header>
-                    <div style={{
-                        height: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        paddingLeft: "10px",
-                    }}>
-                        <h5>
-                            {this.state.selectedStage.name}&nbsp;
-                            <Icon name="remove" onClick={() => this.setState({selectedStage: null})}/>
-                        </h5>
-                    </div>
-                </Menu.Header> : null}
+                <Mutation mutation={UpdatePipelineStageMutation} onCompleted={this.onCompleteUpdatePipelineStage}
+                          onError={this.onUpdatePipelineStageError}>
+                    {(updatePipelineStage) => (
+                        <EditPipelineStageDialog
+                            trigger={<MenuItem size="small" content="Edit Stage" icon="plus" disabled={disabled_active}
+                                               onClick={(evt: any) => this.onClickUpdatePipelineStage(evt)}/>}
+                            isOpen={this.state.isUpdateDialogShown}
+                            mode={DialogMode.Update}
+                            sourceStage={this.state.selectedStage}
+                            projects={this.props.projects}
+                            selectedProjectId={this.props.selectedProjectId}
+                            tasks={this.props.tasks}
+                            onCancel={() => this.setState({isUpdateDialogShown: false})}
+                            onAccept={(s: IPipelineStage) => {
+                                this.setState({isUpdateDialogShown: false});
+                                updatePipelineStage({variables: {pipelineStage: s}});
+                            }}/>
+                    )
+                    }
+                </Mutation>
+                <MenuItem size="mini" content="Duplicate" icon="clone" disabled={true}/>
+                <TableSelectionHeader item={this.state.selectedStage}
+                                      onClick={() => this.setState({selectedStage: null})}/>
                 <Menu.Menu position="right">
                     <MenuItem size="mini" content="Delete" icon="trash" disabled={disabled_active}
                               onClick={(evt) => this.onClickDeletePipelineStage(evt)}/>
@@ -223,13 +225,27 @@ export class PipelineStageTable extends React.Component<IPipelineStageTableProps
                 Cell: row => {
                     const color = row.original.is_processing ? "orange" : "green";
                     return (
-                        <Button size="mini" compact color={color}
-                                className="active-button"
-                                disabled={!row.original.project.is_processing}
-                                icon={this.getActivateGlyph(row.original.is_processing)}
-                                content={this.getActivateText(row.original.is_processing)}
-                                onClick={() => this.onActiveClick(row.original)}>
-                        </Button>
+                        <Mutation mutation={UpdatePipelineStageMutation}
+                                  onCompleted={this.onCompleteUpdatePipelineStage}
+                                  onError={this.onUpdatePipelineStageError}>
+                            {(updatePipelineStage) => (
+                                <Button size="mini" compact color={color}
+                                        className="active-button"
+                                        disabled={!row.original.project.is_processing}
+                                        icon={this.getActivateGlyph(row.original.is_processing)}
+                                        content={this.getActivateText(row.original.is_processing)}
+                                        onClick={() => updatePipelineStage({
+                                            variables: {
+                                                pipelineStage: {
+                                                    id: row.original.id,
+                                                    is_processing: !row.original.is_processing
+                                                }
+                                            }
+                                        })}>
+                                </Button>
+                            )
+                            }
+                        </Mutation>
                     )
                 },
                 sortMethod: (a, b) => {
@@ -325,23 +341,7 @@ export class PipelineStageTable extends React.Component<IPipelineStageTableProps
         );
     }
 }
-/* TODO
-const _PipelineStageTable = graphql<any, any>(UpdatePipelineStageMutation, {
-    props: ({mutate}) => ({
-        updatePipelineStage: (pipelineStage: IPipelineStage) => mutate({
-            variables: {pipelineStage}
-        })
-    })
-})(__PipelineStageTable);
 
-export const PipelineStageTable = graphql<any, any>(DeletePipelineStageMutation, {
-    props: ({mutate}) => ({
-        deletePipelineStage: (id: string) => mutate({
-            variables: {id}
-        })
-    })
-})(_PipelineStageTable);
-*/
 const renderPerformance = (performance) => {
     if (performance === null) {
         return "";

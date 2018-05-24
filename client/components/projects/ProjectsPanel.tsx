@@ -52,7 +52,6 @@ export class ProjectsPanel extends React.Component<IProjectsPanelProps, IProject
         toast.error(toastError("Create", error), {autoClose: false});
     };
 
-
     private onToggleIsFiltered() {
         PreferencesManager.Instance.IsProjectTableFiltered = !this.state.isFiltered;
 
@@ -128,13 +127,3 @@ export class ProjectsPanel extends React.Component<IProjectsPanelProps, IProject
         );
     }
 }
-
-/* TODO
-export const ProjectsPanel = graphql<any, any>(CreateProjectMutation, {
-    props: ({mutate}) => ({
-        createProject: (project: IProject) => mutate({
-            variables: {project}
-        })
-    })
-})(_ProjectsPanel);
-*/
