@@ -84,7 +84,7 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
             loadedBuildVersion: null,
             processId: null,
             isServerConnected: false,
-            isSidebarExpanded: PreferencesManager.Instance.IsSidebarCollapsed,
+            isSidebarExpanded: !PreferencesManager.Instance.IsSidebarCollapsed,
             thumbsHostname: "",
             thumbsPort: 80,
             thumbsPath: "/thumbnail"
@@ -103,7 +103,7 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
     }
 
     private onToggleSidebar() {
-        PreferencesManager.Instance.IsSidebarCollapsed = !this.state.isSidebarExpanded;
+        PreferencesManager.Instance.IsSidebarCollapsed = this.state.isSidebarExpanded;
         this.setState({isSidebarExpanded: !this.state.isSidebarExpanded});
     }
 

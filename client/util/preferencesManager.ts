@@ -1,17 +1,14 @@
 import {AllProjectsId} from "../components/helpers/ProjectMenu";
 import {TilePipelineStatus} from "../models/tilePipelineStatus";
 
-export const pollingIntervalSeconds = 10;
-
 export interface INotificationListener {
     preferenceChanged(name: string, value: any);
 }
 
-const prefix = "mlpl:";
-
 export class PreferencesManager {
+    private static _instance: PreferencesManager = null;
 
-    private static _instance = null;
+    public readonly HaveStorage: boolean;
 
     private _notificationListeners: INotificationListener[] = [];
 
@@ -23,11 +20,8 @@ export class PreferencesManager {
         return this._instance;
     }
 
-    public static get HavePreferences() {
-        return typeof(Storage) !== undefined;
-    }
-
     public constructor() {
+        this.HaveStorage = typeof(Storage) !== undefined;
         this.validateDefaultSettings();
     }
 
@@ -41,258 +35,205 @@ export class PreferencesManager {
         this._notificationListeners = this._notificationListeners.filter(n => n !== listener);
     }
 
-    private notifyListeners(name: string, value: any) {
-        this._notificationListeners.map(n => {
-            n.preferenceChanged(name, value);
-        })
+    public get IsSidebarCollapsed(): boolean {
+        return this.loadLocalValue(isSidebarCollapsed, "true") === true.toString();
     }
 
     public set IsSidebarCollapsed(b: boolean) {
-        if (typeof(Storage) !== undefined) {
-            localStorage.setItem(prefix + "isSidebarCollapsed", b ? "true" : "false");
-        }
-    }
-
-    public get IsSidebarCollapsed(): boolean {
-        if (typeof(Storage) !== undefined) {
-            return localStorage.getItem(prefix + "isSidebarCollapsed") === "true";
-        } else {
-            return false;
-        }
-    }
-
-    public set PreferredProjectId(id: string) {
-        if (typeof(Storage) !== undefined) {
-            sessionStorage.setItem(prefix + "preferredProjectId", id);
-        }
+        this.saveLocalValue(isSidebarCollapsed, b.toString());
     }
 
     public get PreferredProjectId(): string {
-        if (typeof(Storage) !== undefined) {
-            return sessionStorage.getItem(prefix + "preferredProjectId");
-        } else {
-            return AllProjectsId;
-        }
+        return this.loadLocalValue(preferredProjectId, AllProjectsId);
+    }
+
+    public set PreferredProjectId(id: string) {
+        this.saveLocalValue(preferredProjectId, id);
     }
 
     public get TilePipelineStatus(): TilePipelineStatus {
-        if (typeof(Storage) !== undefined) {
-            return parseInt(localStorage.getItem(prefix + "tilePipelineStatus"));
-        } else {
-            return TilePipelineStatus.Failed;
-        }
+        return parseInt(this.loadLocalValue(tilePipelineStatus, TilePipelineStatus.Failed.toFixed(0)));
     }
 
     public set TilePipelineStatus(s: TilePipelineStatus) {
-        if (typeof(Storage) !== undefined) {
-            localStorage.setItem(prefix + "tilePipelineStatus", s.toFixed(0));
-        }
-    }
-
-    public set IsProjectTableFiltered(b: boolean) {
-        if (typeof(Storage) !== undefined) {
-            localStorage.setItem(prefix + "isProjectTableFiltered", b ? "true" : "false");
-        }
+        this.saveLocalValue(tilePipelineStatus, s.toFixed(0));
     }
 
     public get IsProjectTableFiltered(): boolean {
-        if (typeof(Storage) !== undefined) {
-            return localStorage.getItem(prefix + "isProjectTableFiltered") === "true";
-        } else {
-            return false;
-        }
+        return this.loadLocalValue(isProjectTableFiltered, "true") === true.toString();
     }
 
-    public set ProjectTableFilter(obj: any) {
-        if (typeof(Storage) !== undefined) {
-            localStorage.setItem(prefix + "projectTableFilter", JSON.stringify(obj));
-        }
+    public set IsProjectTableFiltered(b: boolean) {
+        this.saveLocalValue(isProjectTableFiltered, b.toString());
     }
 
     public get ProjectTableFilter() {
-        if (typeof(Storage) !== undefined) {
-            const str = localStorage.getItem(prefix + "projectTableFilter");
-
-            if (str) {
-                return JSON.parse(str);
-            }
-        }
-
-        return null;
+        return JSON.parse(this.loadLocalValue(projectTableFilter, emptyFilter));
     }
 
-    public set ProjectTableSort(obj: any) {
-        if (typeof(Storage) !== undefined) {
-            localStorage.setItem(prefix + "projectTableSort", JSON.stringify(obj));
-        }
+    public set ProjectTableFilter(obj: any) {
+        this.saveLocalValue(projectTableFilter, JSON.stringify(obj));
     }
 
     public get ProjectTableSort(): any {
-        if (typeof(Storage) !== undefined) {
-            const str = localStorage.getItem(prefix + "projectTableSort");
-
-            if (str) {
-                return JSON.parse(str);
-            }
-        }
-
-        return null;
+        return JSON.parse(this.loadLocalValue(projectTableSort, sortByCreatedAtDesc));
     }
 
-    public set PreferredStageId(id: string) {
-        if (typeof(Storage) !== undefined) {
-            sessionStorage.setItem(prefix + "preferredStageId", id);
-        }
+    public set ProjectTableSort(obj: any) {
+        this.saveLocalValue(projectTableSort, JSON.stringify(obj));
     }
 
     public get PreferredStageId(): string {
-        if (typeof(Storage) !== undefined) {
-            return sessionStorage.getItem(prefix + "preferredStageId");
-        } else {
-            return "";
-        }
+        return this.loadLocalValue(preferredStageId, "");
     }
 
-    public set IsStageTableFiltered(b: boolean) {
-        if (typeof(Storage) !== undefined) {
-            localStorage.setItem(prefix + "isStageTableFiltered", b ? "true" : "false");
-        }
+    public set PreferredStageId(id: string) {
+        this.saveLocalValue(preferredStageId, id);
     }
 
     public get IsStageTableFiltered(): boolean {
-        if (typeof(Storage) !== undefined) {
-            return localStorage.getItem(prefix + "isStageTableFiltered") === "true";
-        } else {
-            return false;
-        }
+        return this.loadLocalValue(isStageTableFiltered, "true") === true.toString();
     }
 
-    public set StageTableFilter(obj: any) {
-        if (typeof(Storage) !== undefined) {
-            localStorage.setItem(prefix + "stageTableFilter", JSON.stringify(obj));
-        }
+    public set IsStageTableFiltered(b: boolean) {
+        this.saveLocalValue(isStageTableFiltered, b.toString());
     }
 
     public get StageTableFilter() {
-        if (typeof(Storage) !== undefined) {
-            const str = localStorage.getItem(prefix + "stageTableFilter");
-
-            if (str) {
-                return JSON.parse(str);
-            }
-        }
-
-        return null;
+        return JSON.parse(this.loadLocalValue(stageTableFilter, emptyFilter));
     }
 
-    public set StageTableSort(obj: any) {
-        if (typeof(Storage) !== undefined) {
-            localStorage.setItem(prefix + "stageTableSort", JSON.stringify(obj));
-        }
+    public set StageTableFilter(obj: any) {
+        this.saveLocalValue(stageTableFilter, JSON.stringify(obj));
     }
 
     public get StageTableSort(): any {
-        if (typeof(Storage) !== undefined) {
-            const str = localStorage.getItem(prefix + "stageTableSort");
-
-            if (str) {
-                return JSON.parse(str);
-            }
-        }
-
-        return null;
+        return JSON.parse(this.loadLocalValue(stageTableSort, sortByCreatedAtDesc));
     }
 
-    public set StageDetailsPageSize(size: number) {
-        if (typeof(Storage) !== undefined) {
-            localStorage.setItem(prefix + "stageDetailsPageSize", size.toFixed(0));
-        }
+    public set StageTableSort(obj: any) {
+        this.saveLocalValue(stageTableSort, JSON.stringify(obj));
     }
 
     public get StageDetailsPageSize(): number {
-        if (typeof(Storage) !== undefined) {
-            return parseInt(localStorage.getItem(prefix + "stageDetailsPageSize"));
-        } else {
-            return 20;
-        }
+        return parseInt(this.loadLocalValue(stageDetailsPageSize, `${20}`));
     }
 
-    public set WorkerTableSort(obj: any) {
-        if (typeof(Storage) !== undefined) {
-            localStorage.setItem(prefix + "workerTableSort", JSON.stringify(obj));
-        }
+    public set StageDetailsPageSize(size: number) {
+        this.saveLocalValue(stageDetailsPageSize, size.toFixed(0));
     }
 
     public get WorkerTableSort(): any {
-        if (typeof(Storage) !== undefined) {
-            const str = localStorage.getItem(prefix + "workerTableSort");
+        return JSON.parse(this.loadLocalValue(workerTableSort, sortByNameAsc));
+    }
 
-            if (str) {
-                return JSON.parse(str);
-            }
+    public set WorkerTableSort(obj: any) {
+        this.saveLocalValue(workerTableSort, JSON.stringify(obj));
+    }
+
+    private notifyListeners(name: string, value: any) {
+        this._notificationListeners.map(n => {
+            n.preferenceChanged(name, value);
+        });
+    }
+
+    private loadLocalValue(key: string, defaultValue: string) {
+        if (this.HaveStorage) {
+            return localStorage.getItem(prefix + key);
+        } else {
+            return defaultValue;
         }
+    }
 
-        return null;
+    private saveLocalValue(key: string, value: string) {
+        if (this.HaveStorage) {
+            localStorage.setItem(prefix + key, value);
+            this.notifyListeners(key, value);
+        }
+    }
+
+    private loadSessionValue(key: string, defaultValue: string) {
+        if (this.HaveStorage) {
+            return sessionStorage.getItem(prefix + key);
+        } else {
+            return defaultValue;
+        }
+    }
+
+    private saveSessionValue(key: string, value: string) {
+        if (this.HaveStorage) {
+            sessionStorage.setItem(prefix + key, value);
+            this.notifyListeners(key, value);
+        }
+    }
+
+    private setDefaultLocalValue(key: string, value: string) {
+        if (!localStorage.getItem(prefix + key)) {
+            localStorage.setItem(prefix + key, value);
+        }
+    }
+
+    private setDefaultSessionValue(key: string, value: string) {
+        if (!sessionStorage.getItem(prefix + key)) {
+            sessionStorage.setItem(prefix + key, value);
+        }
     }
 
     private validateDefaultSettings() {
         if (typeof(Storage) !== undefined) {
-            if (!localStorage.getItem(prefix + "isSidebarCollapsed")) {
-                localStorage.setItem(prefix + "isSidebarCollapsed", "false");
-            }
+            this.setDefaultLocalValue(isSidebarCollapsed, false.toString());
 
-            if (!localStorage.getItem(prefix + "projectTableSort")) {
-                localStorage.setItem(prefix + "projectTableSort", JSON.stringify([{
-                    id: "created_at",
-                    desc: true
-                }]));
-            }
+            this.setDefaultLocalValue(projectTableSort, sortByCreatedAtDesc);
 
-            if (!localStorage.getItem(prefix + "isProjectTableFiltered")) {
-                localStorage.setItem(prefix + "isProjectTableFiltered", "false");
-            }
+            this.setDefaultLocalValue(isProjectTableFiltered, false.toString());
 
-            if (!localStorage.getItem(prefix + "projectTableFilter")) {
-                localStorage.setItem(prefix + "projectTableFilter", JSON.stringify([]));
-            }
+            this.setDefaultLocalValue(projectTableFilter, emptyFilter);
 
-            if (!localStorage.getItem(prefix + "stageTableSort")) {
-                localStorage.setItem(prefix + "stageTableSort", JSON.stringify([{
-                    id: "created_at",
-                    desc: true
-                }]));
-            }
+            this.setDefaultLocalValue(stageTableSort, sortByCreatedAtDesc);
 
-            if (!localStorage.getItem(prefix + "preferredStageId")) {
-                localStorage.setItem(prefix + "preferredStageId", "");
-            }
+            this.setDefaultLocalValue(preferredStageId, "");
 
-            if (!localStorage.getItem(prefix + "stageDetailsPageSize")) {
-                localStorage.setItem(prefix + "stageDetailsPageSize", "20");
-            }
+            this.setDefaultLocalValue(stageDetailsPageSize, `${20}`);
 
-            if (!localStorage.getItem(prefix + "isStageTableFiltered")) {
-                localStorage.setItem(prefix + "isStageTableFiltered", "false");
-            }
+            this.setDefaultLocalValue(isStageTableFiltered, false.toString());
 
-            if (!localStorage.getItem(prefix + "stageTableFilter")) {
-                localStorage.setItem(prefix + "stageTableFilter", JSON.stringify([]));
-            }
+            this.setDefaultLocalValue(stageTableFilter, emptyFilter);
 
-            if (!localStorage.getItem(prefix + "workerTableSort")) {
-                localStorage.setItem(prefix + "workerTableSort", JSON.stringify([{
-                    id: "name",
-                    sort: "asc"
-                }]));
-            }
+            this.setDefaultLocalValue(workerTableSort, sortByNameAsc);
 
-            if (!sessionStorage.getItem(prefix + "preferredProjectId")) {
-                sessionStorage.setItem(prefix + "preferredProjectId", AllProjectsId);
-            }
+            this.setDefaultLocalValue(preferredProjectId, AllProjectsId);
 
-            if (!localStorage.getItem(prefix + "tilePipelineStatus")) {
-                localStorage.setItem(prefix + "tilePipelineStatus", TilePipelineStatus.Failed.toFixed(0));
-            }
+            this.setDefaultLocalValue(tilePipelineStatus, TilePipelineStatus.Failed.toFixed(0));
         }
     }
 }
+
+const prefix = "mlpl:";
+
+const isSidebarCollapsed = "isSidebarCollapsed";
+const projectTableSort = "projectTableSort";
+const isProjectTableFiltered = "isProjectTableFiltered";
+const projectTableFilter = "projectTableFilter";
+const stageTableSort = "stageTableSort";
+const stageTableFilter = "stageTableFilter";
+const preferredStageId = "preferredStageId";
+const stageDetailsPageSize = "stageDetailsPageSize";
+const isStageTableFiltered = "isStageTableFiltered";
+const workerTableSort = "workerTableSort";
+const preferredProjectId = "preferredProjectId";
+const tilePipelineStatus = "tilePipelineStatus";
+
+const sortByCreatedAtDesc = JSON.stringify([{
+    id: "created_at",
+    sort: "desc"
+}]);
+
+const sortByNameAsc = JSON.stringify([{
+    id: "name",
+    sort: "asc"
+}]);
+
+const emptyFilter = JSON.stringify([]);
+
+
+
