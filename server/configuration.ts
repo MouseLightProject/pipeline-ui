@@ -9,7 +9,7 @@ const configurations = {
         thumbsHostname:  "pipeline-api",
         thumbsPort:  6001,
         thumbsPath:  "/thumbnail",
-        buildVersion: 2
+        buildVersion: 3
     }
 };
 
