@@ -85,6 +85,40 @@ const InnerTileMapPanel = graphql<any, any>(PipelinePlaneQuery, {
     })
 })(_InnerTileMapPanel);
 
+function calculateBounds(project: IProject) {
+    let plane = -1;
+    let minZ = 0;
+    let maxZ = 1e6;
+
+    if (project) {
+        if (project.region_z_min !== null) {
+            minZ = project.region_z_min;
+        }
+        else if (project.sample_z_min !== null) {
+            minZ = project.sample_z_min;
+        }
+
+        if (project.region_z_max !== null) {
+            maxZ = project.region_z_max;
+        }
+        else if (project.sample_z_max !== null) {
+            maxZ = project.sample_z_max;
+        }
+
+        if (plane < minZ) {
+            plane = minZ;
+        } else if (plane > maxZ) {
+            plane = maxZ;
+        }
+    }
+
+    return {
+        minZ,
+        maxZ,
+        plane
+    };
+}
+
 export interface ITileMapsProps {
     projects: IProject[];
     thumbsHostname: string;
@@ -105,14 +139,13 @@ export class TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPStat
     public constructor(props) {
         super(props);
 
-        this.state = {
+        const project = props.projects.find(p => p.id === PreferencesManager.Instance.PreferredProjectId);
+
+        this.state = Object.assign({
             projectId: PreferencesManager.Instance.PreferredProjectId,
             stageId: null,
-            plane: -1,
-            minZ: 0,
-            maxZ: 1e6,
             format: TileMapFormat.QueueStatus
-        };
+        }, calculateBounds(project));
     }
 
     public componentDidMount() {
@@ -145,37 +178,12 @@ export class TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPStat
         if (this.state.projectId.length > 0) {
             const allProjects = nextProps.projects;
 
-            const projects = allProjects.filter(project => project.id === this.state.projectId);
+            const project = allProjects.find(project => project.id === this.state.projectId);
 
-            if (projects.length > 0) {
-                const project = projects[0];
-                let minZ = 0;
-                let maxZ = 1e6;
-                let plane = this.state.plane;
+            const bounds = calculateBounds(project);
 
-                if (project.region_z_min !== null) {
-                    minZ = project.region_z_min;
-                }
-                else if (project.sample_z_min !== null) {
-                    minZ = project.sample_z_min;
-                }
-
-                if (project.region_z_max !== null) {
-                    maxZ = project.region_z_max;
-                }
-                else if (project.sample_z_max !== null) {
-                    maxZ = project.sample_z_max;
-                }
-
-                if (plane < minZ) {
-                    plane = minZ;
-                } else if (plane > maxZ) {
-                    plane = maxZ;
-                }
-
-                if (minZ != this.state.minZ || maxZ != this.state.maxZ || plane != this.state.plane) {
-                    this.setState({minZ: minZ, maxZ: maxZ, plane: plane}, null);
-                }
+            if (bounds.minZ != this.state.minZ || bounds.maxZ != this.state.maxZ || bounds.plane != this.state.plane) {
+                this.setState({minZ: bounds.minZ, maxZ: bounds.maxZ, plane: bounds.plane});
             }
         }
     }

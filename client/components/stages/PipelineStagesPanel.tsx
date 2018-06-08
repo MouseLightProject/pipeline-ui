@@ -132,7 +132,7 @@ export class PipelineStagesPanel extends React.Component<IPipelineStagesPanelPro
                                onClick={() => this.onToggleIsFiltered()}/>
 
                     <Modal closeIcon={true} trigger={<Menu.Item size="small" content="Help" icon="question"/>}>
-                        <Modal.Header>Pipeline Projects</Modal.Header>
+                        <Modal.Header>Pipeline Stages</Modal.Header>
                         <Modal.Content image>
                             <Modal.Description>
                                 <StagesHelpPanel/>

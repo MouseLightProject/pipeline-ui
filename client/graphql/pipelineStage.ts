@@ -36,6 +36,52 @@ export const PipelineStageRequiredFieldsFragment= gql`fragment StageRequiredFiel
   }
 }`;
 
+export const PipelineStageFullFieldsFragment = gql`fragment PipelineStageFullFields on PipelineStage {
+  id
+  name
+  description
+  previous_stage_id
+  dst_path
+  depth
+  is_processing
+  function_type
+  project {
+    id
+    name
+    is_processing
+    stages {
+      id
+      name
+      description
+      previous_stage_id
+      dst_path
+      depth
+      is_processing
+      function_type
+    }
+  }
+  task {
+    id
+    name
+  }
+  previous_stage {
+    id
+    name
+  }
+  child_stages {
+    id
+    name
+  }
+  tile_status {
+    incomplete
+    queued
+    processing
+    complete
+    failed
+    canceled
+  }
+}`;
+
 export const PerformanceFieldsFragment = gql`fragment PerformanceFields on PipelineStagePerformance {
     id
     pipeline_stage_id

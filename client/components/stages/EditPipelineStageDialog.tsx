@@ -66,6 +66,15 @@ export class EditPipelineStageDialog extends React.Component<IEditStageProps, IE
         };
     }
 
+    private applySourceStage() {
+        if (this.props.sourceStage) {
+            this.setState({
+                stage: assignStage(this.props),
+                pipelineStageType: PipelineStageType.fromMethodId(this.props.sourceStage.function_type)
+            });
+        }
+    }
+
     private get isNameValid(): boolean {
         return !!this.state.stage.name;
     }
@@ -129,6 +138,7 @@ export class EditPipelineStageDialog extends React.Component<IEditStageProps, IE
     }
 
     private onCreateOrUpdate() {
+        console.log(this.state.stage.previous_stage);
         const stageInput: IPipelineStage = Object.assign((({id, name, description, project, task, previous_stage, dst_path}) => ({
             id: this.props.mode == DialogMode.Create ? undefined : id,
             name,
@@ -145,46 +155,70 @@ export class EditPipelineStageDialog extends React.Component<IEditStageProps, IE
         this.props.onAccept(stageInput)
     }
 
+    private renderCreateUpdateActions() {
+        return (<Modal.Actions>
+            <Button onClick={() => this.props.onCancel()}>Cancel</Button>
+            {(this.props.mode === DialogMode.Update && this.props.sourceStage) ?
+                <Button
+                    onClick={() => this.setState({stage: assignStage(this.props)})}>Revert</Button> : null}
+            <Button onClick={() => this.onCreateOrUpdate()}
+                    disabled={!this.canCreateOrUpdate()} style={{marginLeft: "30px"}}>
+                {this.props.mode === DialogMode.Update ? "Update" : "Create"}
+            </Button>
+        </Modal.Actions>);
+    }
+
     public render() {
         const title = this.props.mode === DialogMode.Create ? "Add New Stage" : "Update Stage";
 
         const stages = (this.state.stage.project && this.state.stage.project.stages) ? this.state.stage.project.stages.filter(s => s.id !== this.state.stage.id) : [];
 
+        const viewOnly = this.props.mode === DialogMode.View;
+
         return (
-            <Modal trigger={this.props.trigger} open={this.props.isOpen} onOpen={() => this.setState({stage: assignStage(this.props)})}>
+            <Modal trigger={this.props.trigger} open={this.props.isOpen} onOpen={() => this.applySourceStage()}>
                 <Modal.Header style={{backgroundColor: "#5bc0de", color: "white"}}>
                     {title}
                 </Modal.Header>
                 <Modal.Content>
                     <Form size="small">
                         <Form.Input label="Name" value={this.state.stage.name} placeholder="name is required"
+                                    disabled={this.props.mode === DialogMode.View}
                                     error={!this.isNameValid}
                                     onChange={(evt: any) => this.onNameChanged(evt)}/>
                         <Form.TextArea label="Description" value={this.state.stage.description} placeholder="(optional)"
+                                       disabled={this.props.mode === DialogMode.View}
                                        onChange={evt => this.onDescriptionChanged(evt)}/>
                         <Form.Input label="Output Path" value={this.state.stage.dst_path}
+                                    disabled={this.props.mode === DialogMode.View}
                                     placeholder="output path is required"
                                     error={!this.isOutputPathValid}
                                     onChange={(evt: any) => this.onOutputPathChanged(evt)}/>
                         <Form.Field>
                             <label>Project</label>
-                            <ProjectSelect projects={this.props.projects} selectedProject={this.state.stage.project}
+                            <ProjectSelect projects={this.props.projects}
+                                           disabled={viewOnly || this.props.mode === DialogMode.Update}
+                                           selectedProject={this.state.stage.project}
                                            onSelectProject={p => this.onChangeProject(p)}/>
                         </Form.Field>
                         <Form.Field>
                             <label>Parent Stage</label>
-                            <PipelineStageSelect pipelineStages={stages}
+                            <PipelineStageSelect stages={stages}
+                                                 disabled={viewOnly}
                                                  selectedPipelineStage={this.state.stage.previous_stage}
                                                  onSelectPipelineStage={p => this.onChangePreviousStage(p)}/>
                         </Form.Field>
                         <Form.Field>
                             <label>Task</label>
-                            <TaskSelect tasks={this.props.tasks} selectedTask={this.state.stage.task}
+                            <TaskSelect tasks={this.props.tasks}
+                                        disabled={viewOnly}
+                                        selectedTask={this.state.stage.task}
                                         onSelectTask={t => this.onChangeTask(t)}/>
                         </Form.Field>
                         <Form.Field>
                             <label>Method</label>
                             <PipelineStageTypeSelect pipelineStageTypes={PIPELINE_STAGE_TYPES}
+                                                     disabled={viewOnly}
                                                      selectedPipelineStageType={this.state.pipelineStageType}
                                                      onSelectPipelineStageType={t => this.onPipelineStageTypeChanged(t)}/>
                         </Form.Field>
@@ -192,18 +226,14 @@ export class EditPipelineStageDialog extends React.Component<IEditStageProps, IE
                     {this.props.sourceStage ? <div style={{
                         width: "100%",
                         textAlign: "right"
-                    }}>{`(id: ${this.props.sourceStage.id})`}</div> : null}
+                    }}>{`(id: ${this.props.sourceStage.id}})`}</div> : null}
                 </Modal.Content>
-                <Modal.Actions>
-                    <Button onClick={() => this.props.onCancel()}>Cancel</Button>
-                    {(this.props.mode === DialogMode.Update && this.props.sourceStage) ?
-                        <Button
-                            onClick={() => this.setState({stage: assignStage(this.props)})}>Revert</Button> : null}
-                    <Button onClick={() => this.onCreateOrUpdate()}
-                            disabled={!this.canCreateOrUpdate()} style={{marginLeft: "30px"}}>
-                        {this.props.mode === DialogMode.Update ? "Update" : "Create"}
-                    </Button>
-                </Modal.Actions>
+                {!viewOnly ?
+                    this.renderCreateUpdateActions() :
+                    <Modal.Actions>
+                        <Button onClick={() => this.props.onCancel()}>Close</Button>
+                    </Modal.Actions>
+                }
             </Modal>
         );
     }

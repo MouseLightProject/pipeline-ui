@@ -4,6 +4,7 @@ import {Dropdown} from "semantic-ui-react";
 import {PipelineStageType} from "../../models/pipelineStageType";
 
 interface IPipelineStageTypeSelectProps {
+    disabled: boolean;
     pipelineStageTypes: PipelineStageType[];
     selectedPipelineStageType: PipelineStageType;
 
@@ -33,6 +34,7 @@ export class PipelineStageTypeSelect extends React.Component<IPipelineStageTypeS
                 options={options}
                 selection
                 search
+                disabled={this.props.disabled}
                 placeholder="(required)"
                 value={this.props.selectedPipelineStageType ? this.props.selectedPipelineStageType.id : null}
             />

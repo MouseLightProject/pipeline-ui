@@ -17,7 +17,6 @@ interface IEditWorkerProps {
 interface IEditWorkerState {
     worker?: IWorker;
     work_units?: string;
-    units_initialized?: boolean;
 }
 
 export class EditWorkerDialog extends React.Component<IEditWorkerProps, IEditWorkerState> {
@@ -36,26 +35,21 @@ export class EditWorkerDialog extends React.Component<IEditWorkerProps, IEditWor
                 work_unit_capacity: 0,
                 is_cluster_proxy: false
             },
-            work_units: props.sourceWorker ? props.sourceWorker.work_unit_capacity.toString() : "0",
-            units_initialized: props.sourceWorker !== null
+            work_units: props.sourceWorker ? props.sourceWorker.work_unit_capacity.toString() : "0"
         };
     }
 
-    public componentWillReceiveProps(props: IEditWorkerProps) {
-        this.applySourceWorker(props);
-    }
-
-    private applySourceWorker(props: IEditWorkerProps) {
-        if (props.sourceWorker && !this.state.units_initialized) {
+    private applySourceWorker() {
+        console.log(this.props.sourceWorker);
+        if (this.props.sourceWorker) {
             this.setState({
                 worker: Object.assign(this.state.worker, (({id, name, work_unit_capacity, is_cluster_proxy}) => ({
                     id,
                     name,
                     work_unit_capacity,
                     is_cluster_proxy
-                }))(props.sourceWorker)),
-                work_units: props.sourceWorker ? props.sourceWorker.work_unit_capacity.toString() : "0",
-                units_initialized: true
+                }))(this.props.sourceWorker)),
+                work_units: this.props.sourceWorker ? this.props.sourceWorker.work_unit_capacity.toString() : "0"
             });
         }
     }
@@ -93,7 +87,7 @@ export class EditWorkerDialog extends React.Component<IEditWorkerProps, IEditWor
         const title = this.props.mode === DialogMode.Create ? "Add New Worker" : "Update Worker";
 
         return (
-            <Modal trigger={this.props.element} open={this.props.show}>
+            <Modal trigger={this.props.element} open={this.props.show} onOpen={() => this.applySourceWorker()}>
                 <Modal.Header style={{backgroundColor: "#5bc0de", color: "white"}}>
                     {title}
                 </Modal.Header>
@@ -116,7 +110,7 @@ export class EditWorkerDialog extends React.Component<IEditWorkerProps, IEditWor
                 <Modal.Actions>
                     <Button onClick={() => this.props.onCancel()}>Cancel</Button>
                     {(this.props.mode === DialogMode.Update && this.state.worker) ?
-                        <Button onClick={() => this.applySourceWorker(this.props)}>Revert</Button> : null}
+                        <Button onClick={() => this.applySourceWorker()}>Revert</Button> : null}
                     <Button onClick={() => this.onCreateOrUpdate()}
                             disabled={!this.isWorkUnitsValid} style={{marginLeft: "30px"}}>
                         {this.props.mode === DialogMode.Update ? "Update" : "Create"}

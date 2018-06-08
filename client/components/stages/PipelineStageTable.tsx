@@ -143,10 +143,11 @@ export class PipelineStageTable extends React.Component<IPipelineStageTableProps
                           onError={this.onUpdatePipelineStageError}>
                     {(updatePipelineStage) => (
                         <EditPipelineStageDialog
-                            trigger={<MenuItem size="small" content="Edit Stage" icon="plus" disabled={disabled_active}
+                            trigger={<MenuItem size="small" content={disabled_active ? "View Stage" : "Edit Stage"}
+                                               icon="plus" disabled={disabled}
                                                onClick={(evt: any) => this.onClickUpdatePipelineStage(evt)}/>}
                             isOpen={this.state.isUpdateDialogShown}
-                            mode={DialogMode.Update}
+                            mode={disabled_active ? DialogMode.View : DialogMode.Update}
                             sourceStage={this.state.selectedStage}
                             projects={this.props.projects}
                             selectedProjectId={this.props.selectedProjectId}
@@ -189,6 +190,9 @@ export class PipelineStageTable extends React.Component<IPipelineStageTableProps
             if (stages.length > 0) {
                 this.onSelectStage(stages[0]);
             }
+        } else {
+            const stage = this.filterStages(props).find(s => s.id === this.state.selectedStage.id);
+            this.onSelectStage(stage);
         }
 
         if (props.selectedProjectId !== this.props.selectedProjectId) {

@@ -1,7 +1,11 @@
 import gql from "graphql-tag";
 
 import {ProjectFieldsFragment} from "./project";
-import {PerformanceFieldsFragment, PipelineStageRequiredFieldsFragment} from "./pipelineStage";
+import {
+    PerformanceFieldsFragment,
+    PipelineStageFullFieldsFragment,
+    PipelineStageRequiredFieldsFragment
+} from "./pipelineStage";
 import {TaskRepositoryFragment} from "./taskRepository";
 import {TaskDefinitionFragment} from "./taskDefinition";
 import {WorkerFragment} from "./workers";
@@ -18,8 +22,9 @@ export const BaseQuery = gql`query {
       updated_at
     }
   }
+  
   pipelineStages {
-    ...StageRequiredFields
+    ...PipelineStageFullFields
     performance {
         ...PerformanceFields
     }
@@ -39,6 +44,7 @@ export const BaseQuery = gql`query {
   pipelineVolume
 }
 ${ProjectFieldsFragment}
+${PipelineStageFullFieldsFragment}
 ${PipelineStageRequiredFieldsFragment}
 ${PerformanceFieldsFragment}
 ${WorkerFragment}

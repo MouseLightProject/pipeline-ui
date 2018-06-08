@@ -1,4 +1,5 @@
 export enum DialogMode {
     Create,
-    Update
+    Update,
+    View
 }

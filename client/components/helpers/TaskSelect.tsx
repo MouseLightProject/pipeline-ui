@@ -4,6 +4,7 @@ import {Dropdown} from "semantic-ui-react";
 import {ITaskDefinition} from "../../models/taskDefinition";
 
 interface ITaskSelectProps {
+    disabled: boolean;
     tasks: ITaskDefinition[];
     selectedTask: ITaskDefinition;
 
@@ -33,6 +34,7 @@ export class TaskSelect extends React.Component<ITaskSelectProps, ITaskSelectSta
                 options={options}
                 selection
                 search
+                disabled={this.props.disabled}
                 placeholder="(required)"
                 value={this.props.selectedTask ? this.props.selectedTask.id : null}
             />

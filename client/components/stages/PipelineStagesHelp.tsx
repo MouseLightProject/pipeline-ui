@@ -13,7 +13,7 @@ export class StagesHelpPanel extends React.Component<IStagesHelpPanelProps, ISta
             <Container text textAlign="justified">
                 <h4>Overview</h4>
                 <p>
-                    Pipeline projects contain one or more pipeline stages.  Each stage may in turn contain one or more downstream stages.  Stages provide a level of indirection from referencing task scripts directly and allow them to be applied to multiple pipelines, and to use different properties such as the output location for a given task.
+                    Pipeline projects contain one or more pipeline stages.  Each stage may in turn contain one or more downstream stages.  Stages provide a level of indirection from referencing task scripts directly and allow those tasks to be applied to multiple pipelines, and to use different properties such as the output location for a given task.
                 </p>
                 <h4>General Management</h4>
                 <p>
@@ -27,7 +27,7 @@ export class StagesHelpPanel extends React.Component<IStagesHelpPanelProps, ISta
                 </p>
                 <h4>Limitations</h4>
                 <ul>
-                    <li>A pipeline stage can only have one parent stage or project root.  You can not merge to earlier stages into a single downstream stage.</li>
+                    <li>A pipeline stage can only have one parent stage or project root.  You can not merge multiple earlier stages into a single downstream stage.</li>
                     <li>Pipeline stages only have access to one specific tile (development is underway for stages that receive a tile and the tile at the same X/Y position in the previous Z plane).</li>
                 </ul>
                 <p style={{fontStyle: "italic"}}>

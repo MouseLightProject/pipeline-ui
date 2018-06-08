@@ -4,6 +4,7 @@ import {Dropdown} from "semantic-ui-react";
 import {IProject} from "../../models/project";
 
 interface IProjectSelectProps {
+    disabled: boolean;
     projects: IProject[];
     selectedProject: IProject;
 
@@ -33,6 +34,7 @@ export class ProjectSelect extends React.Component<IProjectSelectProps, IProject
                 options={options}
                 selection
                 search
+                disabled={this.props.disabled}
                 placeholder="(required)"
                 value={this.props.selectedProject ? this.props.selectedProject.id : null}
             />
