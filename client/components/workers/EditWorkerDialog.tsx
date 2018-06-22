@@ -16,7 +16,8 @@ interface IEditWorkerProps {
 
 interface IEditWorkerState {
     worker?: IWorker;
-    work_units?: string;
+    local_work_units?: string;
+    cluster_work_units?: string;
 }
 
 export class EditWorkerDialog extends React.Component<IEditWorkerProps, IEditWorkerState> {
@@ -24,60 +25,67 @@ export class EditWorkerDialog extends React.Component<IEditWorkerProps, IEditWor
         super(props);
 
         this.state = {
-            worker: props.sourceWorker ? (({id, name, work_unit_capacity, is_cluster_proxy}) => ({
+            worker: props.sourceWorker ? (({id, name, local_work_capacity, cluster_work_capacity}) => ({
                 id,
                 name,
-                work_unit_capacity,
-                is_cluster_proxy
+                local_work_capacity,
+                cluster_work_capacity
             }))(this.props.sourceWorker) : {
                 id: null,
                 name: "",
-                work_unit_capacity: 0,
-                is_cluster_proxy: false
+                local_work_capacity: 0,
+                cluster_work_capacity: 0
             },
-            work_units: props.sourceWorker ? props.sourceWorker.work_unit_capacity.toString() : "0"
+            local_work_units: props.sourceWorker ? props.sourceWorker.local_work_capacity.toString() : "0",
+            cluster_work_units: props.sourceWorker ? props.sourceWorker.cluster_work_capacity.toString() : "0"
         };
     }
 
     private applySourceWorker() {
-        console.log(this.props.sourceWorker);
         if (this.props.sourceWorker) {
             this.setState({
-                worker: Object.assign(this.state.worker, (({id, name, work_unit_capacity, is_cluster_proxy}) => ({
+                worker: Object.assign(this.state.worker, (({id, name, local_work_capacity, cluster_work_capacity}) => ({
                     id,
                     name,
-                    work_unit_capacity,
-                    is_cluster_proxy
+                    local_work_capacity,
+                    cluster_work_capacity
                 }))(this.props.sourceWorker)),
-                work_units: this.props.sourceWorker ? this.props.sourceWorker.work_unit_capacity.toString() : "0"
+                local_work_units: this.props.sourceWorker ? this.props.sourceWorker.local_work_capacity.toString() : "0",
+                cluster_work_units: this.props.sourceWorker ? this.props.sourceWorker.cluster_work_capacity.toString() : "0"
             });
         }
     }
 
-    private get isWorkUnitsValid(): boolean {
-        const wu = parseFloat(this.state.work_units);
+    private get isLocalWorkUnitsValid(): boolean {
+        const wu = parseFloat(this.state.local_work_units);
 
         return !isNaN(wu);
     }
 
-    private onWorkUnitsChanged(evt: ChangeEvent<any>) {
+    private onLocalWorkUnitsChanged(evt: ChangeEvent<any>) {
         this.setState({
-            work_units: evt.target.value
+            local_work_units: evt.target.value
         });
     }
 
-    private onClusterProxyChanged(evt: ChangeEvent<any>, data) {
+    private get isClusterWorkUnitsValid(): boolean {
+        const wu = parseFloat(this.state.cluster_work_units);
+
+        return !isNaN(wu);
+    }
+
+    private onClusterWorkUnitsChanged(evt: ChangeEvent<any>) {
         this.setState({
-            worker: Object.assign(this.state.worker, {is_cluster_proxy: data.checked})
+            cluster_work_units: evt.target.value
         });
     }
 
     private onCreateOrUpdate() {
-        const worker = Object.assign((({id, is_cluster_proxy}) => ({
+        const worker = Object.assign((({id}) => ({
             id: this.props.mode == DialogMode.Create ? undefined : id,
-            is_cluster_proxy
         }))(this.state.worker), {
-            work_unit_capacity: parseFloat(this.state.work_units)
+            local_work_capacity: parseFloat(this.state.local_work_units),
+            cluster_work_capacity: parseFloat(this.state.cluster_work_units)
         });
 
         this.props.onAccept(worker)
@@ -96,8 +104,10 @@ export class EditWorkerDialog extends React.Component<IEditWorkerProps, IEditWor
                         Work unit capacity defines the total number of work units {this.state.worker.name} or cluster jobs a worker can process concurrently.
                     </p>
                     <Form size="small">
-                        <Form.Input label={`Work Unit Capacity ${this.state.worker.is_cluster_proxy ? "(number of concurrent cluster jobs)" : ""}`} value={this.state.work_units} error={!this.isWorkUnitsValid}
-                                    onChange={(evt: any) => this.onWorkUnitsChanged(evt)}/>
+                        <Form.Input label={`Local Work Capacity`} value={this.state.local_work_units} error={!this.isLocalWorkUnitsValid}
+                                    onChange={(evt: any) => this.onLocalWorkUnitsChanged(evt)}/>
+                        <Form.Input label={`Cluster Work Capacity`} value={this.state.cluster_work_units} error={!this.isClusterWorkUnitsValid}
+                                    onChange={(evt: any) => this.onClusterWorkUnitsChanged(evt)}/>
                         {/* Not currently implemented in the backend
                         <Form.Checkbox label='Cluster Proxy' checked={this.state.worker.is_cluster_proxy} onChange={(evt: any, data) => this.onClusterProxyChanged(evt, data)}/>
                         */}
@@ -112,7 +122,7 @@ export class EditWorkerDialog extends React.Component<IEditWorkerProps, IEditWor
                     {(this.props.mode === DialogMode.Update && this.state.worker) ?
                         <Button onClick={() => this.applySourceWorker()}>Revert</Button> : null}
                     <Button onClick={() => this.onCreateOrUpdate()}
-                            disabled={!this.isWorkUnitsValid} style={{marginLeft: "30px"}}>
+                            disabled={!this.isLocalWorkUnitsValid || !this.isClusterWorkUnitsValid} style={{marginLeft: "30px"}}>
                         {this.props.mode === DialogMode.Update ? "Update" : "Create"}
                     </Button>
                 </Modal.Actions>

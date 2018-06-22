@@ -10,10 +10,11 @@ export interface IWorker {
     name?: string;
     description?: string;
     worker_id?: string;
-    work_unit_capacity?: number;
+    local_work_capacity?: number;
+    cluster_work_capacity?: number;
     last_seen?: number;
-    task_load?: number;
+    local_task_load?: number;
+    cluster_task_load?: number;
     status?: PipelineWorkerStatus;
     is_in_scheduler_pool?: boolean;
-    is_cluster_proxy?: boolean;
 }

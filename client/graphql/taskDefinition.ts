@@ -1,4 +1,6 @@
 import gql from "graphql-tag";
+import {PerformanceFieldsFragment, PipelineStageRequiredFieldsFragment} from "./pipelineStage";
+import {ProjectFieldsFragment} from "./project";
 
 export const TaskDefinitionFragment = gql`fragment TaskDefinitionFields on TaskDefinition {
     id
@@ -6,7 +8,7 @@ export const TaskDefinitionFragment = gql`fragment TaskDefinitionFields on TaskD
     description
     script
     interpreter
-    work_units
+    local_work_units
     cluster_work_units
     script_args
     cluster_args
@@ -46,6 +48,18 @@ export const UpdateTaskDefinitionMutation = gql`mutation UpdateTaskDefinition($t
         error
     }
 }
+${TaskDefinitionFragment}
+`;
+
+export const DuplicateTaskMutation = gql`
+  mutation DuplicateTaskMutation($id: String) {
+    duplicateTaskDefinition(id: $id) {
+        taskDefinition {
+            ...TaskDefinitionFields
+        }   
+        error
+    }
+  }
 ${TaskDefinitionFragment}
 `;
 

@@ -149,19 +149,19 @@ export class WorkerTable extends React.Component<IWorkerTableProps, IWorkerTable
                     );
                 }
             }, {
-                id: "status",
-                Header: "Status",
+                id: "local_status",
+                Header: "Local Status",
                 accessor: w => w,
-                width: 180,
+                width: 140,
                 Cell: props => {
                     const worker = props.original;
 
                     let status = PipelineWorkerStatus[worker.status];
 
                     if (worker.status === PipelineWorkerStatus.Processing) {
-                        status = status + ` (${worker.task_load.toFixed(1)} / ${worker.work_unit_capacity.toFixed(1)})`;
+                        status = status + ` (${worker.local_task_load.toFixed(1)} / ${worker.local_work_capacity.toFixed(1)})`;
                     } else if (worker.status === PipelineWorkerStatus.Idle) {
-                        status = status + ` (${worker.task_load.toFixed(1)} / ${worker.work_unit_capacity.toFixed(1)})`;
+                        status = status + ` (${worker.local_task_load.toFixed(1)} / ${worker.local_work_capacity.toFixed(1)})`;
                     }
 
                     return (
@@ -169,13 +169,23 @@ export class WorkerTable extends React.Component<IWorkerTableProps, IWorkerTable
                     );
                 }
             }, {
-                Header: "Cluster Proxy",
-                accessor: "is_cluster_proxy",
-                width: 100,
-                filterable: false,
-                Cell: ({value}) => {
+                id: "cluster_status",
+                Header: "Cluster Status",
+                accessor: w => w,
+                width: 140,
+                Cell: props => {
+                    const worker = props.original;
+
+                    let status = PipelineWorkerStatus[worker.status];
+
+                    if (worker.status === PipelineWorkerStatus.Processing) {
+                        status = status + ` (${worker.cluster_task_load.toFixed(1)} / ${worker.cluster_work_capacity.toFixed(1)})`;
+                    } else if (worker.status === PipelineWorkerStatus.Idle) {
+                        status = status + ` (${worker.cluster_task_load.toFixed(1)} / ${worker.cluster_work_capacity.toFixed(1)})`;
+                    }
+
                     return (
-                        <div style={{margin: "auto"}}>{value ? "Yes" : "No"}</div>
+                        <div style={{margin: "auto"}}>{status}</div>
                     );
                 }
             }];

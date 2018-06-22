@@ -125,7 +125,7 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
         });
 
         return (
-            <Query query={BaseQuery} pollInterval={5000}>
+            <Query query={BaseQuery} pollInterval={20000}>
                 {
                     ({loading, error, data}) => {
                         if (error) {

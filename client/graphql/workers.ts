@@ -4,12 +4,12 @@ export const WorkerFragment = gql`fragment WorkerFields on PipelineWorker {
     id
     name
     worker_id
-    work_unit_capacity
+    local_work_capacity
+    cluster_work_capacity
     last_seen
-    task_load
+    local_task_load
     status
     is_in_scheduler_pool
-    is_cluster_proxy
 }`;
 
 export const UpdateWorkerMutation = gql`mutation UpdateWorker($worker: PipelineWorkerInput) {

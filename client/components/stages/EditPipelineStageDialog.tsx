@@ -176,7 +176,7 @@ export class EditPipelineStageDialog extends React.Component<IEditStageProps, IE
         const viewOnly = this.props.mode === DialogMode.View;
 
         return (
-            <Modal trigger={this.props.trigger} open={this.props.isOpen} onOpen={() => this.applySourceStage()}>
+            <Modal trigger={this.props.trigger} open={this.props.isOpen} onOpen={() => this.applySourceStage()} closeOnEscape={true} onClose={() => this.props.onCancel()}>
                 <Modal.Header style={{backgroundColor: "#5bc0de", color: "white"}}>
                     {title}
                 </Modal.Header>

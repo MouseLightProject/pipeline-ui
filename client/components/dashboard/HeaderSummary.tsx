@@ -78,10 +78,15 @@ class AbstractSummary<P, S> extends React.Component<P, S> {
         let load = 0;
 
         workers.forEach(worker => {
-            capacity += worker.work_unit_capacity;
+            capacity += worker.local_work_capacity + worker.cluster_work_capacity;
 
-            if (worker.status !== PipelineWorkerStatus.Unavailable && worker.task_load >= 0) {
-                load += worker.task_load;
+            if (worker.status !== PipelineWorkerStatus.Unavailable) {
+                if (worker.local_task_load >= 0) {
+                    load += worker.local_task_load;
+                }
+                if (worker.cluster_task_load >= 0) {
+                    load += worker.cluster_task_load;
+                }
             }
         });
 

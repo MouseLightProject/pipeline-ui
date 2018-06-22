@@ -6,12 +6,18 @@ import {toast} from "react-toastify";
 
 import {ITaskDefinition} from "../../../models/taskDefinition";
 import {ITaskRepository} from "../../../models/taskRepository";
-import {DeleteTaskDefinitionMutation, UpdateTaskDefinitionMutation} from "../../../graphql/taskDefinition";
+import {
+    DeleteTaskDefinitionMutation,
+    DuplicateTaskMutation,
+    UpdateTaskDefinitionMutation
+} from "../../../graphql/taskDefinition";
 import {ViewScriptDialog} from "./ViewScriptDialog";
 import {DialogMode} from "../../helpers/DialogUtils";
 import {EditTaskDefinitionDialog} from "./EditTaskDefinitionDialog";
 import {toastError, toastSuccess} from "../../../util/Toasts";
 import {BaseQuery} from "../../../graphql/baseQuery";
+import {PreferencesManager} from "../../../util/preferencesManager";
+import {DuplicateProjectMutation} from "../../../graphql/project";
 
 interface ITaskDefinitionsTableProps {
     style: any;
@@ -23,7 +29,8 @@ interface ITaskDefinitionsTableState {
     selectedTask?: ITaskDefinition;
     isUpdateDialogShown?: boolean;
     isDeleteDialogShown?: boolean;
-    isScriptDialogShown?: boolean
+    isDuplicateDialogShown?: boolean;
+    isScriptDialogShown?: boolean;
 }
 
 export class TaskDefinitionsTable extends React.Component<ITaskDefinitionsTableProps, ITaskDefinitionsTableState> {
@@ -34,6 +41,7 @@ export class TaskDefinitionsTable extends React.Component<ITaskDefinitionsTableP
             selectedTask: null,
             isUpdateDialogShown: false,
             isDeleteDialogShown: false,
+            isDuplicateDialogShown: false,
             isScriptDialogShown: false
         }
     }
@@ -71,6 +79,61 @@ export class TaskDefinitionsTable extends React.Component<ITaskDefinitionsTableP
     private onUpdateDefinitionError = (error) => {
         toast.error(toastError("Update", error), {autoClose: false});
     };
+
+    // region Duplicate Methods
+
+    private onDuplicateTask(evt: any) {
+        evt.stopPropagation();
+        this.setState({isDuplicateDialogShown: true});
+    }
+
+    private onCompleteDuplicateTask = (data) => {
+        if (data.duplicateTaskDefinition.error) {
+            toast.error(toastError("Duplicate", data.duplicateTaskDefinition.error), {autoClose: false});
+        } else {
+            toast.success(toastSuccess("Duplicate"), {autoClose: 3000});
+        }
+    };
+
+    private onDuplicateTaskError = (error) => {
+        toast.error(toastError("Duplicate", error), {autoClose: false});
+    };
+
+    private onClearDuplicateConfirmation() {
+        this.setState({isDuplicateDialogShown: false});
+    }
+
+    private renderDuplicateTaskConfirmation() {
+        return (
+            <Mutation mutation={DuplicateTaskMutation} onCompleted={this.onCompleteDuplicateTask}
+                      onError={this.onDuplicateTaskError}
+                      update={(cache, {data: {duplicateTaskDefinition: {taskDefinition}}}) => {
+                          const data: any = cache.readQuery({query: BaseQuery});
+                          cache.writeQuery({
+                              query: BaseQuery,
+                              data: Object.assign(data, {taskDefinitions: data.taskDefinitions.concat([taskDefinition])})
+                          });
+                      }}>
+                {(duplicateProject) => {
+                    if (!this.state.isDuplicateDialogShown) {
+                        return null;
+                    }
+                    return (
+                        <Confirm open={this.state.isDuplicateDialogShown} header="Duplicate Task"
+                                 content={`Are you sure you want to duplicate ${this.state.selectedTask.name}?`}
+                                 confirmButton="Duplicate" onCancel={() => this.onClearDuplicateConfirmation()}
+                                 onConfirm={() => {
+                                     duplicateProject({variables: {id: this.state.selectedTask.id}});
+                                     this.setState({isDuplicateDialogShown: false});
+                                 }}/>
+                    );
+                }
+                }
+            </Mutation>
+        )
+    }
+
+    // endregion
 
     private onClickDeleteTaskDefinition(evt: any) {
         evt.stopPropagation();
@@ -161,6 +224,8 @@ export class TaskDefinitionsTable extends React.Component<ITaskDefinitionsTableP
                                 </h5>
                             </div>
                         </Menu.Header> : null}
+                        <MenuItem size="mini" content="Duplicate" icon="clone" disabled={disabled}
+                                  onClick={(evt) => this.onDuplicateTask(evt)}/>
                         <Menu.Menu position="right">
                             <MenuItem size="mini" content="Delete" icon="trash" disabled={disabled_delete}
                                       onClick={(evt) => this.onClickDeleteTaskDefinition(evt)}/>
@@ -187,6 +252,13 @@ export class TaskDefinitionsTable extends React.Component<ITaskDefinitionsTableP
         }
     };
 
+    public componentWillReceiveProps(props: ITaskDefinitionsTableProps) {
+        if (this.state.selectedTask !== null) {
+            const task = this.props.taskDefinitions.find(t => t.id === this.state.selectedTask.id);
+            this.setState({selectedTask: task});
+        }
+    }
+
     public render() {
         const props = {
             style: {backgroundColor: "white"},
@@ -201,6 +273,7 @@ export class TaskDefinitionsTable extends React.Component<ITaskDefinitionsTableP
         return (
             <div style={Object.assign({width: "100%"}, this.props.style || {})}>
                 {this.renderDeleteTaskConfirmation()}
+                {this.renderDuplicateTaskConfirmation()}
                 {this.renderViewScriptDialog()}
                 {this.renderMenu()}
                 <ReactTable {...props} className="-highlight"/>

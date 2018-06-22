@@ -22,7 +22,7 @@ interface IEditTaskDefinitionProps {
 interface IEditTaskDefinitionState {
     taskDefinition?: ITaskDefinition;
     script_arguments?: IUITaskArguments;
-    work_units?: string;
+    local_work_units?: string;
     cluster_work_units?: string;
     expected_exit_code?: string;
 }
@@ -44,7 +44,7 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
         super(props);
 
         this.state = {
-            taskDefinition: props.sourceTaskDefinition ? (({id, name, description, script, interpreter, cluster_args, expected_exit_code, work_units, cluster_work_units, log_prefix, task_repository}) => ({
+            taskDefinition: props.sourceTaskDefinition ? (({id, name, description, script, interpreter, cluster_args, expected_exit_code, local_work_units, cluster_work_units, log_prefix, task_repository}) => ({
                 id,
                 name,
                 description,
@@ -52,7 +52,7 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                 interpreter,
                 cluster_args: JSON.parse(cluster_args).arguments[0],
                 expected_exit_code,
-                work_units,
+                local_work_units,
                 cluster_work_units,
                 log_prefix,
                 task_repository
@@ -64,13 +64,13 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                 interpreter: "none",
                 cluster_args: "",
                 expected_exit_code: 0,
-                work_units: 1,
+                local_work_units: 1,
                 cluster_work_units: 1,
                 log_prefix: "",
                 task_repository: null
             },
             script_arguments: props.sourceTaskDefinition ? taskArgsToUI(JSON.parse(props.sourceTaskDefinition.script_args)) : {arguments: []},
-            work_units: props.sourceTaskDefinition ? props.sourceTaskDefinition.work_units.toString() : "1",
+            local_work_units: props.sourceTaskDefinition ? props.sourceTaskDefinition.local_work_units.toString() : "1",
             cluster_work_units: props.sourceTaskDefinition ? props.sourceTaskDefinition.cluster_work_units.toString() : "1",
             expected_exit_code: props.sourceTaskDefinition ? props.sourceTaskDefinition.expected_exit_code.toString() : "0"
         };
@@ -79,7 +79,7 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
     private applySourceTaskDefinition() {
         if (this.props.sourceTaskDefinition) {
             this.setState({
-                taskDefinition: Object.assign(this.state.taskDefinition, (({id, name, description, script, interpreter, cluster_args, expected_exit_code, work_units, cluster_work_units, log_prefix, task_repository}) => ({
+                taskDefinition: Object.assign(this.state.taskDefinition, (({id, name, description, script, interpreter, cluster_args, expected_exit_code, local_work_units, cluster_work_units, log_prefix, task_repository}) => ({
                     id,
                     name,
                     description,
@@ -87,13 +87,14 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                     interpreter,
                     cluster_args: JSON.parse(cluster_args).arguments[0],
                     expected_exit_code,
-                    work_units,
+                    local_work_units,
                     cluster_work_units,
                     log_prefix,
                     task_repository
                 }))(this.props.sourceTaskDefinition)),
                 script_arguments: this.props.sourceTaskDefinition ? taskArgsToUI(JSON.parse(this.props.sourceTaskDefinition.script_args)) : {arguments: []},
-                work_units: this.props.sourceTaskDefinition ? this.props.sourceTaskDefinition.work_units.toString() : "1",
+                local_work_units: this.props.sourceTaskDefinition ? this.props.sourceTaskDefinition.local_work_units.toString() : "1",
+                cluster_work_units: this.props.sourceTaskDefinition ? this.props.sourceTaskDefinition.cluster_work_units.toString() : "1",
                 expected_exit_code: this.props.sourceTaskDefinition && this.props.sourceTaskDefinition.expected_exit_code ? this.props.sourceTaskDefinition.expected_exit_code.toString() : "0"
             });
         }
@@ -137,19 +138,19 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
         });
     }
 
-    private get isWorkUnitsValid(): boolean {
-        const wu = parseFloat(this.state.work_units);
+    private get isLocalWorkUnitsValid(): boolean {
+        const wu = parseFloat(this.state.local_work_units);
 
         return !isNaN(wu);
     }
 
-    private onWorkUnitsChanged(evt: ChangeEvent<any>) {
+    private onLocalWorkUnitsChanged(evt: ChangeEvent<any>) {
         this.setState({
-            work_units: evt.target.value
+            local_work_units: evt.target.value
         });
     }
 
-    /*
+
     private get isClusterWorkUnitsValid(): boolean {
         const wu = parseFloat(this.state.cluster_work_units);
 
@@ -161,7 +162,6 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
             cluster_work_units: evt.target.value
         });
     }
-    */
 
     private onAddArgument() {
         const args = this.state.script_arguments;
@@ -221,24 +221,25 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
     }
 
     private canCreateOrUpdate() {
-        return this.isNameValid && this.isScriptValid && this.isWorkUnitsValid;
+        return this.isNameValid && this.isScriptValid && this.isLocalWorkUnitsValid;
     }
 
     private onCreateOrUpdate() {
-        const taskDefinition = Object.assign((({id, name, description, script, interpreter, cluster_args, work_units, cluster_work_units, log_prefix, task_repository}) => ({
+        const taskDefinition = Object.assign((({id, name, description, script, interpreter, cluster_args, local_work_units, cluster_work_units, log_prefix, task_repository}) => ({
             id: this.props.mode == DialogMode.Create ? undefined : id,
             name,
             description,
             script,
             interpreter,
             cluster_args: JSON.stringify({arguments: [cluster_args]}),
-            work_units,
+            local_work_units,
             cluster_work_units,
             log_prefix,
             task_repository_id: task_repository ? task_repository.id : null
         }))(this.state.taskDefinition), {
             script_args: JSON.stringify(uiTasksArgsToArgs(this.state.script_arguments)),
-            work_units: parseFloat(this.state.work_units),
+            local_work_units: parseFloat(this.state.local_work_units),
+            cluster_work_units: parseFloat(this.state.cluster_work_units),
             expected_exit_code: parseFloat(this.state.expected_exit_code)
         });
 
@@ -260,7 +261,7 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
         };
 
         return (
-            <Modal trigger={this.props.trigger} open={this.props.isOpen} onOpen={() => this.applySourceTaskDefinition()}>
+            <Modal trigger={this.props.trigger} open={this.props.isOpen} onOpen={() => this.applySourceTaskDefinition()} closeOnEscape={true} onClose={() => this.props.onCancel()}>
                 <Modal.Header style={{backgroundColor: "#5bc0de", color: "white"}}>
                     {title}
                 </Modal.Header>
@@ -292,16 +293,13 @@ export class EditTaskDefinitionDialog extends React.Component<IEditTaskDefinitio
                                     error={!this.isExpectedExitCodeValid}
                                     placeholder="0"
                                     onChange={(evt: any) => this.onExpectedExitCodeChanged(evt)}/>
-                        <Form.Input label="Work Units" value={this.state.work_units} error={!this.isWorkUnitsValid}
+                        <Form.Input label="Local Work Units (amount of worker capacity used when processing locally)" value={this.state.local_work_units} error={!this.isLocalWorkUnitsValid}
                                     placeholder="(required)"
-                                    onChange={(evt: any) => this.onWorkUnitsChanged(evt)}/>
-
-                        {/*
-                        <Form.Input label="Cluster Work Units (currently no effect)"
+                                    onChange={(evt: any) => this.onLocalWorkUnitsChanged(evt)}/>
+                        <Form.Input label="Cluster Work Units (amount of worker capacity used when processing on cluster - does not relate to -n bsub argument)"
                                     value={this.state.cluster_work_units} error={!this.isClusterWorkUnitsValid}
                                     placeholder="(required)"
                                     onChange={(evt: any) => this.onClusterWorkUnitsChanged(evt)}/>
-                        */}
                         <Form.Input label="Log Prefix" value={this.state.taskDefinition.log_prefix}
                                     placeholder={this.state.taskDefinition.id ? this.state.taskDefinition.id.slice(0, 8) : "(auto-generated)"}
                                     onChange={(evt: any) => this.onLogPrefixChanged(evt)}/>
@@ -352,9 +350,9 @@ const TaskArgumentList = (props) => (
                             </Label.Group>
                             <input/>
                             <Button.Group size="mini">
-                                <Button icon="long arrow up" disabled={idx === 0}
+                                <Button icon="arrow up" disabled={idx === 0}
                                         onClick={() => props.itemModifyProps.onMoveArgument(-idx)}/>
-                                <Button icon="long arrow down" disabled={idx === (props.arguments.length - 1)}
+                                <Button icon="arrow down" disabled={idx === (props.arguments.length - 1)}
                                         onClick={() => props.itemModifyProps.onMoveArgument(idx)}/>
                                 <Button icon="remove" onClick={() => props.itemModifyProps.onRemoveArgument(idx)}/>
                             </Button.Group>
