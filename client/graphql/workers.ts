@@ -8,6 +8,7 @@ export const WorkerFragment = gql`fragment WorkerFields on PipelineWorker {
     cluster_work_capacity
     last_seen
     local_task_load
+    cluster_task_load
     status
     is_in_scheduler_pool
 }`;
