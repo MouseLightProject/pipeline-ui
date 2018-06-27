@@ -2,8 +2,8 @@
 
 export DEBUG=pipeline*
 
-logName=$(date '+%Y-%m-%d%H-%M-%S');
+logName=$(date '+%Y-%m-%d_%H-%M-%S');
 
-node server/pipelineClientServer.js &> /var/log/pipeline/coordinator-ui-${logName}.log
+mkdir -p /var/log/pipeline
 
-sleep infinity
+node server/pipelineClientServer.js &> /var/log/pipeline/coordinator-client-${logName}.log
