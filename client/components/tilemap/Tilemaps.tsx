@@ -85,8 +85,7 @@ const InnerTileMapPanel = graphql<any, any>(PipelinePlaneQuery, {
     })
 })(_InnerTileMapPanel);
 
-function calculateBounds(project: IProject) {
-    let plane = -1;
+function calculateBounds(project: IProject, plane: number) {
     let minZ = 0;
     let maxZ = 1e6;
 
@@ -145,7 +144,7 @@ export class TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPStat
             projectId: PreferencesManager.Instance.PreferredProjectId,
             stageId: null,
             format: TileMapFormat.QueueStatus
-        }, calculateBounds(project));
+        }, calculateBounds(project, -1));
     }
 
     public componentDidMount() {
@@ -180,7 +179,7 @@ export class TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPStat
 
             const project = allProjects.find(project => project.id === this.state.projectId);
 
-            const bounds = calculateBounds(project);
+            const bounds = calculateBounds(project, this.state.plane);
 
             if (bounds.minZ != this.state.minZ || bounds.maxZ != this.state.maxZ || bounds.plane != this.state.plane) {
                 this.setState({minZ: bounds.minZ, maxZ: bounds.maxZ, plane: bounds.plane});
