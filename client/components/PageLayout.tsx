@@ -70,6 +70,7 @@ interface IPageLayoutState {
     thumbsHostname?: string;
     thumbsPort?: number;
     thumbsPath?: string;
+    isActivePipeline?: boolean;
 }
 
 export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutState> implements IInternalApiDelegate, IRealTimeApiDelegate {
@@ -87,7 +88,8 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
             isSidebarExpanded: !PreferencesManager.Instance.IsSidebarCollapsed,
             thumbsHostname: "",
             thumbsPort: 80,
-            thumbsPath: "/thumbnail"
+            thumbsPath: "/thumbnail",
+            isActivePipeline: true
         };
 
         this._internalApi = new InternalApi(this);
@@ -143,7 +145,9 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
                         return (
                             <div style={{height: "100%"}}>
                                 <ToastContainer autoClose={6000} position="bottom-center" style={toastStyleOverride}/>
-                                <MenuLayout projects={data.projects} workers={data.pipelineWorkers} isSidebarExpanded={this.state.isSidebarExpanded}
+                                <MenuLayout projects={data.projects} workers={data.pipelineWorkers}
+                                            isActivePipeline={this.state.isActivePipeline}
+                                            isSidebarExpanded={this.state.isSidebarExpanded}
                                             onToggleSidebar={() => this.onToggleSidebar()}/>
                                 <div style={{
                                     display: "flex",
@@ -178,11 +182,13 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
                                             width: "100%"
                                         }}>
                                         <Switch>
-                                            <Route path="/" exact render={() => this.dashboard(data.projects, data.pipelineWorkers)}/>
+                                            <Route path="/" exact
+                                                   render={() => this.dashboard(data.projects, data.pipelineWorkers)}/>
                                             <Route path="/projects" render={() => this.projects(data.projects)}/>
                                             <Route path="/graphs" render={() => this.pipelineGraphs(data.projects)}/>
                                             <Route path="/tilemaps" render={() => this.tileMaps(data.projects)}/>
-                                            <Route path="/stages" render={() => this.pipelineStages(data.projects, data.pipelineStages, data.taskDefinitions)}/>
+                                            <Route path="/stages"
+                                                   render={() => this.pipelineStages(data.projects, data.pipelineStages, data.taskDefinitions)}/>
                                             <Route path="/tasks"
                                                    render={() => this.tasks(data.taskRepositories, data.taskDefinitions, data.pipelineVolume)}/>
                                             <Route path="/workers" render={() => this.workers(data.pipelineWorkers)}/>
@@ -214,7 +220,8 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
             processId: message.processId,
             thumbsHostname: message.thumbsHostname,
             thumbsPort: message.thumbsPort,
-            thumbsPath: message.thumbsPath
+            thumbsPath: message.thumbsPath,
+            isActivePipeline: message.isActivePipeline
         });
 
         // If this is the first request then it is the version we loaded.  If not, the backend may have restarted

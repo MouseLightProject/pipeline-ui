@@ -88,7 +88,8 @@ function serverConfiguration(req, resp) {
         processId: process.pid,
         thumbsHostname: Configuration.thumbsHostname,
         thumbsPort: Configuration.thumbsPort,
-        thumbsPath: Configuration.thumbsPath
+        thumbsPath: Configuration.thumbsPath,
+        isActivePipeline: Configuration.isActivePipeline
     });
 }
 

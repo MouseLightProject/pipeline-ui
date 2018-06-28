@@ -6,6 +6,7 @@ export interface IServerConfigurationMessage {
     thumbsHostname: string;
     thumbsPort: number;
     thumbsPath: string;
+    isActivePipeline: boolean;
 }
 
 export interface IInternalApiDelegate {

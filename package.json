@@ -1,11 +1,12 @@
 {
-  "name": "pipeline-client",
+  "name": "pipeline-ui",
   "version": "1.2.3",
   "description": "",
   "keywords": [],
   "author": "Patrick Edson <pedson@leapscientific.com> (http://github.com/pedson)",
   "license": "LicenseRef-LICENSE",
   "dockerRepository": "mouselightpipeline",
+  "dockerImageName": "pipeline-client",
   "scripts": {
     "devel": "DEBUG=pipeline* node $NODE_DEBUG_OPTION server/pipelineClientServer.js",
     "start": "node server/pipelineClientServer.js",

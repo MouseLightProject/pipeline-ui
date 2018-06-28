@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Image, Menu} from "semantic-ui-react";
+import {Image, Menu, Label, Icon} from "semantic-ui-react";
 import {HeaderSummary} from "../dashboard/HeaderSummary";
 import {IProject} from "../../models/project";
 import {IWorker} from "../../models/worker";
@@ -7,12 +7,11 @@ import {IWorker} from "../../models/worker";
 const logoImage = require("../../assets/mouselight-pipeline.svg");
 const logoImageSmall = require("../../assets/mouselight-pipeline-sm.svg");
 
-const ChevronCushion = 30;
-
 interface IMenuLayoutProps {
     projects: IProject[];
     workers: IWorker[];
     isSidebarExpanded: boolean;
+    isActivePipeline: boolean;
 
     onToggleSidebar(): void;
 }
@@ -43,6 +42,12 @@ export class MenuLayout extends React.Component<IMenuLayoutProps, IMenuLayoutSta
                                transition: "all 0.3s ease"
                            }}>
                     <Image size="small" src={logo} style={{height: "100%", width: width + "px"}}/>
+                </Menu.Item>
+                <Menu.Item>
+                    <Label>
+                        <Icon name={this.props.isActivePipeline ? "check circle outline" : "exclamation"} color={this.props.isActivePipeline ? "green" : "red"}/>
+                        {this.props.isActivePipeline ? "Active Pipeline" : "Inactive Pipeline"}
+                    </Label>
                 </Menu.Item>
                 <Menu.Menu position="right">
                     <HeaderSummary projects={this.props.projects} workers={this.props.workers} isNavTile={true}/>
