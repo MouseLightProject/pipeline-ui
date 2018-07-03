@@ -77,7 +77,7 @@ export class PipelineGraph extends React.Component<IPipelineGraphProps, IPipelin
         let sum = 0;
 
         return project.stages.reduce((sum, stage) => {
-            return sum + (stage.performance === null ? 0 : stage.tile_status.queued);
+            return sum + (stage.tile_status === null ? 0 : stage.tile_status.queued);
         }, sum);
     }
 

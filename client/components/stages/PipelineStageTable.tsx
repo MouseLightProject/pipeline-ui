@@ -4,7 +4,7 @@ import {Mutation} from "react-apollo";
 import ReactTable from "react-table";
 import {toast} from "react-toastify";
 
-import {IPipelineStage} from "../../models/pipelineStage";
+import {IPipelineStage, IPipelineStageTileStatus} from "../../models/pipelineStage";
 import {AllProjectsId} from "../helpers/ProjectMenu";
 import {ITaskDefinition} from "../../models/taskDefinition";
 import {IProject} from "../../models/project";
@@ -287,11 +287,11 @@ export class PipelineStageTable extends React.Component<IPipelineStageTableProps
                 accessor: "dst_path"
             }, {
                 Header: "Queue",
-                accessor: "performance",
+                accessor: "tile_status",
                 width: 90,
                 Cell: ({value}) => {
                     return (
-                        <div style={{margin: "auto"}}>{renderPerformance(value)}</div>
+                        <div style={{margin: "auto"}}>{`${value.processing} | ${value.queued}`}</div>
                     );
                 }
             }, {
@@ -345,12 +345,3 @@ export class PipelineStageTable extends React.Component<IPipelineStageTableProps
         );
     }
 }
-
-const renderPerformance = (performance) => {
-    if (performance === null) {
-        return "";
-    }
-
-    return `${performance.num_in_process} | ${performance.num_ready_to_process}`;
-};
-

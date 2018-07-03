@@ -1,5 +1,5 @@
 import gql from "graphql-tag";
-import {PerformanceFieldsFragment, PipelineStageRequiredFieldsFragment} from "./pipelineStage";
+import {PipelineStageRequiredFieldsFragment} from "./pipelineStage";
 
 export const ProjectFieldsFragment = gql`fragment ProjectFields on Project {
     id
@@ -32,9 +32,6 @@ export const CreateProjectMutation = gql`mutation CreateProjectMutation($project
         ...ProjectFields
         stages {
           ...StageRequiredFields
-          performance {
-            ...PerformanceFields
-          }
         }
     }
     error
@@ -42,7 +39,6 @@ export const CreateProjectMutation = gql`mutation CreateProjectMutation($project
 }
 ${ProjectFieldsFragment}
 ${PipelineStageRequiredFieldsFragment}
-${PerformanceFieldsFragment}
 `;
 
 export const UpdateProjectMutation = gql`mutation UpdateProjectMutation($project: ProjectInput) {
@@ -51,9 +47,6 @@ export const UpdateProjectMutation = gql`mutation UpdateProjectMutation($project
         ...ProjectFields
       stages {
           ...StageRequiredFields
-          performance {
-            ...PerformanceFields
-          }
       }
         updated_at
       }
@@ -62,7 +55,6 @@ export const UpdateProjectMutation = gql`mutation UpdateProjectMutation($project
 }
 ${ProjectFieldsFragment}
 ${PipelineStageRequiredFieldsFragment}
-${PerformanceFieldsFragment}
 `;
 
 export const DuplicateProjectMutation = gql`
@@ -72,9 +64,6 @@ export const DuplicateProjectMutation = gql`
           ...ProjectFields
           stages {
               ...StageRequiredFields
-              performance {
-                ...PerformanceFields
-              }
           }
         updated_at
       }
@@ -83,7 +72,6 @@ export const DuplicateProjectMutation = gql`
   }
 ${ProjectFieldsFragment}
 ${PipelineStageRequiredFieldsFragment}
-${PerformanceFieldsFragment}
 `;
 
 export const DeleteProjectMutation = gql`

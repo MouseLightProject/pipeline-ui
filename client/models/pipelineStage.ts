@@ -10,20 +10,6 @@ export interface IPipelineStageTileStatus {
     canceled: number;
 }
 
-export interface IPipelinePerformance {
-    id: string;
-    pipeline_stage_id: string;
-    cpu_average: number;
-    cpu_high: number;
-    cpu_low: number;
-    memory_average: number;
-    memory_high: number;
-    memory_low: number;
-    duration_average: number;
-    duration_high: number;
-    duration_low: number;
-}
-
 export interface IPipelineStage {
     id: string;
     name?: string;
@@ -33,7 +19,6 @@ export interface IPipelineStage {
     task_id?: string;
     task?: ITaskDefinition;
     tile_status?: IPipelineStageTileStatus;
-    performance?: IPipelinePerformance;
     previous_stage_id?: string;
     previous_stage?: IPipelineStage;
     child_stages?: IPipelineStage[];

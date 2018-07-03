@@ -1,6 +1,4 @@
 import gql from "graphql-tag";
-import {PerformanceFieldsFragment, PipelineStageRequiredFieldsFragment} from "./pipelineStage";
-import {ProjectFieldsFragment} from "./project";
 
 export const TaskDefinitionFragment = gql`fragment TaskDefinitionFields on TaskDefinition {
     id

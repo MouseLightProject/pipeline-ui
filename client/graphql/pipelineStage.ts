@@ -82,34 +82,11 @@ export const PipelineStageFullFieldsFragment = gql`fragment PipelineStageFullFie
   }
 }`;
 
-export const PerformanceFieldsFragment = gql`fragment PerformanceFields on PipelineStagePerformance {
-    id
-    pipeline_stage_id
-    num_in_process
-    num_ready_to_process
-    num_execute
-    num_complete
-    num_error
-    num_cancel
-    cpu_average
-    cpu_high
-    cpu_low
-    memory_average
-    memory_high
-    memory_low
-    duration_average
-    duration_high
-    duration_low
-}`;
-
 export const CreateStageMutation = gql`
   mutation CreatePipelineStageMutation($pipelineStage: PipelineStageInput) {
     createPipelineStage(pipelineStage: $pipelineStage) {
         pipelineStage {
           ...StageRequiredFields
-          performance {
-            ...PerformanceFields
-          }
           created_at
           updated_at
         }
@@ -117,7 +94,6 @@ export const CreateStageMutation = gql`
     }
   }
 ${PipelineStageRequiredFieldsFragment}
-${PerformanceFieldsFragment}
 `;
 
 export const UpdatePipelineStageMutation = gql`
@@ -125,9 +101,6 @@ export const UpdatePipelineStageMutation = gql`
     updatePipelineStage(pipelineStage: $pipelineStage) {
         pipelineStage {
           ...StageRequiredFields
-          performance {
-            ...PerformanceFields
-          }
           created_at
           updated_at
         }
@@ -135,7 +108,6 @@ export const UpdatePipelineStageMutation = gql`
     }
   }
 ${PipelineStageRequiredFieldsFragment}
-${PerformanceFieldsFragment}
 `;
 
 export const DeletePipelineStageMutation = gql`
