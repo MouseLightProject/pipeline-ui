@@ -4,7 +4,7 @@ import {Mutation} from "react-apollo";
 import ReactTable from "react-table";
 import {toast} from "react-toastify";
 
-import {IProject, IProjectInput} from "../../models/project";
+import {IProject, IProjectInput, ProjectInputSourceState} from "../../models/project";
 import {DeleteProjectMutation, DuplicateProjectMutation, UpdateProjectMutation} from "../../graphql/project";
 import {EditProjectDialog} from "./EditProjectDialog";
 import {DialogMode} from "../helpers/DialogUtils";
@@ -304,7 +304,19 @@ export class ProjectTable extends React.Component<IProjectTableProps, IProjectTa
                 width: 220
             }, {
                 Header: "Path to Dashboard Root",
-                accessor: "root_path"
+                id: "root_path",
+                accessor: p => p,
+                Cell: props => {
+                    let name = null;
+                    switch (props.original.input_source_state) {
+                        case ProjectInputSourceState.Missing:
+                            name = null;
+                            break;
+                    }
+                    return (
+                        <span>{props.original.root_path}<br/>{}</span>
+                    )
+                }
             }, {
                 id: "sample_limits",
                 Header: "Sample Limits",

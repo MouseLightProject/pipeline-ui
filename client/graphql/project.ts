@@ -22,6 +22,9 @@ export const ProjectFieldsFragment = gql`fragment ProjectFields on Project {
     region_z_min
     region_z_max
     is_processing
+    input_source_state
+    last_seen_input_source
+    last_checked_input_source
     created_at
     updated_at
 }`;

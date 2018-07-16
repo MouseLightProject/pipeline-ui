@@ -14,9 +14,6 @@ export interface IPipelineTile {
     cut_offset?: number;
     z_offset?: number;
     delta_z?: number;
-    duration?: number;
-    cpu_high?: number;
-    memory_high?: number;
     created_at?: Date;
     updated_at?: Date;
     deleted_at?: Date;

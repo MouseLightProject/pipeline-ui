@@ -1,5 +1,14 @@
 import {IPipelineStage} from "./pipelineStage";
 
+export enum ProjectInputSourceState {
+    Unknown = 0,
+    BadLocation = 1,
+    Missing = 2,
+    Dashboard = 3,
+    Pipeline = 4,
+    Disappeared = 5
+}
+
 export interface IProject {
     id?: string;
     name?: string;
@@ -21,6 +30,9 @@ export interface IProject {
     region_z_min?: number;
     region_z_max?: number;
     is_processing?: boolean;
+    input_source_state?: ProjectInputSourceState;
+    last_seen_input_source?: Date;
+    last_checked_input_source?: Date;
     stages?: IPipelineStage[];
     created_at?: number;
     updated_at?: number;
