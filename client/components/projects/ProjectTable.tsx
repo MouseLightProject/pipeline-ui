@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Menu, MenuItem, Button, Confirm} from "semantic-ui-react";
+import {Menu, MenuItem, Button, Confirm, Icon} from "semantic-ui-react";
 import {Mutation} from "react-apollo";
 import ReactTable from "react-table";
 import {toast} from "react-toastify";
@@ -308,13 +308,27 @@ export class ProjectTable extends React.Component<IProjectTableProps, IProjectTa
                 accessor: p => p,
                 Cell: props => {
                     let name = null;
+                    let color: "red" | "green" = "red";
                     switch (props.original.input_source_state) {
+                        case ProjectInputSourceState.Unknown:
+                            name = "question";
+                            break;
                         case ProjectInputSourceState.Missing:
-                            name = null;
+                            name = "times circle";
+                            break;
+                        case ProjectInputSourceState.BadLocation:
+                            name = "folder";
+                            break;
+                        case ProjectInputSourceState.Disappeared:
+                            name = "exclamation circle";
+                            break;
+                        default:
+                            name = "check";
+                            color = "green";
                             break;
                     }
                     return (
-                        <span>{props.original.root_path}<br/>{}</span>
+                        <span><Icon name={name} color={color}/>{props.original.root_path}</span>
                     )
                 }
             }, {
