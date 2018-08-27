@@ -23,7 +23,7 @@ export class ProjectsHelpPanel extends React.Component<IProjectsHelpPanelProps, 
                 </p>
                 <h4>Input Source</h4>
                 <p>
-                    The primary input source is a file named pipeline.json located at the Root Path location.  If the file does not exist, the system looks for dashboard.json.  If that file is also not present, the project does not update the source tile states.  The icon next to the Root Path in the projects table indicates the status:
+                    The primary input source is a file named pipeline-input.json located at the Root Path location.  If the file does not exist, the system looks for dashboard.json.  If that file is also not present, the project does not update the source tile states.  The icon next to the Root Path in the projects table indicates the status:
                     <ul>
                         <li><Icon name="question" color="red"/><i>Unknown</i> - the project was just created and has not been scanned for the first time</li>
                         <li><Icon name="folder" color="red"/><i>Bad Location</i> - the root path folder does not exist</li>
