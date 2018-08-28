@@ -384,7 +384,7 @@ function createConfig(owner) {
     return {
 
         chart: {
-            animation: true,
+            animation: false,
             type: "heatmap",
             height: 800,
             panKey: "shift",
