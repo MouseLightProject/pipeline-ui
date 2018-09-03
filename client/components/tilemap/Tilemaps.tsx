@@ -53,10 +53,6 @@ class _InnerTileMapPanel extends React.Component<_ITileMapsProps, _ITileMapsPSta
             return (<h2>There is no selected pipeline</h2>);
         }
 
-        if (!project.is_processing) {
-            return (<h2>The selected pipeline must be running to view the tile map</h2>);
-        }
-
         if (this.props.format === TileMapFormat.QueueStatus) {
             return (<TileMapPlotPanel project={project} plane={this.props.plane}
                                       projectPlaneTileStatus={this.props.planeQuery.projectPlaneTileStatus}/>)

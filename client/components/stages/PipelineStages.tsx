@@ -30,9 +30,13 @@ export class PipelineStages extends React.Component<IPipelineStagesProps, IPipel
     };
 
     private onSelectedPipelineStageChanged(stage: IPipelineStage) {
+        if (stage === undefined) {
+            stage = null;
+        }
+
         this.setState({selectedStage: stage});
 
-        if (stage !== null && stage !== undefined) {
+        if (stage !== null) {
             PreferencesManager.Instance.PreferredStageId = stage.id;
         }
     };
