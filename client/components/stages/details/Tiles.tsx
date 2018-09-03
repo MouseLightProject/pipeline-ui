@@ -96,7 +96,8 @@ class TilesTablePanel extends React.Component<ITilesTablePanelProps, ITilesTable
 
     public render() {
         return (
-            <Query query={TilesForStageQuery} fetchPolicy="cache-and-network" pollInterval={5000} variables={{
+            <Query query={TilesForStageQuery} fetchPolicy="cache-and-network" pollInterval={10000} ssr={false}
+                   notifyOnNetworkStatusChange={false} variables={{
                 pipelineStageId: this.props.pipelineStage.id,
                 status: this.props.requestedStatus.option,
                 offset: this.props.offset,

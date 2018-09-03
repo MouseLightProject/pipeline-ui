@@ -7,9 +7,10 @@ import {toast} from "react-toastify";
 import {IPipelineTile} from "../../../models/pipelineTile";
 import {IPipelineStage} from "../../../models/pipelineStage";
 import {TilePipelineStatus} from "../../../models/tilePipelineStatus";
-import {toastError, toastSuccess} from "../../../util/Toasts";
 import {PreferencesManager} from "../../../util/preferencesManager";
 import {SetTileStatusMutation} from "../../../graphql/pipelineTile";
+import moment = require("moment");
+import {valueFromAST} from "graphql";
 
 
 interface ITilesTableProps {
@@ -38,21 +39,6 @@ export class TilesTable extends React.Component<ITilesTableProps, ITilesTableSta
             cachedTiles: [],
             cachedPageCount: -1,
             isRemoved: false
-        }
-    }
-
-    private async onResubmitTile(tile: IPipelineTile) {
-        try {
-            const result = await this.props.setTileStatus(this.props.pipelineStage.id, [tile.relative_path], TilePipelineStatus.Incomplete);
-
-            if (!result.data.setTileStatus) {
-                toast.error(toastError("Update", result.data.setTileStatus.error), {autoClose: false});
-            } else {
-                toast.success(toastSuccess("Update"), {autoClose: 3000});
-                this.setState({isRemoved: true});
-            }
-        } catch (error) {
-            toast.error(toastError("Update", {name: "", message: "Tile not found"}), {autoClose: false});
         }
     }
 
