@@ -222,7 +222,7 @@ export class ProjectTable extends React.Component<IProjectTableProps, IProjectTa
         const disabled_stages = disabled_active || this.state.selectedProject.stages.length > 0;
 
         return (
-            <Menu size="mini" style={{borderBottom: "none"}}>
+            <Menu size="mini" style={{borderBottom: "none", borderRadius: 0, marginBottom: 0, boxShadow: "none"}}>
                 <Mutation mutation={UpdateProjectMutation} onCompleted={this.onCompleteUpdateProject}
                           onError={this.onUpdateProjectError}>
                     {(updateProject) => (

@@ -196,7 +196,7 @@ export class TaskDefinitionsTable extends React.Component<ITaskDefinitionsTableP
             <Mutation mutation={UpdateTaskDefinitionMutation} onCompleted={this.onCompleteUpdateDefinition}
                       onError={this.onUpdateDefinitionError}>
                 {(updateTaskDefinition) => (
-                    <Menu size="mini" style={{borderBottom: "none"}}>
+                    <Menu size="mini" style={{borderBottom: "none", borderRadius: 0, marginBottom: 0, boxShadow: "none"}}>
                         <EditTaskDefinitionDialog
                             trigger={<MenuItem size="mini" content="Edit" icon="pencil" disabled={disabled}
                                                onClick={(evt) => this.onClickUpdateTaskDefinition(evt)}/>}

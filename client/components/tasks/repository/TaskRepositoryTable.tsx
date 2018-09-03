@@ -115,7 +115,7 @@ export class TaskRepositoryTable extends React.Component<ITaskRepositoryTablePro
             <Mutation mutation={UpdateTaskRepositoryMutation} onCompleted={this.onCompleteUpdateRepository}
                       onError={this.onUpdateRepositoryError}>
                 {(updateTaskRepository) => (
-                    <Menu size="mini" style={{borderBottom: "none"}}>
+                    <Menu size="mini" style={{borderBottom: "none", borderRadius: 0, marginBottom: 0, boxShadow: "none"}}>
                         <EditRepositoryDialog
                             trigger={<MenuItem size="mini" content="Edit" icon="pencil" disabled={disabled}
                                                onClick={(evt) => this.onClickUpdateRepository(evt)}/>}

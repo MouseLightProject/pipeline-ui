@@ -80,7 +80,7 @@ export class PipelineStagesPanel extends React.Component<IPipelineStagesPanelPro
         const content = this.state.isFiltered ? "Remove Filters" : "Apply Filters";
 
         return (
-            <Menu style={{borderTop: "none", borderLeft: "none", borderRight: "none"}}>
+            <Menu style={{borderTop: "none", borderLeft: "none", borderRight: "none", borderRadius: 0, boxShadow: "none"}}>
                 <Menu.Header>
                     <div style={{
                         height: "100%",

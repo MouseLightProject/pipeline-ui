@@ -66,7 +66,7 @@ export class TaskDefinitionsPanel extends React.Component<ITaskDefinitionPanelPr
                       }}>
                 {(createTaskDefinition) => {
                     return (
-                        <Menu style={{borderLeft: "none", borderRight: "none"}}>
+                        <Menu style={{borderLeft: "none", borderRight: "none", borderRadius: 0, boxShadow: "none"}}>
                             <Menu.Header>
                                 <div style={{
                                     height: "100%",

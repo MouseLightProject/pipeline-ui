@@ -297,7 +297,7 @@ export class HeaderSummary extends React.Component<IHeaderSummaryProps, IHeaderS
         } else {
             return (
                 <Container fluid>
-                    <Menu style={{marginBottom: "15px"}}>
+                    <Menu style={{borderTop: "none", borderLeft: "none", borderRight: "none", borderRadius: 0, boxShadow: "none", marginBottom: "15px"}}>
                         <Menu.Header>
                             <div style={{
                                 height: "100%",

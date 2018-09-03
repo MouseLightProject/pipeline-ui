@@ -156,13 +156,14 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
                                     overflow: "hidden",
 
                                 }}>
-                                    <Menu vertical inverted icon={icon}
+                                    <Menu vertical inverted icon={icon} fixed="left"
                                           style={{
                                               order: 0,
                                               flex: "0 0 auto",
                                               width: width + "px",
                                               minHeight: "100%",
-                                              transition: "all 0.3s ease"
+                                              transition: "all 0.3s ease",
+                                              marginTop: "62px"
                                           }}>
                                         {menus}
                                         <Menu.Item>
@@ -179,7 +180,10 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
                                             order: 1,
                                             flex: "1 1 auto",
                                             backgroundColor: "rgb(244, 247, 250)",
-                                            width: "100%"
+                                            width: "100%",
+                                            transition: "all 0.3s ease",
+                                            paddingLeft: this.state.isSidebarExpanded ? "200px" : "80px",
+                                            paddingTop: "62px"
                                         }}>
                                         <Switch>
                                             <Route path="/" exact

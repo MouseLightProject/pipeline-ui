@@ -70,7 +70,7 @@ export class WorkerTable extends React.Component<IWorkerTableProps, IWorkerTable
                       onError={this.onUpdateWorkerError}>
                 {(updateWorker: Function) => {
                     return (
-                        <Menu size="mini" style={{borderBottom: "none"}}>
+                        <Menu size="mini" style={{borderBottom: "none", borderRadius: 0, marginBottom: 0, boxShadow: "none"}}>
                             <EditWorkerDialog
                                 element={<MenuItem size="mini" content="Edit" icon="pencil" disabled={disabled}
                                                    onClick={(evt) => this.onClickUpdateWorker(evt)}/>}

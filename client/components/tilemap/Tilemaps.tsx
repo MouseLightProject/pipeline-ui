@@ -309,7 +309,7 @@ export class TileMapPanel extends React.Component<ITileMapsProps, ITileMapsPStat
 
         return (
             <Container fluid style={{height: "100%"}}>
-                <Menu style={{marginBottom: "15px"}}>
+                <Menu style={{borderTop: "none", borderLeft: "none", borderRight: "none", borderRadius: 0, boxShadow: "none", marginBottom: "15px"}}>
                     <Menu.Header>
                         <div style={{
                             height: "100%",

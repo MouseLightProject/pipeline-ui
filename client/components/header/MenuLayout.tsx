@@ -33,7 +33,7 @@ export class MenuLayout extends React.Component<IMenuLayoutProps, IMenuLayoutSta
         const width = this.props.isSidebarExpanded ? 200 : 80;
 
         return (
-            <Menu inverted fluid className="main-menu">
+            <Menu inverted fluid className="main-menu" fixed="top">
                 <Menu.Item onClick={(evt) => this.onToggleSidebar(evt)}
                            style={{
                                padding: "2px",

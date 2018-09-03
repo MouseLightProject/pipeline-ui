@@ -450,7 +450,7 @@ export class PipelineGraph extends React.Component<IPipelineGraphProps, IPipelin
 
         return (
             <div style={test}>
-                <Menu>
+                <Menu style={{borderTop: "none", borderLeft: "none", borderRight: "none", borderRadius: 0, boxShadow: "none"}}>
                     <Menu.Header>
                         <div style={{
                             height: "100%",

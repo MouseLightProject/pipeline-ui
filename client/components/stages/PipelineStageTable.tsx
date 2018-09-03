@@ -138,7 +138,7 @@ export class PipelineStageTable extends React.Component<IPipelineStageTableProps
         const disabled_active = disabled || this.state.selectedStage.is_processing;
 
         return (
-            <Menu size="mini" style={{borderBottom: "none"}}>
+            <Menu size="mini" style={{borderBottom: "none", borderRadius: 0, marginBottom: 0, boxShadow: "none"}}>
                 <Mutation mutation={UpdatePipelineStageMutation} onCompleted={this.onCompleteUpdatePipelineStage}
                           onError={this.onUpdatePipelineStageError}>
                     {(updatePipelineStage) => (

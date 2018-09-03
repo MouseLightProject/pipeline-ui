@@ -76,7 +76,7 @@ export class TaskRepositoryPanel extends React.Component<ITaskRepositoryPanelPro
                       }}>
                 {(createTaskRepository) => {
                     return (
-                        <Menu style={{borderTop: "none", borderLeft: "none", borderRight: "none"}}>
+                        <Menu style={{borderTop: "none", borderLeft: "none", borderRight: "none", borderRadius: 0, boxShadow: "none"}}>
                             <Menu.Header>
                                 <div style={{
                                     height: "100%",

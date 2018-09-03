@@ -20,7 +20,7 @@ export const WorkersPanel = (props: IWorkersProps) => {
 
 function renderMainMenu() {
     return (
-        <Menu style={{borderTop: "none", borderLeft: "none", borderRight: "none"}}>
+        <Menu style={{borderTop: "none", borderLeft: "none", borderRight: "none", borderRadius: 0, boxShadow: "none"}}>
             <Menu.Header>
                 <div style={{
                     height: "100%",

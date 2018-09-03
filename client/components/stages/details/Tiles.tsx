@@ -116,7 +116,7 @@ class TilesTablePanel extends React.Component<ITilesTablePanelProps, ITilesTable
 
                     return (
                         <Container fluid style={{padding: "20px"}}>
-                            <Menu size="mini" style={{borderBottomWidth: "1px"}}>
+                            <Menu size="mini" style={{borderBottomWidth: "1px", borderRadius: 0, marginBottom: 0, boxShadow: "none"}}>
                                 <TilePipelineStatusSelect
                                     statusTypes={TILE_PIPELINE_STATUS_TYPES}
                                     selectedStatus={this.props.requestedStatus}
