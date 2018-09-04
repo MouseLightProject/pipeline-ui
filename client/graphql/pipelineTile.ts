@@ -11,6 +11,24 @@ export const TilesForStageQuery = gql`query($pipelineStageId: String, $status: I
             lat_x
             lat_y
             lat_z
+            task_executions {
+                id
+                worker_id
+                queue_type
+                resolved_script
+                resolved_script_args
+                resolved_cluster_args
+                resolved_log_path
+                execution_status_code
+                completion_status_code
+                cpu_time_seconds
+                max_cpu_percent
+                max_memory_mb
+                exit_code
+                submitted_at
+                started_at
+                completed_at
+            }
         }
     }
 }`;

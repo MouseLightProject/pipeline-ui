@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Route, Redirect, Switch, NavLink} from "react-router-dom";
-import {Container, Icon, Menu, List, Loader, SemanticICONS} from "semantic-ui-react"
+import {Container, Icon, Menu, List, Loader, Message, SemanticICONS} from "semantic-ui-react"
 import {Query} from "react-apollo";
 import {ToastContainer} from "react-toastify";
 
@@ -111,7 +111,7 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
 
     public render() {
         if (!this.state.isServerConnected) {
-            return "Not connected";
+            return (<Message warning style={{margin: "20px"}}>The server is no longer responding.  The service may be down.  Will continue to retry the connection.</Message>);
         }
 
         const width = this.state.isSidebarExpanded ? 199 : 79;
@@ -141,6 +141,9 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
                                 </div>
                             );
                         }
+
+                        const workerMap = new Map<string, IWorker>();
+                        data.pipelineWorkers.map(w => workerMap.set(w.id, w));
 
                         return (
                             <div style={{height: "100%"}}>
@@ -192,7 +195,7 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
                                             <Route path="/graphs" render={() => this.pipelineGraphs(data.projects)}/>
                                             <Route path="/tilemaps" render={() => this.tileMaps(data.projects)}/>
                                             <Route path="/stages"
-                                                   render={() => this.pipelineStages(data.projects, data.pipelineStages, data.taskDefinitions)}/>
+                                                   render={() => this.pipelineStages(data.projects, data.pipelineStages, data.taskDefinitions, workerMap)}/>
                                             <Route path="/tasks"
                                                    render={() => this.tasks(data.taskRepositories, data.taskDefinitions, data.pipelineVolume)}/>
                                             <Route path="/workers" render={() => this.workers(data.pipelineWorkers)}/>
@@ -252,8 +255,8 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
                       thumbsPath={this.state.thumbsPath}/>
     );
 
-    private pipelineStages = (projects: IProject[], pipelineStages: IPipelineStage[], taskDefinitions: ITaskDefinition[]) => (
-        <PipelineStages projects={projects} pipelineStages={pipelineStages} taskDefinitions={taskDefinitions}/>
+    private pipelineStages = (projects: IProject[], pipelineStages: IPipelineStage[], taskDefinitions: ITaskDefinition[], workerMap: Map<string, IWorker>) => (
+        <PipelineStages projects={projects} pipelineStages={pipelineStages} taskDefinitions={taskDefinitions} workerMap={workerMap}/>
     );
 
     private tasks = (taskRepositories: ITaskRepository[], taskDefinitions: ITaskDefinition[], pipelineVolume: string) => (

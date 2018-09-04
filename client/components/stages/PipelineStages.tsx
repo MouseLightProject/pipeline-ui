@@ -6,11 +6,13 @@ import {PipelineStageDetails} from "./details/PipelineStageDetails";
 import {PreferencesManager} from "../../util/preferencesManager";
 import {IProject} from "../../models/project";
 import {ITaskDefinition} from "../../models/taskDefinition";
+import {IWorker} from "../../models/worker";
 
 interface IPipelineStagesProps {
     projects: IProject[];
     pipelineStages: IPipelineStage[];
     taskDefinitions: ITaskDefinition[];
+    workerMap: Map<string, IWorker>;
 }
 
 interface IPipelineStagesState {
@@ -50,7 +52,7 @@ export class PipelineStages extends React.Component<IPipelineStagesProps, IPipel
                                      pipelinesForProjectId={this.state.pipelinesForProjectId}
                                      onPipelinesForProjectIdChanged={(id: string) => this.onPipelinesForProjectIdChanged(id)}
                                      onSelectedPipelineStageChanged={(s: IPipelineStage) => this.onSelectedPipelineStageChanged(s)}/>
-                <PipelineStageDetails selectedPipelineStage={this.state.selectedStage}/>
+                <PipelineStageDetails selectedPipelineStage={this.state.selectedStage} workerMap={this.props.workerMap}/>
             </div>
         );
     }

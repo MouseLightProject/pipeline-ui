@@ -12,9 +12,12 @@ import {TilePipelineStatusSelect} from "../../helpers/TilePipelineStatusSelect";
 import {PreferencesManager} from "../../../util/preferencesManager";
 import {toast} from "react-toastify";
 import {ConvertTileStatusMutation, SetTileStatusMutation, TilesForStageQuery} from "../../../graphql/pipelineTile";
+import {IWorker} from "../../../models/worker";
+import {TaskExecution} from "../../../models/taskExecution";
 
 interface ITilesProps {
     pipelineStage: IPipelineStage;
+    workerMap: Map<string, IWorker>;
 }
 
 interface ITilesState {
@@ -62,6 +65,7 @@ export class Tiles extends React.Component<ITilesProps, ITilesState> {
                              requestedStatus={this.state.requestedStatus}
                              offset={this.state.offset}
                              limit={this.state.limit}
+                             workerMap={this.props.workerMap}
                              onCursorChanged={(page: number, pageSize: number) => this.updateCursor(page, pageSize)}
                              onRequestedStatusChanged={(t: TilePipelineStatusType) => this.onTilePipelineStatusTypeChanged(t)}/>
         );
@@ -74,6 +78,7 @@ interface ITilesTablePanelProps {
     limit: number;
     pipelineStage: IPipelineStage;
     requestedStatus?: TilePipelineStatusType;
+    workerMap: Map<string, IWorker>;
 
     onCursorChanged(page: number, pageSize: number): void;
     onRequestedStatusChanged(t: TilePipelineStatusType): void;
@@ -108,7 +113,7 @@ class TilesTablePanel extends React.Component<ITilesTablePanelProps, ITilesTable
                     let pageCount = -1;
 
                     if (!loading && !error) {
-                        tilesForStage = data.tilesForStage.items;
+                        tilesForStage = data.tilesForStage.items.map(item => Object.assign({}, item, {task_executions: item.task_executions.map(t => new TaskExecution(t))}));
                         if (data.tilesForStage.totalCount > 0 && data.tilesForStage.limit > 0) {
                             pageCount = Math.ceil(data.tilesForStage.totalCount / data.tilesForStage.limit);
                         }
@@ -157,6 +162,7 @@ class TilesTablePanel extends React.Component<ITilesTablePanelProps, ITilesTable
                                         canSubmit={this.props.requestedStatus.canSubmit}
                                         loading={loading}
                                         pageCount={pageCount}
+                                        workerMap={this.props.workerMap}
                                         onCursorChanged={this.props.onCursorChanged}
                             />
 
