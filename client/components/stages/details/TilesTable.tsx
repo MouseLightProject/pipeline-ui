@@ -65,21 +65,39 @@ export class TilesTable extends React.Component<ITilesTableProps, ITilesTableSta
         }
     }
 
-    private renderTaskButtons(taskExecution: TaskExecution) {
-        if (taskExecution.execution_status_code === ExecutionStatus.Completed) {
+    private renderTaskButtons(tileId: string, taskExecution: TaskExecution) {
+        if (taskExecution.execution_status_code > ExecutionStatus.Running) {
+            // TODO have a hide button for error/cancel/ maybe success.
             return null;
         }
 
+        // TODO Need to know how long since last update from worker on this task - determine if it is likely orphaned.
+
+        // TODO Send the task execution ID so it can be marked as orphaned, unless an future update comes in.
+
         return (
             <Card.Content extra>
-                <Button size="tiny">
-                    {taskExecution.execution_status_code <= ExecutionStatus.Running ? "This seems too long" : "Hide"}
-                </Button>
+                {taskExecution.lastUpdate(this.props.workerMap.get(taskExecution.worker_id))}
+                &nbsp;
+                {taskExecution.IsLongRunning ?
+                    <Mutation mutation={SetTileStatusMutation}>
+                        {(setTileStatus) => (
+                            <Button size="tiny" onClick={() => setTileStatus({
+                                variables: {
+                                    pipelineStageId: this.props.pipelineStage.id,
+                                    tileIds: [tileId],
+                                    status: TilePipelineStatus.Incomplete
+                                }
+                            })}>
+                                This seems too long
+                            </Button>
+                        )}
+                    </Mutation> : null}
             </Card.Content>
         );
     }
 
-    private renderTaskExecution(taskExecution: TaskExecution) {
+    private renderTaskExecution(tileId: string, taskExecution: TaskExecution) {
         return (
             <Card key={taskExecution.id}>
                 <Card.Content>
@@ -91,7 +109,7 @@ export class TilesTable extends React.Component<ITilesTableProps, ITilesTableSta
                         {taskExecution.summarize(this.props.workerMap.get(taskExecution.worker_id))}
                     </Card.Description>
                 </Card.Content>
-                {this.renderTaskButtons(taskExecution)}
+                {this.renderTaskButtons(tileId, taskExecution)}
             </Card>
         );
     }
@@ -168,7 +186,7 @@ export class TilesTable extends React.Component<ITilesTableProps, ITilesTableSta
                         return (<Label size="mini">No task executions</Label>);
                     }
                     const items = taskExecutions.map(t => {
-                        return this.renderTaskExecution(t);
+                        return this.renderTaskExecution(row.original.relative_path, t);
                     });
 
                     return (<Card.Group itemsPerRow={1} style={{padding: "10px"}}>{items}</Card.Group>)

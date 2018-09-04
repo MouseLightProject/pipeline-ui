@@ -45,6 +45,7 @@ export interface ITaskExecution {
     submitted_at?: Date;
     started_at?: Date;
     completed_at?: Date;
+    updated_at?: Date;
 }
 
 export class TaskExecution {
@@ -68,6 +69,7 @@ export class TaskExecution {
     public readonly submitted_at: Date;
     public readonly started_at: Date;
     public readonly completed_at: Date;
+    public readonly updated_at: Date;
 
     public constructor(t: TaskExecution = null) {
         if (t !== null && t !== undefined) {
@@ -91,11 +93,20 @@ export class TaskExecution {
             this.submitted_at = t.submitted_at;
             this.started_at = t.started_at;
             this.completed_at = t.completed_at;
+            this.updated_at = t.updated_at;
         }
     }
 
     public get IsComplete(): boolean {
         return this.execution_status_code === ExecutionStatus.Completed;
+    }
+
+    public get IsLongRunning() {
+        return  Date.now() - this.updated_at.valueOf() > 3600000;
+    }
+
+    public lastUpdate(worker: IWorker = null) {
+        return `Last update from ${worker ? `${worker.name}` : "worker"} ${moment.duration(this.updated_at.valueOf() - Date.now()).humanize(true)}`;
     }
 
     public summarize(worker: IWorker = null) {
@@ -107,6 +118,7 @@ export class TaskExecution {
 
         let duration = "";
 
+        let when = "";
 
         switch (this.execution_status_code) {
             case ExecutionStatus.Initializing:
@@ -146,6 +158,12 @@ export class TaskExecution {
             }
         }
 
-        return `${action} ${duration} ${workerName} running ${location}`;
+        if (this.completed_at) {
+            when = ` at ${moment(this.completed_at).toLocaleString()}`
+        } else if (this.submitted_at) {
+            when = `(started at ${moment(this.submitted_at).toLocaleString()})`
+        }
+
+        return `${action} ${duration} ${workerName} running ${location} ${when}`;
     }
 }

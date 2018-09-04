@@ -28,6 +28,7 @@ export const TilesForStageQuery = gql`query($pipelineStageId: String, $status: I
                 submitted_at
                 started_at
                 completed_at
+                updated_at
             }
         }
     }
