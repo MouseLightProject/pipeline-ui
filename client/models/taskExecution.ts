@@ -1,3 +1,6 @@
+import moment = require("moment");
+import {IWorker} from "./worker";
+
 export enum QueueType {
     Local = 0,
     Cluster = 1
@@ -93,5 +96,56 @@ export class TaskExecution {
 
     public get IsComplete(): boolean {
         return this.execution_status_code === ExecutionStatus.Completed;
+    }
+
+    public summarize(worker: IWorker = null) {
+        const location = this.queue_type === QueueType.Local ? " locally" : " in the cluster";
+
+        const workerName = worker ? ` on ${worker.name}` : "";
+
+        let action = "";
+
+        let duration = "";
+
+
+        switch (this.execution_status_code) {
+            case ExecutionStatus.Initializing:
+                action = "Initializing for";
+                break;
+            case ExecutionStatus.Running:
+                action = "Running for";
+                break;
+            case ExecutionStatus.Orphaned:
+                action = "Orphaned for";
+                break;
+            case ExecutionStatus.Zombie:
+                action = "Zombied for";
+                break;
+            case ExecutionStatus.Completed:
+                switch (this.completion_status_code) {
+                    case CompletionResult.Cancel:
+                        action = "Canceled after";
+                        break;
+                    case CompletionResult.Error:
+                        action = "Failed after";
+                        break;
+                    case CompletionResult.Success:
+                        action = "Finished in";
+                        break;
+                }
+                break;
+        }
+
+        if (this.submitted_at || this.started_at) {
+            const end = this.completed_at ? this.completed_at.valueOf() : Date.now();
+            if (this.started_at) {
+                duration = moment.duration(end - this.started_at.valueOf()).humanize();
+            } else {
+                duration = moment.duration(end - this.started_at.valueOf()).humanize();
+                action = "Pending for";
+            }
+        }
+
+        return `${action} ${duration} ${workerName} running ${location}`;
     }
 }

@@ -1,22 +1,16 @@
 import * as React from "react";
 import {Button, Card, Icon, Label} from "semantic-ui-react";
-import {Mutation} from "react-apollo";
-import ReactTable from "react-table";
 import {toast} from "react-toastify";
 
 import {IPipelineTile} from "../../../models/pipelineTile";
 import {IPipelineStage} from "../../../models/pipelineStage";
 import {TilePipelineStatus} from "../../../models/tilePipelineStatus";
-import {PreferencesManager} from "../../../util/preferencesManager";
 import {SetTileStatusMutation} from "../../../graphql/pipelineTile";
 import {IWorker} from "../../../models/worker";
-import {
-    CompletionResult,
-    ExecutionStatus,
-    QueueType,
-    TaskExecution
-} from "../../../models/taskExecution";
-import moment = require("moment");
+import {CompletionResult, ExecutionStatus, TaskExecution} from "../../../models/taskExecution";
+import {PreferencesManager} from "../../../util/preferencesManager";
+import {Mutation} from "react-apollo";
+import ReactTable from "react-table";
 
 interface ITilesTableProps {
     style?: any;
@@ -48,41 +42,24 @@ export class TilesTable extends React.Component<ITilesTableProps, ITilesTableSta
         }
     }
 
-    private renderTaskDescription(taskExecution: TaskExecution) {
-        const worker = this.props.workerMap.get(taskExecution.worker_id);
-
-        const location = taskExecution.queue_type === QueueType.Local ? " running locally" : " in the cluster";
-
+    private renderTaskStatusIcon(taskExecution: TaskExecution) {
         switch (taskExecution.execution_status_code) {
             case ExecutionStatus.Initializing:
-                if (!taskExecution.completed_at || !taskExecution.started_at) {
-                    return "Task duration not available"
-                }
-                return `Running for ${Date.now() - taskExecution.started_at.valueOf()}`;
+                return (<Icon color="yellow" name="spinner" loading={true}/>);
             case ExecutionStatus.Running:
-                if (!taskExecution.completed_at || !taskExecution.started_at) {
-                    return "Task duration not available"
+                return (<Icon color="blue" name="cog" loading={true}/>);
+            case ExecutionStatus.Completed: {
+                switch (taskExecution.completion_status_code) {
+                    case CompletionResult.Cancel:
+                        return (<Icon color="orange" name="cancel"/>);
+                    case CompletionResult.Error:
+                        return (<Icon color="red" name="exclamation"/>);
+                    case CompletionResult.Success:
+                        return (<Icon color="green" name="check"/>);
+                    default:
+                        return null;
                 }
-                return `Running for ${Date.now() - taskExecution.started_at.valueOf()}`;
-            case ExecutionStatus.Completed:
-                if (!taskExecution.completed_at || !taskExecution.started_at) {
-                    return "Task duration not available"
-                }
-                return `Finished in ${moment.duration(taskExecution.completed_at.valueOf() - taskExecution.started_at.valueOf()).humanize()} ${worker ? ` on ${worker.name}` : ""} ${location}.`;
-            default: // Zombie or Orphan
-                return null;
-        }
-    }
-
-    private renderTaskHeader(taskExecution: TaskExecution) {
-        switch (taskExecution.execution_status_code) {
-            case ExecutionStatus.Initializing:
-                return (<Icon color="blue" name="spinner" loading={true}/>);
-            case ExecutionStatus.Running:
-                return (<Icon color="blue" name="circle notch" loading={true}/>);
-            case ExecutionStatus.Completed:
-                return taskExecution.completion_status_code === CompletionResult.Success ?
-                    <Icon color="green" name="check"/> : <Icon color="red" name="times"/>;
+            }
             default: // Zombie or Orphan
                 return null;
         }
@@ -96,7 +73,7 @@ export class TilesTable extends React.Component<ITilesTableProps, ITilesTableSta
         return (
             <Card.Content extra>
                 <Button size="tiny">
-                    Hide
+                    {taskExecution.execution_status_code <= ExecutionStatus.Running ? "This seems too long" : "Hide"}
                 </Button>
             </Card.Content>
         );
@@ -107,11 +84,11 @@ export class TilesTable extends React.Component<ITilesTableProps, ITilesTableSta
             <Card key={taskExecution.id}>
                 <Card.Content>
                     <Card.Header>
-                        {this.renderTaskHeader(taskExecution)}
+                        {this.renderTaskStatusIcon(taskExecution)}
                         {taskExecution.IsComplete ? CompletionResult[taskExecution.completion_status_code] : ExecutionStatus[taskExecution.execution_status_code]}
                     </Card.Header>
                     <Card.Description>
-                        {this.renderTaskDescription(taskExecution)}
+                        {taskExecution.summarize(this.props.workerMap.get(taskExecution.worker_id))}
                     </Card.Description>
                 </Card.Content>
                 {this.renderTaskButtons(taskExecution)}
