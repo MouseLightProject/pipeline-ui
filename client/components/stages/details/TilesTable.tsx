@@ -1,6 +1,7 @@
 import * as React from "react";
 import {Button, Card, Icon, Label, List} from "semantic-ui-react";
 import {toast} from "react-toastify";
+import * as CopyToClipboard from "react-copy-to-clipboard";
 
 import {IPipelineTile} from "../../../models/pipelineTile";
 import {IPipelineStage} from "../../../models/pipelineStage";
@@ -110,12 +111,18 @@ export class TilesTable extends React.Component<ITilesTableProps, ITilesTableSta
                         <br/>
                         <List bulleted style={{fontSize: "0.75rem"}}>
                             <List.Item>
+                                <CopyToClipboard text={taskExecution.resolved_output_path}>
+                                    <List.Icon name="copy" verticalAlign="middle"/>
+                                </CopyToClipboard>
                                 <List.Content>
                                     <List.Header>Output Location</List.Header>
                                     <List.Description>{taskExecution.resolved_output_path}</List.Description>
                                 </List.Content>
                             </List.Item>
                             <List.Item>
+                                <CopyToClipboard text={taskExecution.resolved_log_path}>
+                                    <List.Icon name="copy" verticalAlign="middle"/>
+                                </CopyToClipboard>
                                 <List.Content>
                                     <List.Header>Log Prefix</List.Header>
                                     <List.Description>{taskExecution.resolved_log_path}</List.Description>
