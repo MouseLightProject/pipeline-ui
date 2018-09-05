@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Button, Card, Icon, Label} from "semantic-ui-react";
+import {Button, Card, Icon, Label, List} from "semantic-ui-react";
 import {toast} from "react-toastify";
 
 import {IPipelineTile} from "../../../models/pipelineTile";
@@ -7,7 +7,7 @@ import {IPipelineStage} from "../../../models/pipelineStage";
 import {TilePipelineStatus} from "../../../models/tilePipelineStatus";
 import {SetTileStatusMutation} from "../../../graphql/pipelineTile";
 import {IWorker} from "../../../models/worker";
-import {CompletionResult, ExecutionStatus, TaskExecution} from "../../../models/taskExecution";
+import {CompletionResult, ExecutionStatus, QueueType, TaskExecution} from "../../../models/taskExecution";
 import {PreferencesManager} from "../../../util/preferencesManager";
 import {Mutation} from "react-apollo";
 import ReactTable from "react-table";
@@ -107,6 +107,38 @@ export class TilesTable extends React.Component<ITilesTableProps, ITilesTableSta
                     </Card.Header>
                     <Card.Description>
                         {taskExecution.summarize(this.props.workerMap.get(taskExecution.worker_id))}
+                        <br/>
+                        <List bulleted style={{fontSize: "0.75rem"}}>
+                            <List.Item>
+                                <List.Content>
+                                    <List.Header>Output Location</List.Header>
+                                    <List.Description>{taskExecution.resolved_output_path}</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Content>
+                                    <List.Header>Log Prefix</List.Header>
+                                    <List.Description>{taskExecution.resolved_log_path}</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Content>
+                                    <List.Header>Script Arguments</List.Header>
+                                    <List.Content>
+                                        <List.List>
+                                            {taskExecution.resolved_script_args.map((a, index) => <List.Item
+                                                key={tileId + index}>{a}</List.Item>)}
+                                        </List.List>
+                                    </List.Content>
+                                </List.Content>
+                            </List.Item>
+                            {taskExecution.queue_type === QueueType.Cluster ? <List.Item>
+                                <List.Content>
+                                    <List.Header>Cluster Arguments</List.Header>
+                                    <List.Description>{taskExecution.resolved_cluster_args}</List.Description>
+                                </List.Content>
+                            </List.Item> : null}
+                        </List>
                     </Card.Description>
                 </Card.Content>
                 {this.renderTaskButtons(tileId, taskExecution)}

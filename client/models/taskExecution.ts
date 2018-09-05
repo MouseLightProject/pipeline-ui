@@ -27,6 +27,7 @@ export enum CompletionResult {
 export interface ITaskExecution {
     id?: string;
     task_definition_id?: string;
+    resolved_output_path: string;
     resolved_script?: string;
     resolved_script_args?: string;
     resolved_cluster_args?: string;
@@ -53,8 +54,9 @@ export class TaskExecution {
     public readonly worker_id: string;
     public readonly queue_type: QueueType;
     public readonly task_definition_id: string;
+    public readonly resolved_output_path: string;
     public readonly resolved_script: string;
-    public readonly resolved_script_args: string;
+    public readonly resolved_script_args: string[];
     public readonly resolved_cluster_args: string;
     public readonly resolved_log_path: string;
     public readonly job_id: number;
@@ -71,14 +73,15 @@ export class TaskExecution {
     public readonly completed_at: Date;
     public readonly updated_at: Date;
 
-    public constructor(t: TaskExecution = null) {
+    public constructor(t: ITaskExecution = null) {
         if (t !== null && t !== undefined) {
             this.id = t.id;
             this.worker_id = t.worker_id;
             this.task_definition_id = t.task_definition_id;
             this.queue_type = t.queue_type;
+            this.resolved_output_path = t.resolved_output_path;
             this.resolved_script = t.resolved_script;
-            this.resolved_script_args = t.resolved_script_args;
+            this.resolved_script_args = JSON.parse(t.resolved_script_args);
             this.resolved_cluster_args = t.resolved_cluster_args;
             this.resolved_log_path = t.resolved_log_path;
             this.job_id = t.job_id;

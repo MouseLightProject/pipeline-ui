@@ -15,6 +15,7 @@ export const TilesForStageQuery = gql`query($pipelineStageId: String, $status: I
                 id
                 worker_id
                 queue_type
+                resolved_output_path
                 resolved_script
                 resolved_script_args
                 resolved_cluster_args
