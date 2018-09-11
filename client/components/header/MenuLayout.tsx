@@ -3,6 +3,7 @@ import {Image, Menu, Label, Icon} from "semantic-ui-react";
 import {HeaderSummary} from "../dashboard/HeaderSummary";
 import {IProject} from "../../models/project";
 import {IWorker} from "../../models/worker";
+import {ISchedulerHealth} from "../../models/schedulerHealth";
 
 const logoImage = require("../../assets/mouselight-pipeline.svg");
 const logoImageSmall = require("../../assets/mouselight-pipeline-sm.svg");
@@ -12,6 +13,7 @@ interface IMenuLayoutProps {
     workers: IWorker[];
     isSidebarExpanded: boolean;
     isActivePipeline: boolean;
+    schedulerHealth: ISchedulerHealth;
 
     onToggleSidebar(): void;
 }
@@ -25,6 +27,24 @@ export class MenuLayout extends React.Component<IMenuLayoutProps, IMenuLayoutSta
         evt.preventDefault();
 
         this.props.onToggleSidebar();
+    }
+
+    private renderSchedulerHealth() {
+        if (this.props.schedulerHealth && this.props.schedulerHealth.lastResponse === 200) {
+            return (
+                <Label color="green">
+                    <Icon name={"check"} color="black"/>
+                    Scheduler is online
+                </Label>
+            );
+        } else {
+            return (
+                <Label color="red">
+                    <Icon name={"exclamation"} color="black"/>
+                    {`Scheduler Offline ${this.props.schedulerHealth.lastSeen ? "(last seen " + new Date(this.props.schedulerHealth.lastSeen).toLocaleString() + ")" : ""}`}
+                </Label>
+            );
+        }
     }
 
     public render() {
@@ -44,10 +64,13 @@ export class MenuLayout extends React.Component<IMenuLayoutProps, IMenuLayoutSta
                     <Image size="small" src={logo} style={{height: "100%", width: width + "px"}}/>
                 </Menu.Item>
                 <Menu.Item>
-                    <Label>
-                        <Icon name={this.props.isActivePipeline ? "check circle outline" : "exclamation"} color={this.props.isActivePipeline ? "green" : "red"}/>
+                    <Label color={this.props.isActivePipeline ? "green" : "orange"}>
+                        <Icon name={this.props.isActivePipeline ? "check" : "exclamation"} color="black"/>
                         {this.props.isActivePipeline ? "Active Pipeline" : "Inactive Pipeline"}
                     </Label>
+                </Menu.Item>
+                <Menu.Item>
+                    {this.renderSchedulerHealth()}
                 </Menu.Item>
                 <Menu.Menu position="right">
                     <HeaderSummary projects={this.props.projects} workers={this.props.workers} isNavTile={true}/>

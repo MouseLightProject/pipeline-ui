@@ -151,6 +151,7 @@ export class PageLayout extends React.Component<IPageLayoutProps, IPageLayoutSta
                                 <MenuLayout projects={data.projects} workers={data.pipelineWorkers}
                                             isActivePipeline={this.state.isActivePipeline}
                                             isSidebarExpanded={this.state.isSidebarExpanded}
+                                            schedulerHealth={data.schedulerHealth}
                                             onToggleSidebar={() => this.onToggleSidebar()}/>
                                 <div style={{
                                     display: "flex",

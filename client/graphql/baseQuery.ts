@@ -10,6 +10,10 @@ import {TaskDefinitionFragment} from "./taskDefinition";
 import {WorkerFragment} from "./workers";
 
 export const BaseQuery = gql`query {
+  schedulerHealth {
+    lastResponse
+    lastSeen
+  }
   projects {
     ...ProjectFields
     stages {
