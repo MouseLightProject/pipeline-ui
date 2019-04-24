@@ -390,6 +390,7 @@ export class ProjectTable extends React.Component<IProjectTableProps, IProjectTa
             data: this.props.projects,
             columns: columns,
             showPagination: false,
+            defaultPageSize: 100,
             minRows: 0,
             defaultSorted: PreferencesManager.Instance.ProjectTableSort,
             defaultFiltered: this.props.isFiltered ? PreferencesManager.Instance.ProjectTableFilter : [],
